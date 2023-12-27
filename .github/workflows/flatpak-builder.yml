@@ -1,0 +1,101 @@
+name: Build JDSP Flatpak
+on:
+  workflow_dispatch:
+    inputs:
+      commit-msg:
+        description: Commit message for JDSP flatpak build
+        required: true
+      use-cache: 
+        description: Use flatpak builder cahce
+        default: 'false'
+      flatpak-name:
+        description: Flatpak file name
+        default: jdsp4linux-headless
+        required: false
+env: 
+  FLATPAK_FULL: ${{ inputs.flatpak-name }}.flatpak
+  ARTIFACT_NAME: ${{ inputs.flatpak-name }}-x86_64
+  MANIFEST_PATH: 'flatpak/me.timschneeberger.jdsp4linux.yaml'
+  DEST: 'defaults'
+jobs:
+  get-build-info:
+    name: Get Build Info
+    runs-on: ubuntu-latest
+    outputs: 
+      manifest-sha: ${{ steps.get-manifest-sha.outputs.MANIFEST_SHA }}
+      src-url: ${{ steps.read-manifest.outputs.modules_4_sources_0_url }}
+      src-commit: ${{ steps.read-manifest.outputs.modules_4_sources_0_commit }}
+      src-tag: ${{ steps.read-manifest.outputs.modules_4_sources_0_tag }}
+    steps:
+      - uses: actions/checkout@v4
+        with: 
+          fetch-depth: 0
+          
+      - name: Get Manifest SHA
+        id: get-manifest-sha
+        run: echo "MANIFEST_SHA=$(git log -n 1 --pretty=format:%H -- ${{ env.MANIFEST_PATH }})" >> "$GITHUB_OUTPUT"
+      
+      - name: Parse Manifest
+        id: read-manifest
+        uses: the-coding-turtle/ga-yaml-parser@v0.1.2
+        with:
+          file: ${{ github.workspace }}/${{ env.MANIFEST_PATH }}
+          
+  build-flatpak:
+    name: Build Flatpak
+    needs: get-build-info
+    runs-on: ubuntu-latest
+    container:
+      image: bilelmoussaoui/flatpak-github-actions:gnome-44
+      options: --privileged
+    steps:
+      - uses: actions/checkout@v4
+          
+      - name: Build and Upload Artifact
+        uses: flatpak/flatpak-github-actions/flatpak-builder@v6
+        with:
+          bundle: ${{ env.FLATPAK_FULL }}
+          manifest-path: ${{ env.MANIFEST_PATH }}
+          cache: ${{ inputs.use-cache }}
+          
+  commit:
+    name: Commit
+    needs: [build-flatpak, get-build-info]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Download artifact
+        uses: actions/download-artifact@v3
+        with:
+          path: ~/tmp
+          
+      - run: |
+          git pull
+          mkdir -p ./$DEST
+          mv ~/tmp/$ARTIFACT_NAME/$FLATPAK_FULL ./$DEST
+          date=$(date +'%Y%m%d.%H%M')
+                
+      - name: Commit
+        uses: EndBug/add-and-commit@v9
+        with:
+          add: ${{ env.DEST == '' && '.' || env.DEST }}/${{ env.FLATPAK_FULL }} --force
+          default_author: github_actions
+          pathspec_error_handling: exitAtEnd
+          tag: 'JDSP_Flatpak_Build--${{ needs.get-build-info.outputs.src-tag }}--$date --force'
+          message: |
+            ${{ inputs.commit-msg }}
+            Workflow Details:
+            Built and committed via workflow '${{ github.workflow }}' from ${{ github.workflow_sha }}
+            - Run ID: ${{ github.run_id }}
+            - Run Number: ${{ github.run_number }}
+            
+            JDSP Build details:
+            Built flatpak with manifest '${{ env.MANIFEST_PATH }}' from ${{ needs.get-build-info.outputs.manifest-sha }}
+            - Source URL: ${{ needs.get-build-info.outputs.src-url }} 
+            - Source Commit: ${{ needs.get-build-info.outputs.src-commit }} 
+            - Source Tag: ${{ needs.get-build-info.outputs.src-tag }} 
