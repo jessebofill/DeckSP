@@ -1,0 +1,18 @@
+import { SliderField, SliderFieldProps } from 'decky-frontend-lib'
+import { VFC, useEffect, useMemo, useState } from 'react'
+import { getThrottled } from '../../../lib/utils';
+
+export const ThrottledSlider: VFC<SliderFieldProps> = (props) => {
+    const [value, setValue] = useState(props.value);
+
+    useEffect(() => setValue(props.value), [props.value]);
+
+    const throttledFn = !props.onChange ? undefined : useMemo(() => getThrottled(props.onChange!, 200), [props.onChange]);
+    const onChange = (value: number) => {
+        setValue(value);
+        throttledFn?.(value);
+    };
+
+    return <SliderField {...props} value={value} onChange={onChange} />;
+};
+

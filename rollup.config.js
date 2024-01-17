@@ -18,6 +18,8 @@ export default defineConfig({
     replace({
       preventAssignment: false,
       'process.env.NODE_ENV': JSON.stringify('production'),
+      'PLUGIN-NAME': name
+        
     }),
     importAssets({
       publicPath: `http://127.0.0.1:1337/plugins/${name}/`

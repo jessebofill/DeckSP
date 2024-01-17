@@ -1,102 +1,50 @@
-import {
-    ButtonItem,
-    definePlugin,
-    DialogButton,
-    Menu,
-    MenuItem,
-    PanelSection,
-    PanelSectionRow,
-    Router,
-    ServerAPI,
-    showContextMenu,
-    staticClasses,
-} from "decky-frontend-lib";
-import { VFC } from "react";
-import { FaShip } from "react-icons/fa";
+import { definePlugin, quickAccessMenuClasses, ServerAPI } from "decky-frontend-lib";
+import { RiEqualizerLine } from "react-icons/ri";
+import { QAMDspSettings } from './components/qam/QAMDspSettings';
+import { DspSettingsContext } from './hooks/contextHooks';
+import { AsyncDataProvider } from './components/generic/AsyncDataProvider';
+import { PluginManager } from './controllers/PluginManager';
+import { PagerLinker, QAMPager, QAMPageSwitcher } from './components/qam/QAMPager';
+import { DSPParamSettings } from './types/dspTypes';
+import { handleDspSettings } from './controllers/asyncDataHandlers';
+import { PLUGIN_NAME } from './defines/pluginName';
+import { QAMDspCompanderPage, QAMDspEQPage, QAMDspMainPage, QAMDspOtherPage, QAMDspReverbPage, QAMDspStereoPage } from './components/qam/QAMPages';
 
-import logo from "../assets/logo.png";
-
-// interface AddMethodArgs {
-//   left: number;
-//   right: number;
-// }
-
-const Content: VFC<{ serverAPI: ServerAPI }> = ({ serverAPI }) => {
-    // const [result, setResult] = useState<number | undefined>();
-
-    // const onClick = async () => {
-    //   const result = await serverAPI.callPluginMethod<AddMethodArgs, number>(
-    //     "add",
-    //     {
-    //       left: 2,
-    //       right: 2,
-    //     }
-    //   );
-    //   if (result.success) {
-    //     setResult(result.result);
-    //   }
-    // };
-
-    return (
-        <PanelSection title="Panel Section">
-            <PanelSectionRow>
-                <ButtonItem
-                    layout="below"
-                    onClick={async () => {
-                        console.log('DECKSP', 'calling methos')
-                        const res = await serverAPI.callPluginMethod('set', { parameter: 'master_enable', value: 'false'})
-                        const res2 = await serverAPI.callPluginMethod('test', {})
-                        console.log('DECKSP', 'server msg1:', res.result)
-                        console.log('DECKSP', 'server msg2:', res2.result)
-                    }}
-                >
-                    Server says yolo
-                </ButtonItem>
-            </PanelSectionRow>
-
-            <PanelSectionRow>
-                <div style={{ display: "flex", justifyContent: "center" }}>
-                    <img src={logo} />
-                </div>
-            </PanelSectionRow>
-
-            <PanelSectionRow>
-                <ButtonItem
-                    layout="below"
-                    onClick={() => {
-                        Router.CloseSideMenus();
-                        Router.Navigate("/decky-plugin-test");
-                    }}
-                >
-                    Router
-                </ButtonItem>
-            </PanelSectionRow>
-        </PanelSection>
-    );
-};
-
-const DeckyPluginRouterTest: VFC = () => {
-    return (
-        <div style={{ marginTop: "50px", color: "white" }}>
-            Hello World!
-            <DialogButton onClick={() => Router.NavigateToLibraryTab()}>
-                Go to Library
-            </DialogButton>
-        </div>
-    );
-};
 
 export default definePlugin((serverApi: ServerAPI) => {
-    serverApi.routerHook.addRoute("/decky-plugin-test", DeckyPluginRouterTest, {
-        exact: true,
-    });
+    // serverApi.routerHook.addRoute("/decky-plugin-test", DeckyPluginRouterTest, {
+    //     exact: true,
+    // });
+
+    PluginManager.start(serverApi);
+    const pagerLinker = new PagerLinker();
 
     return {
-        title: <div className={staticClasses.Title}>Example Plugin</div>,
-        content: <Content serverAPI={serverApi} />,
-        icon: <FaShip />,
+        titleView: <QAMPageSwitcher title={PLUGIN_NAME} pagerLinker={pagerLinker} />,
+        title: <></>,
+        content: (
+            <AsyncDataProvider<DSPParamSettings>
+            handler={handleDspSettings}
+            Context={DspSettingsContext}
+            containerClass={quickAccessMenuClasses.QuickAccessMenu}
+        >
+            <QAMPager
+                pagerLinker={pagerLinker}
+                pages={[
+                    <QAMDspMainPage />,
+                    <QAMDspEQPage />,
+                    <QAMDspCompanderPage />,
+                    <QAMDspStereoPage />,
+                    <QAMDspReverbPage />,
+                    <QAMDspOtherPage />
+                ]}
+            />
+            </AsyncDataProvider>
+        ),
+        alwaysRender: true,
+        icon: <RiEqualizerLine />,
         onDismount() {
-            serverApi.routerHook.removeRoute("/decky-plugin-test");
+            // serverApi.routerHook.removeRoute("/decky-plugin-test");
         },
     };
 });
