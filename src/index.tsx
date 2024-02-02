@@ -1,49 +1,52 @@
-import { definePlugin, quickAccessMenuClasses, ServerAPI } from "decky-frontend-lib";
+import { definePlugin, ServerAPI } from "decky-frontend-lib";
 import { RiEqualizerLine } from "react-icons/ri";
-import { QAMDspSettings } from './components/qam/QAMDspSettings';
-import { DspSettingsContext } from './hooks/contextHooks';
-import { AsyncDataProvider } from './components/generic/AsyncDataProvider';
 import { PluginManager } from './controllers/PluginManager';
-import { PagerLinker, QAMPager, QAMPageSwitcher } from './components/qam/QAMPager';
-import { DSPParamSettings } from './types/dspTypes';
-import { handleDspSettings } from './controllers/asyncDataHandlers';
+import { PagerLinker, QAMPager } from './components/qam/QAMPager';
+import { QAMTitleView } from './components/qam/QAMTitleView';
 import { PLUGIN_NAME } from './defines/pluginName';
-import { QAMDspCompanderPage, QAMDspEQPage, QAMDspMainPage, QAMDspOtherPage, QAMDspReverbPage, QAMDspStereoPage } from './components/qam/QAMPages';
-
+import { QAMDspCompanderPage, QAMDspEQPage, QAMDspMainPage, QAMDspOtherPage, QAMDspReverbPage, QAMDspStereoPage } from './components/qam/QAMDspPages';
+import { QAMPluginSettingsPage } from './components/qam/QAMPluginSettingsPage';
+import { QAMDataProvider } from './components/qam/QAMDataProvider';
+import { profileManager } from './controllers/ProfileManager';
+import { Backend } from './controllers/Backend';
 
 export default definePlugin((serverApi: ServerAPI) => {
     // serverApi.routerHook.addRoute("/decky-plugin-test", DeckyPluginRouterTest, {
     //     exact: true,
     // });
-
     PluginManager.start(serverApi);
+    
     const pagerLinker = new PagerLinker();
+    window.proMan = profileManager;
+    window.getPy =  () => Backend.checkpy().then(res => console.log('res', res))
+
 
     return {
-        titleView: <QAMPageSwitcher title={PLUGIN_NAME} pagerLinker={pagerLinker} />,
+        titleView: (
+            <QAMTitleView title={PLUGIN_NAME} pagerLinker={pagerLinker}>
+            </QAMTitleView>
+        ),
         title: <></>,
         content: (
-            <AsyncDataProvider<DSPParamSettings>
-            handler={handleDspSettings}
-            Context={DspSettingsContext}
-            containerClass={quickAccessMenuClasses.QuickAccessMenu}
-        >
-            <QAMPager
-                pagerLinker={pagerLinker}
-                pages={[
-                    <QAMDspMainPage />,
-                    <QAMDspEQPage />,
-                    <QAMDspCompanderPage />,
-                    <QAMDspStereoPage />,
-                    <QAMDspReverbPage />,
-                    <QAMDspOtherPage />
-                ]}
-            />
-            </AsyncDataProvider>
+            <QAMDataProvider>
+                    <QAMPager
+                        pagerLinker={pagerLinker}
+                        pages={[
+                            <QAMPluginSettingsPage />,
+                            <QAMDspMainPage />,
+                            <QAMDspEQPage />,
+                            <QAMDspCompanderPage />,
+                            <QAMDspStereoPage />,
+                            <QAMDspReverbPage />,
+                            <QAMDspOtherPage />
+                        ]}
+                    />
+            </QAMDataProvider>
         ),
         alwaysRender: true,
         icon: <RiEqualizerLine />,
         onDismount() {
+            profileManager.activeGameReactionDisposer?.();
             // serverApi.routerHook.removeRoute("/decky-plugin-test");
         },
     };

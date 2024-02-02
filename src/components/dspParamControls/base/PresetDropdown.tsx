@@ -1,18 +1,22 @@
 import { ReactElement, useMemo } from 'react';
 import { DSPEQParameters, DSPRangeParameter, PresetSectionType } from '../../../types/dspTypes';
-import { DropdownItem, SingleDropdownOption } from 'decky-frontend-lib';
-import { reverseLookupSectionPreset } from '../../../lib/utils';
-import { useDspSettings } from '../../../hooks/contextHooks';
+import { SingleDropdownOption } from 'decky-frontend-lib';
+import { reverseLookupSectionPreset, useError } from '../../../lib/utils';
+import { useDspSettings, usePluginContext } from '../../../hooks/contextHooks';
 import { reverbPresetTable } from '../../../defines/reverbPresetTable';
 import { Backend } from '../../../controllers/Backend';
-import { useEQData } from '../groups/EQControls';
+import { useEQData } from '../../../hooks/contextHooks';
 import { eqPresetTable } from '../../../defines/eqPresetTable';
+import { WaitDropdown } from '../../waitable/WaitDropdown';
+import { Log } from '../../../lib/log';
 
 export interface PresetDropdownProps<Type extends PresetSectionType> {
     type: Type;
 }
 
-export function PresetDropdown<PresetType extends PresetSectionType>({ type }: PresetDropdownProps<PresetType>): ReactElement {
+export function PresetDropdown<PresetType extends PresetSectionType>({ type }: PresetDropdownProps<PresetType>): ReactElement | null {
+    const { setReady } = usePluginContext();
+    if (!setReady) return null;
 
     let presetTable: typeof eqPresetTable | typeof reverbPresetTable;
     let onSelect: (option: SingleDropdownOption) => void;
@@ -21,7 +25,7 @@ export function PresetDropdown<PresetType extends PresetSectionType>({ type }: P
     switch (type) {
         case 'eq':
             const { data: eqSettings, setAll } = useEQData();
-            if (!eqSettings || !setAll) return <></>;
+            if (!eqSettings || !setAll) return null;
             presetTable = eqPresetTable;
             selected = reverseLookupSectionPreset(presetTable, eqSettings);
 
@@ -31,20 +35,25 @@ export function PresetDropdown<PresetType extends PresetSectionType>({ type }: P
             break;
 
         case 'reverb':
-            const { data: settings, setData: setSettings } = useDspSettings();
-            if (!settings || !setSettings) return <></>;
-
+            const { data: settings, setData: setSettings, setError } = useDspSettings();
+            if (!settings || !setSettings || !setError) return null;
             presetTable = reverbPresetTable;
             selected = reverseLookupSectionPreset(presetTable, settings);
 
             onSelect = (option: SingleDropdownOption) => {
+                const promises: Promise<string | Error>[] = []
                 const newSettings = { ...settings };
+                setReady(false);
                 (presetTable.presets[option.data] as number[]).forEach((value, index) => {
                     const parameter = presetTable.paramMap[index] as DSPRangeParameter;
-                    Backend.setDsp(parameter, value);
+                    promises.push(Backend.setDsp(parameter, value));
                     newSettings[parameter] = value;
                 });
                 setSettings(newSettings);
+                Promise.all(promises).then(() => setReady(true)).catch(err => {
+                    setError(useError(`Problem applying reverb preset - \n ${(err as Error).message ?? ''}`));
+                    setReady(true);
+                })
             }
             break;
 
@@ -60,7 +69,7 @@ export function PresetDropdown<PresetType extends PresetSectionType>({ type }: P
     }), []);
 
     return (
-        <DropdownItem
+        <WaitDropdown
             label='Preset'
             rgOptions={options}
             selectedOption={selected}

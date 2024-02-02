@@ -3,6 +3,7 @@ import logging
 import os
 import subprocess
 import sys
+from settings import SettingsManager
 from typing import List
 
 #for testing?
@@ -24,17 +25,30 @@ FLATPAK_PATH = 'defaults/jdsp4linux-headless.flatpak'
 JDSP_LOG_DIR =  os.path.join(decky_plugin.DECKY_PLUGIN_LOG_DIR, 'jdsp')
 JDSP_LOG = os.path.join(JDSP_LOG_DIR, 'jdsp.log')
 
+jdspPresetPrefix = 'decksp.'
+jdspPresetGamePrefix = jdspPresetPrefix + 'game:'
+jdspPresetUserPrefix = jdspPresetPrefix + 'user:'
+
 log = decky_plugin.logger
 
+settings_manager = SettingsManager(name="settings", settings_directory=os.environ["DECKY_PLUGIN_SETTINGS_DIR"])
 
 class Plugin:
     jdsp: JdspProxy = None
+    profiles = {
+        'currentPreset': '',
+        'manualPreset': '',
+        'useManual': False,
+        'watchedApps': {}
+    }
 
     # Asyncio-compatible long-running code, executed in a task when the plugin is loaded
     async def _main(self):
         log.info('starting python')
         if not os.path.exists(JDSP_LOG_DIR):
             os.makedirs(JDSP_LOG_DIR)
+
+        Plugin.load_settings()
 
         #install flatpak and change to correct version
         #ADD ERROR CHECKING HERE
@@ -108,31 +122,98 @@ class Plugin:
             ),
         )
 
-    async def set(self, parameter, value):
+    async def set_jdsp_param(self, parameter, value):
         log.info('recieved')
         log.info(parameter)
         log.info(value)
         # p = subprocess.run(['flatpak', '--user', 'run', DBUS_SERVICE, '--set', f'{parameter}={value}'], capture_output=True, text=True)
         # log.info(p)
-        return Plugin.jdsp.set_and_commit(parameter, value)
+        res = Plugin.jdsp.set_and_commit(parameter, value)
+        Plugin.jdsp.save_preset(Plugin.profiles['currentPreset'])
+        #check errors
+        return res 
     
     async def set2(self, parameter, value):
         return Plugin.jdsp.set_and_commit(parameter, value)
 
-    async def get_all(self):
+    async def get_all_jdsp_param(self):
         return Plugin.jdsp.get_all()
 
-    async def get_multiple(self, parameters: List[str]):
-        result = {}
-        for param in parameters:
-            result[param] = Plugin.jdsp.get(param)
+    # async def get_multiple(self, parameters: List[str]):
+    #     result = {}
+    #     for param in parameters:
+    #         result[param] = Plugin.jdsp.get(param)
 
-        return result
+    #     return result
 
-    async def get(self, parameter):
-        return subprocess.run(['flatpak', '--user', 'run', APPLICATION_ID, '--get', parameter])
-        return Plugin.jdsp.get(parameter, log)
+    # async def get(self, parameter):
+    #     return subprocess.run(['flatpak', '--user', 'run', APPLICATION_ID, '--get', parameter])
+    #     return Plugin.jdsp.get(parameter, log)
 
     async def test(self):
         log.info("this is a test")
         return os.getuid()
+    
+    async def test2(self):
+        return Plugin.profiles
+    
+    async def new_preset(self, presetName, fromPresetName = None):
+        if fromPresetName is not None: 
+            load1res = Plugin.jdsp.load_preset(fromPresetName)
+            if Plugin.jdsp.has_error(load1res): return load1res
+            saveres = Plugin.jdsp.save_preset(presetName)
+            if Plugin.jdsp.has_error(saveres): return saveres
+            return Plugin.jdsp.load_preset(Plugin.profiles['currentPreset'])
+        else: 
+            return Plugin.jdsp.save_preset(presetName)
+
+    # async def make_default_profile(self, defaultName):
+    #     Plugin.jdsp.save_preset()
+    #     return Plugin.jdsp.get_all()
+    
+    async def set_profile(self, presetName, isManual):
+        if isManual:
+            Plugin.profiles['manualPreset'] = presetName
+        Plugin.jdsp.load_preset(presetName)
+        # check errors
+        Plugin.profiles['currentPreset'] = presetName
+        Plugin.save_profile_settings()
+        return Plugin.jdsp.get_all()
+    
+    # async def get_profiles(self):
+    #     return Plugin.jdsp.get_presets()
+    
+    async def set_app_watch(self, appId, watch):
+        Plugin.profiles['watchedApps'][appId] = watch
+        Plugin.save_profile_settings()
+
+    async def init_profiles(self, globalPreset):
+        if Plugin.profiles['manualPreset'] == '':
+            Plugin.profiles['manualPreset'] = globalPreset
+            Plugin.save_profile_settings()
+
+        presets = Plugin.jdsp.get_presets()
+        if JdspProxy.has_error(presets):
+            return { 'error': presets['jdsp_error'] }
+        
+        return { 
+            'manualPreset': Plugin.profiles['manualPreset'], 
+            'allPresets': presets['jdsp_result'], 
+            'watchedGames': Plugin.profiles['watchedApps'], 
+            'manuallyApply': Plugin.profiles['useManual'] 
+        }
+
+    async def set_manually_apply_profiles(self, useManual):
+        Plugin.profiles['useManual'] = useManual
+
+    def load_settings():
+        log.info('load settings')
+        default_profiles_settings = {setting: Plugin.profiles[setting] for setting in Plugin.profiles.keys() - { 'currentPreset' }}
+        setting = settings_manager.getSetting('profiles', default_profiles_settings)
+        Plugin.profiles.update(setting)
+        log.info(setting)
+    
+    def save_profile_settings():
+        log.info('saving profile')
+        log.info(Plugin.profiles)
+        settings_manager.setSetting('profiles', {setting: Plugin.profiles[setting] for setting in Plugin.profiles.keys() - { 'currentPreset' }})

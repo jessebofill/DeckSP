@@ -1,6 +1,6 @@
 import { SliderField, SliderFieldProps } from 'decky-frontend-lib'
 import { VFC, useEffect, useMemo, useState } from 'react'
-import { getThrottled } from '../../../lib/utils';
+import { getThrottled } from '../../lib/utils';
 
 export const ThrottledSlider: VFC<SliderFieldProps> = (props) => {
     const [value, setValue] = useState(props.value);

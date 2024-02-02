@@ -1,8 +1,9 @@
-import { DropdownItem, SingleDropdownOption } from 'decky-frontend-lib';
+import { SingleDropdownOption } from 'decky-frontend-lib';
 import { VFC, useMemo } from 'react';
 import { dspParamDefines } from '../../../defines/dspParameterDefines';
 import { useDspSettings } from '../../../hooks/contextHooks';
 import { Backend } from '../../../controllers/Backend';
+import { WaitDropdown } from '../../waitable/WaitDropdown';
 
 export interface CrossfeedModeDropdownProps {
 
@@ -10,7 +11,7 @@ export interface CrossfeedModeDropdownProps {
 
 export const CrossfeedModeDropdown: VFC<CrossfeedModeDropdownProps> = ({ }) => {
     const { data: settings, setData: setSettings } = useDspSettings();
-    if (!settings || !setSettings) return <></>;
+    if (!settings || !setSettings) return null;
 
     const options = useMemo(() => Object.entries(dspParamDefines.crossfeed_mode.map).map(([label, id]) => {
         return {
@@ -40,7 +41,7 @@ export const CrossfeedModeDropdown: VFC<CrossfeedModeDropdownProps> = ({ }) => {
     };
 
     return (
-        <DropdownItem
+        <WaitDropdown
             label={dspParamDefines.crossfeed_mode.label}
             rgOptions={options}
             selectedOption={settings.crossfeed_mode}

@@ -2,6 +2,8 @@ import os
 import sys
 import subprocess
 
+JDSP_ERROR_STR = 'jdsp_error'
+
 class JdspProxy:
 
     def __init__(self, app_id, decky_logger):
@@ -20,8 +22,17 @@ class JdspProxy:
         try:
             return {'jdsp_result': subprocess.run(['flatpak', '--user', 'run', self.app_id, command, *args], check=True, capture_output=True, text=True, env=self.env).stdout}
         except subprocess.CalledProcessError as e:
+            if e.stderr == '':
+                return {'jdsp_result': ''}
             self.log.error(e)
-            return {'jdsp_error': e.stderr}
+            return {JDSP_ERROR_STR: e.stderr}
+    
+    @staticmethod
+    def has_error(result: dict[str]):
+        if JDSP_ERROR_STR in result:
+            return True
+        else:
+            return False
 
     def set_and_commit(self, key, value):
         return self.__run('--set', f'{key}={value}')
@@ -31,3 +42,12 @@ class JdspProxy:
 
     def get_all(self):
         return self.__run('--get-all')
+    
+    def load_preset(self, presetName):
+        return self.__run('--load-preset', presetName)
+
+    def save_preset(self, presetName):
+        return self.__run('--save-preset', presetName)
+    
+    def get_presets(self):
+        return self.__run('--list-presets')

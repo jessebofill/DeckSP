@@ -1,7 +1,8 @@
-import { FocusableProps, Focusable, DialogButton } from "decky-frontend-lib";
+import { FocusableProps, Focusable, DialogButton, GamepadEvent } from "decky-frontend-lib";
 import { ReactNode, FC, useState, CSSProperties } from "react";
 import { SoundEffect, SFXPath } from "../../lib/GamepadUIAudio";
 import { playUISound } from '../../lib/utils';
+import { Log } from '../../lib/log';
 
 export interface CustomButtonProps extends Omit<FocusableProps, 'focusWithinClassName' | 'flow-children' | 'onActivate' | 'onCancel' | 'onClick' | 'children' | 'noFocusRing' | 'onChange'> {
   /** The sound effect to use when clicking @default 'deck_ui_default_activation.wav' */
@@ -33,6 +34,12 @@ export interface CustomButtonProps extends Omit<FocusableProps, 'focusWithinClas
 
   /** Child elements of the component */
   children?: ReactNode;
+
+  /** Callback to call when element takes focus */
+  onFocus?: (evt: GamepadEvent) => void;
+
+  /** Callback to call when element loses focus */
+  onBlur?: (evt: GamepadEvent) => void;
 }
 
 /** Type of indicator to use when CustomButton is focused*/
@@ -73,6 +80,7 @@ export const CustomButton: FC<CustomButtonProps> = ({
   const audioPath: SFXPath = `/sounds/${audioSFX ?? 'deck_ui_default_activation.wav'}`;
 
   const onClicked = (e: CustomEvent) => {
+    Log.log('button clicked')
     if (!disabled) {
       !noAudio && playUISound(audioPath);
       onClick?.(e);
@@ -86,8 +94,8 @@ export const CustomButton: FC<CustomButtonProps> = ({
       className={addClasses(CustomButtonClasses.buttonContainer, containerClassName)}
       style={containerStyle}
       onActivate={focusable ?? true ? onClicked : undefined}
-      onFocus={(e) => { setFocused(true); onFocus?.(e); }}
-      onBlur={(e) => { setFocused(false); onBlur?.(e); }}
+      onGamepadFocus={(e) => { setFocused(true); onFocus?.(e); }}
+      onGamepadBlur={(e) => { setFocused(false); onBlur?.(e); }}
       noFocusRing={!(focusMode ?? false)}
       onOKActionDescription={disabled ? '' : onOKActionDescription}
       {...focusableProps}

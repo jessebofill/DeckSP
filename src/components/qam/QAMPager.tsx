@@ -1,7 +1,6 @@
 import { ReactElement, VFC, useEffect, useState } from 'react';
-import { Focusable, GamepadButton, GamepadEvent, quickAccessMenuClasses } from 'decky-frontend-lib';
+import { Focusable, GamepadButton, GamepadEvent } from 'decky-frontend-lib';
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
-import { Log } from '../../lib/log';
 import { CustomButton } from '../generic/CustomButton';
 import { playUISound } from '../../lib/utils';
 
@@ -43,10 +42,9 @@ export interface QAMPagerProps {
 export const QAMPager: VFC<QAMPagerProps> = ({ pagerLinker, pages, noWrap }) => {
     const [page, setPage] = useState(0);
     useEffect(() => pagerLinker.linkPager(setPage, pages.length), []);
-    useEffect(() => Log.log('linker', pagerLinker), [])
 
     return (
-        <Focusable 
+        <Focusable
             onButtonDown={(evt: GamepadEvent) => {
                 switch (evt.detail.button) {
                     case GamepadButton.BUMPER_LEFT:
@@ -70,37 +68,27 @@ export const QAMPager: VFC<QAMPagerProps> = ({ pagerLinker, pages, noWrap }) => 
 };
 
 export interface QAMPageSwitcherProps {
-    title: string,
     pagerLinker: PagerLinker;
+    onPageChange?: (page: number) => void;
     noWrap?: boolean;
 }
 
 const buttonStyle = { height: '28px', width: '40px', minWidth: 0, padding: 0, display: 'flex', justifyContent: 'center', alignItems: 'center' };
 
-export const QAMPageSwitcher: VFC<QAMPageSwitcherProps> = ({ title, pagerLinker, noWrap }) => {
+export const QAMPageSwitcher: VFC<QAMPageSwitcherProps> = ({ pagerLinker, onPageChange, noWrap }) => {
     const [numPages, setNumPages] = useState(0);
     const [page, setPage] = useState(0);
 
     useEffect(() => {
-        pagerLinker.linkSwitcher(setPage, setNumPages)
-        return () => {
-            pagerLinker.setPage(0);
-            Log.log('switchc unmounting')
-        }
+        pagerLinker.linkSwitcher((page: number)=> {
+            setPage(page);
+            onPageChange?.(page);
+        }, setNumPages);
+        return () => pagerLinker.setPage(0);
     }, []);
-    useEffect(() => Log.log('mounting swwitcher', pagerLinker), []);
 
     return (
-        <Focusable
-            style={{
-                display: 'flex',
-                padding: '0',
-                flex: 'auto',
-                boxShadow: 'none',
-            }}
-            className={quickAccessMenuClasses.Title}
-        >
-            <div style={{ marginRight: "auto" }}>{title}</div>
+        <>
             <div style={{ fontSize: '10px' }}>{`${numPages === 0 ? 0 : page + 1} / ${numPages}`}</div>
             <CustomButton
                 onOKActionDescription='Previous Page'
@@ -118,7 +106,7 @@ export const QAMPageSwitcher: VFC<QAMPageSwitcherProps> = ({ title, pagerLinker,
             >
                 <FaChevronRight size={'.8em'} viewBox='-20 0 320 512' />
             </CustomButton>
-        </Focusable>
+        </>
     );
 };
 

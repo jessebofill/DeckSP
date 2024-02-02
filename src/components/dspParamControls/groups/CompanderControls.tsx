@@ -1,20 +1,20 @@
 import { PanelSection, PanelSectionRow } from 'decky-frontend-lib';
-import { FC, VFC, createContext, useContext, useState } from 'react';
+import { FC, VFC, useEffect, useState } from 'react';
 import { ParameterSlider } from '../base/ParameterSlider';
 import { ParameterToggle } from '../base/ParameterToggle';
-import { dspParamDefines } from '../../../defines/dspParameterDefines';
 import { DSPCompanderParameters } from '../../../types/dspTypes';
 import { Backend } from '../../../controllers/Backend';
 import { useDspSettings } from '../../../hooks/contextHooks';
-import { ThrottledSlider } from '../base/ThrottledSlider';
-
-const CompanderDataContext = createContext<{ data?: DSPCompanderParameters, setParameter?: (parameter: keyof DSPCompanderParameters, value: number) => void }>({});
+import { CompanderParameterSlider } from '../base/ParameterSlider';
+import { CompanderDataContext } from '../../../contexts/contexts';
 
 export const CompanderDataProvider: FC<{}> = ({ children }) => {
     const { data: settings, setData: setSettings } = useDspSettings();
-    if (!settings || !setSettings) return <></>;
+    if (!settings || !setSettings) return null;
 
     const [values, setValues] = useState(settings['compander_response']);
+
+    useEffect(() => setValues(settings['compander_response']), [settings['compander_response']]);
 
     const setParameter = (parameter: keyof DSPCompanderParameters, value: number) => {
         const newValues = { ...values, [parameter]: value };
@@ -68,34 +68,5 @@ export const CompanderControls: VFC<{}> = ({ }) => {
                 </PanelSectionRow>
             </PanelSection>
         </CompanderDataProvider>
-    );
-};
-
-interface CompanderParameterSliderProps {
-    parameter: keyof DSPCompanderParameters;
-}
-
-export const CompanderParameterSlider: VFC<CompanderParameterSliderProps> = ({ parameter }) => {
-    const { data: values, setParameter } = useContext(CompanderDataContext);
-    if (!values || !setParameter) return <></>;
-
-    const [min, max] = dspParamDefines['compander_response'][parameter].limits;
-
-    const onChange = (value: number) => {
-        setParameter(parameter, value);
-    };
-
-    return (
-        <ThrottledSlider
-            label={dspParamDefines['compander_response'][parameter].label}
-            value={values[parameter]}
-            min={min}
-            max={max}
-            showValue={true}
-            valueSuffix={' ' + dspParamDefines['compander_response'][parameter].units}
-            step={dspParamDefines['compander_response'][parameter].step}
-            onChange={onChange}
-            bottomSeparator='none'
-        />
     );
 };

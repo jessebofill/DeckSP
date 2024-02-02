@@ -7,7 +7,7 @@ import { CrossfeedModeDropdown } from '../base/CrossfeedModeDropdown';
 
 export const CrossfeedControls: VFC<{}> = ({ }) => {
     const { data: settings } = useDspSettings();
-    if (!settings) return <></>;
+    if (!settings) return null;
 
     const disableSliders = settings.crossfeed_mode < 2 
     const noSliders = settings.crossfeed_mode > 1 && settings.crossfeed_mode !== 99;

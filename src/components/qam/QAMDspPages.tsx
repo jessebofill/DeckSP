@@ -1,5 +1,4 @@
-import { Focusable } from 'decky-frontend-lib';
-import { VFC } from 'react';
+import { FC, VFC, useState } from 'react';
 import { LimiterControls } from '../dspParamControls/groups/LimiterControls';
 import { WidenessControls } from '../dspParamControls/groups/WidenessControls';
 import { CrossfeedControls } from '../dspParamControls/groups/CrossfeedControls';
@@ -9,56 +8,95 @@ import { CompanderControls } from '../dspParamControls/groups/CompanderControls'
 import { ReverbControls } from '../dspParamControls/groups/ReverbControls';
 import { EQControls } from '../dspParamControls/groups/EQControls';
 import { MasterControls } from '../dspParamControls/groups/MasterControls';
+import { QAMPage } from './QAMPage';
+import { DialogButton } from 'decky-frontend-lib';
+import { Log } from '../../lib/log';
 
+const QAMDspPage: FC<{}> = ({ children }) => {
+    return (
+        <QAMPage dataProvider='dsp'>
+            {children}
+        </QAMPage>
+    );
+};
 
 export const QAMDspMainPage: VFC<{}> = ({ }) => {
     return (
-        <Focusable >
+        <QAMDspPage>
             <MasterControls />
             <LimiterControls />
-        </ Focusable>
+        </QAMDspPage>
     );
 };
 
 export const QAMDspEQPage: VFC<{}> = ({ }) => {
     return (
-        <Focusable >
+        <QAMDspPage>
             <EQControls />
-        </Focusable>
+        </QAMDspPage>
     );
 };
 
 export const QAMDspCompanderPage: VFC<{}> = ({ }) => {
     return (
-        <Focusable >
+        <QAMDspPage>
             <CompanderControls />
-        </Focusable>
+        </QAMDspPage>
     );
 };
 
 export const QAMDspStereoPage: VFC<{}> = ({ }) => {
     return (
-        <Focusable >
+        <QAMDspPage>
             <WidenessControls />
             <CrossfeedControls />
-        </Focusable>
+        </QAMDspPage>
     );
 };
 
 export const QAMDspReverbPage: VFC<{}> = ({ }) => {
     return (
-        <Focusable >
+        <QAMDspPage>
             <ReverbControls />
-        </Focusable>
+        </QAMDspPage>
     );
 };
 
 export const QAMDspOtherPage: VFC<{}> = ({ }) => {
     return (
-        <Focusable >
+        <QAMDspPage>
             <DynamicBassControls />
             <TubeModelingControls />
-        </Focusable>
+        </QAMDspPage>
     );
 };
+
+export const Test: VFC<{}> = ({ }) => {
+    Log.log('render test')
+    return <C>
+        <A></A>
+        <B />
+    </C>
+}
+export const A: VFC<{}> = ({ }) => {
+    const [state, setState] = useState(false)
+    Log.log('render a')
+    return <DialogButton onClick={() => setState(!state)}></DialogButton>
+}
+export const B: VFC<{}> = ({ }) => {
+    Log.log('render b')
+    const [state, setState] = useState(false)
+
+    return <DialogButton onClick={() => setState(!state)}></DialogButton>
+}
+export const C: FC<{}> = ({ children }) => {
+    Log.log('render c')
+    const [state, setState] = useState(false)
+
+    return <>
+        {children}
+        <DialogButton onClick={() => setState(!state)}></DialogButton>
+    </>
+}
+
 

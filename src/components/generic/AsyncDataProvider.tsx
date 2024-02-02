@@ -1,33 +1,29 @@
-import { CSSProperties, Context, Dispatch, ReactNode, SetStateAction, useEffect, useState } from 'react';
-import { FadeSpinner } from './FadeSpinner';
+import { Context, Dispatch, ReactNode, SetStateAction, useEffect, useState } from 'react';
+import { DataContext, DataProviderSetData, DataProviderSetError } from '../../contexts/contexts';
 
-export type AsyncDataProviderSetData<DataType> = Dispatch<SetStateAction<DataType | undefined>>;
-export type AsyncDataProviderSetError = Dispatch<SetStateAction<Error | undefined>>;
+export type AsyncDataProviderSetReady = Dispatch<SetStateAction<boolean>>;
 
-export type AsyncDataContext<DataType> = { 
-    data?: DataType; 
-    error?: Error; setData?: AsyncDataProviderSetData<DataType> 
+export interface AsyncDataContext<DataType> extends DataContext<DataType> {
+    ready?: boolean;
+    setReady?: Dispatch<SetStateAction<boolean>>;
 };
 
 export interface AsyncDataProviderProps<DataType> {
-    handler: (setData: AsyncDataProviderSetData<DataType>, setError: Dispatch<SetStateAction<Error | undefined>>) => Promise<any>;
+    handler: (setData: DataProviderSetData<DataType>, setReady: AsyncDataProviderSetReady, setError?: DataProviderSetError) => Promise<any>;
     Context: Context<AsyncDataContext<DataType>>;
-    containerClass?: string;
-    containerStyle?: CSSProperties;
     children: ReactNode;
 }
 
-export function AsyncDataProvider<DataType>({ children, handler, Context, containerClass, containerStyle }: AsyncDataProviderProps<DataType>) {
+export function AsyncDataProvider<DataType>({ children, handler, Context }: AsyncDataProviderProps<DataType>) {
     const [data, setData] = useState<DataType>();
+    const [ready, setReady] = useState(false);
     const [error, setError] = useState<Error>();
 
-    useEffect(() => { handler(setData, setError) }, []);
+    useEffect(() => { handler(setData, setReady, setError) }, []);
 
     return (
-        <Context.Provider value={{ data, setData, error }}>
-            <FadeSpinner isLoading={!error && !data} className={containerClass} style={containerStyle} >
-                {!!error ? <div>{`Error: ${error.message}`}</div> : children}
-            </FadeSpinner>
+        <Context.Provider value={{ ready, setReady, data, setData, error, setError }}>
+            {children}
         </Context.Provider>
     );
 };

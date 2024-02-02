@@ -4,9 +4,10 @@ export interface FadeSpinnerProps {
     isLoading: boolean;
     className?: string;
     style?: CSSProperties;
+    showChildrenLoading?: boolean
 }
 
-export const FadeSpinner: FC<FadeSpinnerProps> = ({ isLoading, className, style, children }) => {
+export const FadeSpinner: FC<FadeSpinnerProps> = ({ isLoading, className, style, showChildrenLoading, children }) => {
     return (
         <>
             <div
@@ -21,7 +22,7 @@ export const FadeSpinner: FC<FadeSpinnerProps> = ({ isLoading, className, style,
                 )}>
                 <img alt="Loading..." src="/images/steam_spinner.png" style={{ width: '50%' }} />
             </div>
-            {!isLoading && children}
+            {(!isLoading || showChildrenLoading) && children}
         </>
     );
 };
