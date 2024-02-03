@@ -1,8 +1,7 @@
-import { DropdownOption, Menu, MenuGroup, MenuItem, MultiDropdownOption, SingleDropdownOption, gamepadContextMenuClasses, showContextMenu, showModal } from 'decky-frontend-lib';
+import { DropdownOption, Field, Menu, MenuGroup, MenuItem, MultiDropdownOption, SingleDropdownOption, gamepadContextMenuClasses, showContextMenu, showModal } from 'decky-frontend-lib';
 import { VFC, useEffect, useState } from 'react';
 import { addClasses } from '../../lib/utils';
 import { useProfileMultiDropdownOptions } from '../../hooks/useProfileMultiDropdownOptions';
-import { CustomDropdownClasses } from '../generic/CustomDropdown';
 import { CustomButton } from '../generic/CustomButton';
 import { usePluginContext } from '../../hooks/contextHooks';
 import { FaPlus } from "react-icons/fa6";
@@ -59,30 +58,32 @@ export const ManualProfilesDropdown: VFC<ManualProfilesDropdownProps> = ({ selec
     menuItems.splice(-1, 0, separator);
 
     return (
-        <CustomButton
-            containerClassName={addClasses(CustomDropdownClasses.topLevel)}
-            style={{ padding: '10px 16px' }}
-            noAudio={true}
-            onClick={() => {
-                showContextMenu(
-                    <Menu label={'Profiles'}>
-                        {menuItems}
-                    </Menu>
-                );
-            }}
-            disabled={!ready}
-        >
-            <div style={{ display: 'flex', overflow: 'hidden' }}>
-                <div style={{ overflow: 'hidden', flex: 'auto' }}>
-                    <div style={{ textAlign: 'left', minHeight: '20px' }} className={CustomDropdownClasses.label}>
-                        {selected?.label ?? 'Choose Profile'}
+        <Field label={
+            <CustomButton
+                containerStyle={{ width: '100%' }}
+                style={{ padding: '10px 16px' }}
+                noAudio={true}
+                onClick={() => {
+                    showContextMenu(
+                        <Menu label={'Profiles'}>
+                            {menuItems}
+                        </Menu>
+                    );
+                }}
+                disabled={!ready}
+            >
+                <div style={{ display: 'flex', overflow: 'hidden' }}>
+                    <div style={{ overflow: 'hidden', flex: 'auto' }}>
+                        <div style={{ textAlign: 'left', minHeight: '20px' }}>
+                            {selected?.label ?? 'Choose Profile'}
+                        </div>
+                    </div>
+                    <div style={{ display: 'flex', marginLeft: '1ch', flex: 'none' }}>
+                        {icon}
                     </div>
                 </div>
-                <div style={{ display: 'flex', marginLeft: '1ch', flex: 'none' }}>
-                    {icon}
-                </div>
-            </div>
-        </CustomButton>
+            </CustomButton>
+        }/>
     );
 };
 function findMatchedOptionRecursive(options: (SingleDropdownOption | MultiDropdownOption)[], toMatchOptionData: any): SingleDropdownOption | undefined {

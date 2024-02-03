@@ -27,7 +27,7 @@ export const ProfileSettings: VFC<{}> = observer(({ }) => {
                 </PanelSectionRow>
             }
             <PanelSectionRow>
-                <WaitToggle label='Manually apply profile' checked={useManual} onChange={onChangeUseManual} />
+                <WaitToggle label='Manually apply profile' checked={useManual} onChange={onChangeUseManual} bottomSeparator={useManual ? 'none' : 'standard'}/>
             </PanelSectionRow>
             {useManual && (
                 <PanelSectionRow>

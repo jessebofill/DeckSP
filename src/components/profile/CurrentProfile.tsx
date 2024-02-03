@@ -14,7 +14,7 @@ export const CurrentProfile: VFC<CurrentProfileTextProps> = observer(({ useMarqu
     //auto profile indicator
     //user / game profile indicator
     return (
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', minHeight: '22px' }}>
             {profileManager.activeProfileId === globalAppId ? (
                 <div style={{ height: '22px', display: 'flex', alignItems: 'center' }}>
                     <FaGlobeAsia size='19px' fill='#999696' />
