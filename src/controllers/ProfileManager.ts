@@ -24,7 +24,6 @@ export class ProfileManager {
     activeProfileId: string = globalAppId;
     manualProfileId: string = globalAppId;
     watchedGames: { [appId: string]: boolean } = {};
-    // @observable
     profiles: { [id: string]: Profile<ProfileType> } = {};
     lock?: { promise: Promise<DSPParamSettings | Error>, status: PromiseStatus };
     activeGameReactionDisposer?: IReactionDisposer;
@@ -39,10 +38,6 @@ export class ProfileManager {
 
     get activeProfile(): Profile<ProfileType> | undefined {
         return this.profiles[this.activeProfileId];
-    }
-
-    get activeProfileIdNumber() {
-        return parseInt(this.activeProfileId);
     }
 
     async init() {
@@ -96,23 +91,27 @@ export class ProfileManager {
         this.activeGameReactionDisposer = reaction(() => SteamUIStore.MainRunningAppID, this.onActiveGameChange.bind(this));
     }
 
-    private onActiveGameChange(activeAppIdString: number = 769) {
+    private async onActiveGameChange(activeAppIdString: number = 769) {
         const activeAppId = activeAppIdString.toString();
         Log.log('game reaction called', activeAppId)
         if (!this.manuallyApply && this.watchedGames[activeAppId] && this.activeProfileId !== activeAppId) {
+            if (this.lock && this.lock.status === PromiseStatus.pending) {
+                const res = await this.lock.promise;
+                if (res instanceof Error) return;
+            }
             this.setReady(false);
             const applyProfile = this.applyProfile(activeAppId);
             this.setLock(applyProfile);
-            applyProfile.then(dsp => {
-                const errors: { plugin?: Error, dsp?: Error } = {};
-                const newData: PluginData = { errors: errors };
+            const dsp = await applyProfile;
+        
+            const errors: { plugin?: Error, dsp?: Error } = {};
+            const newData: PluginData = { errors: errors };
 
-                if (dsp instanceof Error) errors.dsp = dsp;
-                else newData.dsp = dsp;
+            if (dsp instanceof Error) errors.dsp = dsp;
+            else newData.dsp = dsp;
 
-                this.setData(data => ({ ...data, ...newData }));
-                this.setReady(true);
-            });
+            this.setData(data => ({ ...data, ...newData }));
+            this.setReady(true);
         }
     }
 
@@ -124,10 +123,6 @@ export class ProfileManager {
     setLock(promise: Promise<DSPParamSettings | Error>) {
         if (!this.lock || this.lock.status !== PromiseStatus.pending) {
             this.lock = MakeQueryablePromise(promise);
-            return;
-        }
-        if (this.lock.status === PromiseStatus.pending) {
-            this.lock.promise.then(() => this.lock = MakeQueryablePromise(promise));
             return;
         }
     }

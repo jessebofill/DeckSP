@@ -1,7 +1,5 @@
-import { ProfileType, profileManager } from '../controllers/ProfileManager';
+import { profileManager } from '../controllers/ProfileManager';
 import { handleGetDspSettingsAfterProfileLoad } from '../controllers/asyncDataHandlers';
-import { Log } from '../lib/log';
-import { getActiveAppId } from '../lib/utils';
 import { useDspSettings } from './contextHooks';
 import { useWaiter } from './useWaiter';
 
