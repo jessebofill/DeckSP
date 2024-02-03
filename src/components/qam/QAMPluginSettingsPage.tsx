@@ -1,6 +1,6 @@
 import { DialogButton, Focusable } from 'decky-frontend-lib';
 import { VFC } from 'react';
-import { ProfileSettings } from '../other/ProfileSettings';
+import { ProfileSettings } from '../profile/ProfileSettings';
 import { FixFlatpak } from '../other/FixFlatpak';
 import { QAMPage } from './QAMPage';
 

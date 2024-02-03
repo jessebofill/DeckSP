@@ -1,7 +1,7 @@
 import { quickAccessMenuClasses, Focusable } from 'decky-frontend-lib';
 import { FC } from 'react';
 import { addClasses } from '../../lib/utils';
-import { CurrentProfile } from '../other/ProfileSettings';
+import { CurrentProfile } from '../profile/CurrentProfile';
 import { titleViewClasses } from '../../defines/cssClasses';
 import { PagerLinker, QAMPageSwitcher } from './QAMPager';
 
