@@ -1,32 +1,16 @@
 import { Marquee } from 'decky-frontend-lib';
 import { VFC } from 'react';
-import { profileManager, globalAppId } from '../../controllers/ProfileManager';
-import { AppArtworkAssetType, AppImage } from '../native/AppImage';
+import { profileManager } from '../../controllers/ProfileManager';
 import { Log } from '../../lib/log';
 import { observer } from 'mobx-react-lite';
-import { FaGlobeAsia } from "react-icons/fa";
+import { ProfileIcon } from './ProfileIcon';
 
 export const CurrentProfile: VFC<CurrentProfileTextProps> = observer(({ useMarquee }) => {
     Log.log('rendering current profile');
 
-    const isGame = profileManager.activeProfileId !== globalAppId && Object.keys(profileManager.profiles).includes(profileManager.activeProfileId);
-    const appOverview = isGame ? appStore.GetAppOverviewByAppID(profileManager.activeProfileIdNumber) : undefined;
-    //auto profile indicator
-    //user / game profile indicator
     return (
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', minHeight: '22px' }}>
-            {profileManager.activeProfileId === globalAppId ? (
-                <div style={{ height: '22px', display: 'flex', alignItems: 'center' }}>
-                    <FaGlobeAsia size='19px' fill='#999696' />
-                </div>
-            ) : appOverview && (
-                <AppImage
-                    style={{ width: '22px' }}
-                    app={appOverview}
-                    eAssetType={AppArtworkAssetType.Icon}
-                    className={'perf_Icon_1op4w'}
-                    bShortDisplay={true} />
-            )}
+            <ProfileIcon profileId={profileManager.activeProfileId} size='22px' />
             <CurrentProfileText useMarquee={useMarquee} />
         </div>
     );

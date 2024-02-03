@@ -2,7 +2,7 @@ import { DialogButton, Dropdown, DropdownOption, Focusable, ModalRoot, TextField
 import { VFC, useState } from 'react';
 import { profileManager } from '../../controllers/ProfileManager';
 import { useProfileMultiDropdownOptions } from '../../hooks/useProfileMultiDropdownOptions';
-import { PluginManager } from '../../controllers/PluginManager';
+import { Toaster } from '../../controllers/Toaster';
 
 interface NewProfileModalProps {
     onConfirm?: (profileName: string) => void;
@@ -18,14 +18,13 @@ export const NewProfileModal: VFC<NewProfileModalProps> = ({ onConfirm, closeMod
     const options: DropdownOption[] = useProfileMultiDropdownOptions();
     options.unshift(defaultOption);
 
-    const onSubmit = () => {
+    const onSubmit = async () => {
         if (!Object.keys(profileManager.profiles).includes(name)) {
-            //todo need to await this
-            profileManager.createUserProfile(name, copyFrom);
+            await profileManager.createUserProfile(name, copyFrom);
             onConfirm?.(name);
             closeModal?.();
         } else {
-            PluginManager.toast('Cannot Create Profile', 'A profile with this name already exists');
+            Toaster.toast('Cannot Create Profile', 'A profile with this name already exists');
         }
     };
 

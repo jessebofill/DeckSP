@@ -5,11 +5,7 @@ import { useDspSettings } from '../../../hooks/contextHooks';
 import { Backend } from '../../../controllers/Backend';
 import { WaitDropdown } from '../../waitable/WaitDropdown';
 
-export interface CrossfeedModeDropdownProps {
-
-}
-
-export const CrossfeedModeDropdown: VFC<CrossfeedModeDropdownProps> = ({ }) => {
+export const CrossfeedModeDropdown: VFC<{}> = ({ }) => {
     const { data: settings, setData: setSettings } = useDspSettings();
     if (!settings || !setSettings) return null;
 

@@ -42,5 +42,5 @@ export const reverbPresetTable = {
         'Long Reverb 2': [2,  -16.0, -14, -5,  10,  1.0,  0.1,   100,  0.05, 0.4,   1.0,  18000,  100,  9000,  18000, 30.0, 0   ]
     },
     paramMap: ReverbPresetTableParamMap
-} as const
+} as const;
 

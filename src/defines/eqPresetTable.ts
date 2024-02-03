@@ -40,5 +40,5 @@ export const eqPresetTable = {
         'Beats':         [-5.5,  -5,    -4.5,  -4.2,  3.5,   -3,    -1.9,  0,     0,     0,     0,     0,     0,     0,     0     ]
     },
     paramMap: EQPresetTableParamMap
-} as const
+} as const;
 

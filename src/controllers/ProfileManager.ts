@@ -6,6 +6,7 @@ import { DSPParamSettings } from '../types/dspTypes';
 import { Dispatch, SetStateAction } from 'react';
 import { DataProviderSetData } from '../contexts/contexts';
 import { PluginData } from '../types/types';
+import { ToastApplyingProfile } from '../components/profile/ApplyProfileToast';
 
 const jdspPresetPrefix = 'decksp.';
 const jdspGamePresetIdentifier = 'game:';
@@ -143,13 +144,20 @@ export class ProfileManager {
         return await this.applyProfile(profileId);
     }
 
-    async createUserProfile(profileName: string, fromProfile?: string) {
-        //todo add copy from profile
-        const profile = ProfileManager.makeProfileType(profileName, ProfileType.user);
-        const presetName = ProfileManager.makePresetName(profileName, ProfileType.user);
-        Backend.createProfile(presetName);
-        //handle error
-        this.profiles[profileName] = profile;
+    async createUserProfile(profileName: string, fromProfileId?: string) {
+        try {
+            const profile = ProfileManager.makeProfileType(profileName, ProfileType.user);
+            const presetName = ProfileManager.makePresetName(profileName, ProfileType.user);
+            
+            const fromProfile = fromProfileId ? this.profiles[fromProfileId] : undefined;
+            const fromPresetName = fromProfile ? ProfileManager.makePresetName(fromProfile.id, fromProfile.type) : undefined;
+            const res = await Backend.createProfile(presetName, fromPresetName);
+
+            this.profiles[profileName] = profile;
+            return res;
+        } catch (err) {
+            return useError(`Problem creating custom profile: ${profileName} - \n ${(err as Error).message ?? ''}`);
+        }
     }
 
     async createGameProfile(appId: string) {
@@ -178,24 +186,22 @@ export class ProfileManager {
     }
 
     async applyProfile(profileId: string, isManuallyApplied: boolean = false) {
-
-        //todo add toast message
         try {
             Log.log('applying profile', profileId);
+            const profile = this.profiles[profileId];
+            if (!profile) return useError(`Problem applying profile id: ${profileId} - Profile does not exist}`);
 
-            const presetName = ProfileManager.makePresetName(profileId, this.profiles[profileId].type);
+            ToastApplyingProfile(profile, isManuallyApplied);
+            const presetName = ProfileManager.makePresetName(profileId, profile.type);
             const res = await Backend.setProfile(presetName, isManuallyApplied);
-            if (isManuallyApplied) this.manualProfileId = profileId;
+
             Log.log('done waiting for lock')
+            if (isManuallyApplied) this.manualProfileId = profileId;
             this.activeProfileId = profileId;
             return res;
         } catch (err) {
             return useError(`Problem applying profile id: ${profileId} - \n ${(err as Error).message ?? ''}`);
         }
-    }
-
-    async saveGameProfile() {
-
     }
 
     async setUseManualProfiles(useManual: boolean) {

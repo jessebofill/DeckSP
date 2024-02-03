@@ -8,7 +8,6 @@ import { Backend } from '../../../controllers/Backend';
 import { useEQData } from '../../../hooks/contextHooks';
 import { eqPresetTable } from '../../../defines/eqPresetTable';
 import { WaitDropdown } from '../../waitable/WaitDropdown';
-import { Log } from '../../../lib/log';
 
 export interface PresetDropdownProps<Type extends PresetSectionType> {
     type: Type;

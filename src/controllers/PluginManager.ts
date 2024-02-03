@@ -4,17 +4,17 @@ import { Log } from '../lib/log';
 import { profileManager } from './ProfileManager';
 import { initSystemPerfStore, useError } from '../lib/utils';
 import { DSPParamSettings } from '../types/dspTypes';
+import { Toaster } from './Toaster';
 
 export class PluginManager {
-    static serverApi: ServerAPI;
     static state: {
         jdspLoaded?: Promise<boolean | Error>
         profileManagerLoaded?: Promise<DSPParamSettings | Error>
     } = {}
 
     static start(serverApi: ServerAPI) {
-        this.serverApi = serverApi;
         initSystemPerfStore();
+        Toaster.init(serverApi);
         Backend.init(serverApi);
 
         const profileManagerInit = profileManager.init();
@@ -27,12 +27,5 @@ export class PluginManager {
             return true;
         }).catch((err: Error) => useError(`Encountered an error when trying to start James DSP - \n ${err.message}`));
     }
-
-    static toast(title: string, message: string, durationMs: number = 4000) {
-        this.serverApi.toaster.toast({
-            title: title,
-            body: message,
-            duration: durationMs
-          });
-    }
 }
+
