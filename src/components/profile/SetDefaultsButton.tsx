@@ -1,9 +1,10 @@
 import { Field, FieldProps, showModal } from 'decky-frontend-lib';
-import { VFC } from 'react';
+import { VFC, useEffect } from 'react';
 import { useSetDefaults } from '../../hooks/useSetDefaults';
 import { DestructiveModal } from '../generic/DestructiveModal';
 import { profileManager } from '../../controllers/ProfileManager';
 import { WaitButton } from '../waitable/WaitButton';
+import { reaction } from 'mobx';
 
 export interface SetDefaultsButtonProps {
     bottomSeparator?: FieldProps['bottomSeparator'];
@@ -11,6 +12,7 @@ export interface SetDefaultsButtonProps {
 
 export const SetDefaultsButton: VFC<SetDefaultsButtonProps> = ({ }) => {
     const setDefaults = useSetDefaults();
+
     return (
         <Field
             label={
@@ -30,6 +32,8 @@ interface ConfirmSetDefaultModalProps {
 
 const ConfirmSetDefaultModal: VFC<ConfirmSetDefaultModalProps> = ({ onConfirm, closeModal }) => {
     const profileName = profileManager.activeProfile?.name ?? '';
+
+    useEffect(() => reaction(() => profileManager.activeProfileId, () => closeModal?.()), []);
 
     return (
         <DestructiveModal
