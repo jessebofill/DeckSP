@@ -83,7 +83,9 @@ export const ManualProfilesDropdown: VFC<ManualProfilesDropdownProps> = ({ selec
                     </div>
                 </div>
             </CustomButton>
-        }/>
+        }
+            bottomSeparator='none'
+        />
     );
 };
 function findMatchedOptionRecursive(options: (SingleDropdownOption | MultiDropdownOption)[], toMatchOptionData: any): SingleDropdownOption | undefined {

@@ -44,8 +44,8 @@ export class ProfileManager {
         const initProfilesRes = await this.initProfiles();
         if (initProfilesRes instanceof Error) return initProfilesRes;
 
-        const createDeafultProfileRes = !initProfilesRes.hasDefault ? await this.createDefaultProfile() : null;
-        if (createDeafultProfileRes instanceof Error) return createDeafultProfileRes;
+        const createDefaultsRes = !initProfilesRes.hasDefault ? await this.createDefaults() : null;
+        if (createDefaultsRes instanceof Error) return createDefaultsRes;
 
         const createGloableProfileRes = !this.profiles[globalAppId] ? await this.createGlobalProfile() : null;
         if (createGloableProfileRes instanceof Error) return createGloableProfileRes;
@@ -146,7 +146,7 @@ export class ProfileManager {
             
             const fromProfile = fromProfileId ? this.profiles[fromProfileId] : undefined;
             const fromPresetName = fromProfile ? ProfileManager.makePresetName(fromProfile.id, fromProfile.type) : undefined;
-            const res = await Backend.createProfile(presetName, fromPresetName);
+            const res = await Backend.newPreset(presetName, fromPresetName);
 
             this.profiles[profileName] = profile;
             return res;
@@ -159,7 +159,7 @@ export class ProfileManager {
         try {
             const profile = ProfileManager.makeProfileType(appId, ProfileType.game);
             const presetName = ProfileManager.makePresetName(appId, ProfileType.game);
-            const res = await Backend.createProfile(presetName);
+            const res = await Backend.newPreset(presetName);
 
             this.profiles[appId] = profile;
             return res;
@@ -172,11 +172,11 @@ export class ProfileManager {
         return this.createGameProfile(globalAppId);
     }
 
-    private async createDefaultProfile() {
+    private async createDefaults() {
         try {
-            return await Backend.createProfile(defaultPresetName);
+            return await Backend.newPreset(defaultPresetName);
         } catch (err) {
-            return useError(`Problem creating default profile - \n ${(err as Error).message ?? ''}`);
+            return useError(`Problem creating default preset - \n ${(err as Error).message ?? ''}`);
         }
     }
 
@@ -196,6 +196,14 @@ export class ProfileManager {
             return res;
         } catch (err) {
             return useError(`Problem applying profile id: ${profileId} - \n ${(err as Error).message ?? ''}`);
+        }
+    }
+
+    async setDefaults() {
+        try {
+            return await Backend.setDspDefaults(defaultPresetName);
+        } catch (err) {
+            return useError(`Problem setting jdsp parameters to default - \n ${(err as Error).message ?? ''}`);
         }
     }
 

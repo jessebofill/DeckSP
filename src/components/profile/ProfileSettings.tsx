@@ -9,11 +9,12 @@ import { observer } from 'mobx-react-lite';
 import { useManualProfilesState } from '../../hooks/useManualProfilesState';
 import { ManualProfilesDropdown } from './ManualProfilesDropdown';
 import { CurrentProfile } from './CurrentProfile';
+import { SetDefaultsButton } from './SetDefaultsButton';
 
 export const ProfileSettings: VFC<{}> = observer(({ }) => {
     const { checked: perGameGecked, onChange: onChangePerGame } = usePerGameProfileState();
     const { useManual, onChangeUseManual, manualProfileId, onChangeManualProfile } = useManualProfilesState();
-    if (!onChangePerGame || !onChangeUseManual) return null;
+    if (!onChangePerGame || !onChangeUseManual || !onChangeManualProfile) return null;
 
     return (
         <PanelSection title='Profiles'>
@@ -27,13 +28,16 @@ export const ProfileSettings: VFC<{}> = observer(({ }) => {
                 </PanelSectionRow>
             }
             <PanelSectionRow>
-                <WaitToggle label='Manually apply profile' checked={useManual} onChange={onChangeUseManual} bottomSeparator={useManual ? 'none' : 'standard'}/>
+                <WaitToggle label='Manually apply profile' checked={useManual} onChange={onChangeUseManual} bottomSeparator={'none'} />
             </PanelSectionRow>
             {useManual && (
                 <PanelSectionRow>
                     <ManualProfilesDropdown selectedOption={manualProfileId} onSelectProfile={onChangeManualProfile} />
                 </PanelSectionRow>
             )}
+            <PanelSectionRow>
+                <SetDefaultsButton />
+            </PanelSectionRow>
         </PanelSection>
     );
 });

@@ -40,17 +40,16 @@ interface PluginMethodError {
 
 export type JDSPSetMethod = 'set_jdsp_param';
 export type JDSPGetAllMethod = 'get_all_jdsp_param';
-export type JDSPNewPresetMethod = 'new_preset';
+export type JDSPNewPresetMethod = 'new_jdsp_preset';
 export type JDSPSetProfileMethod = 'set_profile';
-// export type JDSPGetProfilesMethod = 'get_profiles';
+export type JDSPSetDefaultsMethod = 'set_jdsp_defaults';
 
 export type JDSPMethod =
     JDSPSetMethod |
     JDSPGetAllMethod |
     JDSPNewPresetMethod |
-    JDSPSetProfileMethod 
-    // JDSPGetProfilesMethod
-    ;
+    JDSPSetProfileMethod |
+    JDSPSetDefaultsMethod;
 
 type ParamSendValueType<Param extends DSPParameter> =
     Param extends DSPParameterCompResponse | DSPParameterEQParameters ?
@@ -62,6 +61,7 @@ export type JDSPMethodArgs<Method extends JDSPMethod, Param extends DSPParameter
     Method extends JDSPGetAllMethod ? {} :
     Method extends JDSPSetProfileMethod ? { presetName: string, isManual: boolean } :
     Method extends JDSPNewPresetMethod ? { presetName: string, fromPresetName?: string } :
+    Method extends JDSPSetDefaultsMethod ? { defaultPreset: string } :
     never;
 
 export interface JDSPResponse {
@@ -98,17 +98,9 @@ export class Backend {
         }
     }
 
-    static async startJDSP() {
-        return await this.callPlugin('start_jdsp', {});
-    }
-
-    static async setAppWatch(appId: string, watch: boolean) {
-        return await this.callPlugin('set_app_watch', { appId, watch });
-    }
     static async checkpy() {
         return await this.serverAPI.callPluginMethod('test2', { });
     }
-
 
     static async setDsp<Param extends DSPParameter>(parameter: Param, value: DSPParameterType<Param>) {
         const val = parameter === 'compander_response' || parameter === 'tone_eq' ?
@@ -117,23 +109,12 @@ export class Backend {
 
         return await this.callJDSP('set_jdsp_param', { parameter, value: val as ParamSendValueType<Param> });
     }
-
-    // static async getDsp<Param extends DSPParameter>(parameter: Param): Promise<DSPParameterType<Param>> {
-    //     return parseJDSPParam(parameter, await this.callJDSP('get', { parameter }));
-    // }
-
     static async getDspAll() {
         return parseJDSPAll(await this.callJDSP('get_all_jdsp_param', {}));
     }
-
-    static async getSettings(): Promise<PluginSettings> {
-        return await this.serverAPI.callPluginMethod('test', {});
+    static async setDspDefaults(defaultPreset: string) {
+        return parseJDSPAll(await this.callJDSP('set_jdsp_defaults', { defaultPreset }));
     }
-
-    static async createProfile(presetName: string, fromPresetName?: string) {
-        return await this.callJDSP('new_preset', { presetName, fromPresetName });
-    }
-
     static async setProfile(presetName: string, isManual: boolean) {
         Log.log('set profile called');
         // const res = await this.serverAPI.callPluginMethod('set_profile', { presetName: presetName });
@@ -142,11 +123,17 @@ export class Backend {
         Log.log('set profile backend call done');
         return parseJDSPAll(res);
     }
+    static async newPreset(presetName: string, fromPresetName?: string) {
+        return await this.callJDSP('new_jdsp_preset', { presetName, fromPresetName });
+    }
 
 
-    // static async getProfiles() {
-    //     return await this.callJDSP('get_profiles', {});
-    // }
+    static async startJDSP() {
+        return await this.callPlugin('start_jdsp', {});
+    }
+    static async setAppWatch(appId: string, watch: boolean) {
+        return await this.callPlugin('set_app_watch', { appId, watch });
+    }
     static async initProfiles(globalPreset: string) {
         return await this.callPlugin('init_profiles', { globalPreset });
     }
@@ -156,5 +143,7 @@ export class Backend {
     static async setManualProfile(presetName: string) {
         return await this.callPlugin('set_manual_profile', { presetName });
     }
-
+    static async getSettings(): Promise<PluginSettings> {
+        return await this.serverAPI.callPluginMethod('test', {});
+    }
 }

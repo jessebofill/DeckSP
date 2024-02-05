@@ -1,4 +1,4 @@
-import { Focusable, GamepadButton, ModalPosition, Panel, ScrollPanelGroup } from 'decky-frontend-lib';
+import { Focusable, GamepadButton, ModalPosition, ScrollPanelGroup } from 'decky-frontend-lib';
 import { FC } from 'react';
 
 export interface ScrollableWindowProps {

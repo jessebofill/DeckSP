@@ -157,7 +157,7 @@ class Plugin:
     async def test2(self):
         return Plugin.profiles
     
-    async def new_preset(self, presetName, fromPresetName = None):
+    async def new_jdsp_preset(self, presetName, fromPresetName = None):
         if fromPresetName is not None: 
             load1res = Plugin.jdsp.load_preset(fromPresetName)
             if Plugin.jdsp.has_error(load1res): return load1res
@@ -205,6 +205,12 @@ class Plugin:
 
     async def set_manually_apply_profiles(self, useManual):
         Plugin.profiles['useManual'] = useManual
+
+    async def set_jdsp_defaults(self, defaultPreset):
+        #check errors
+        Plugin.jdsp.load_preset(defaultPreset)
+        Plugin.jdsp.save_preset(Plugin.profiles['currentPreset'])
+        return Plugin.jdsp.get_all()
 
     def load_settings():
         log.info('load settings')

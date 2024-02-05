@@ -1,11 +1,8 @@
 import { profileManager } from '../controllers/ProfileManager';
 import { handleGetDspSettingsAfterProfileLoad } from '../controllers/asyncDataHandlers';
-import { useDspSettings } from './contextHooks';
-import { useWaiter } from './useWaiter';
+import { useWaitDspSettings } from './useWaitDspSettings';
 
 export function useManualProfilesState() {
-    const { setData: setSettings, setError } = useDspSettings();
-    if (!setSettings || !setError) return {};
     
     const waitForSetUseManual = async (checked: boolean) => {
         profileManager.setLock(profileManager.setUseManualProfiles(checked));
@@ -19,7 +16,7 @@ export function useManualProfilesState() {
     return {
         useManual: profileManager.manuallyApply,
         manualProfileId: profileManager.manualProfileId,
-        onChangeUseManual: useWaiter(waitForSetUseManual, (settings) => settings instanceof Error ? setError(settings) : setSettings(settings)),
-        onChangeManualProfile: useWaiter(waitForManualProfile, (settings) => settings instanceof Error ? setError(settings) : setSettings(settings)),
+        onChangeUseManual: useWaitDspSettings(waitForSetUseManual),
+        onChangeManualProfile: useWaitDspSettings(waitForManualProfile)
     };
 };
