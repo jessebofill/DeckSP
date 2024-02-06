@@ -11,26 +11,23 @@ export type PluginStartJDSPMethod = 'start_jdsp';
 export type PluginSetAppWatchMethod = 'set_app_watch';
 export type PluginInitProfilesMethod = 'init_profiles';
 export type PluginSetManuallyApplyProfilesMethod = 'set_manually_apply_profiles';
-export type PluginSetManualProfileMethod = 'set_manual_profile';
 
 
 export type PluginMethod =
     PluginStartJDSPMethod |
     PluginSetAppWatchMethod |
     PluginInitProfilesMethod |
-    PluginSetManuallyApplyProfilesMethod |
-    PluginSetManualProfileMethod;
+    PluginSetManuallyApplyProfilesMethod;
 
 export type PluginMethodArgs<Method extends PluginMethod> =
     Method extends PluginStartJDSPMethod ? {} :
     Method extends PluginSetAppWatchMethod ? { appId: string, watch: boolean } :
     Method extends PluginInitProfilesMethod ? { globalPreset: string } :
     Method extends PluginSetManuallyApplyProfilesMethod ? { useManual: boolean } :
-    Method extends PluginSetManualProfileMethod ? { presetName: string } :
     never;
 
 export type PluginMethodResponse<Method extends PluginMethod> =
-    Method extends PluginStartJDSPMethod | PluginSetAppWatchMethod | PluginSetManuallyApplyProfilesMethod | PluginSetManualProfileMethod ? undefined :
+    Method extends PluginStartJDSPMethod | PluginSetAppWatchMethod | PluginSetManuallyApplyProfilesMethod ? undefined :
     Method extends PluginInitProfilesMethod ? { manualPreset: string, allPresets: string, watchedGames: { [appId: string]: boolean }, manuallyApply: boolean } :
     never;
 
@@ -40,16 +37,16 @@ interface PluginMethodError {
 
 export type JDSPSetMethod = 'set_jdsp_param';
 export type JDSPGetAllMethod = 'get_all_jdsp_param';
+export type JDSPSetDefaultsMethod = 'set_jdsp_defaults';
 export type JDSPNewPresetMethod = 'new_jdsp_preset';
 export type JDSPSetProfileMethod = 'set_profile';
-export type JDSPSetDefaultsMethod = 'set_jdsp_defaults';
 
 export type JDSPMethod =
     JDSPSetMethod |
     JDSPGetAllMethod |
+    JDSPSetDefaultsMethod |
     JDSPNewPresetMethod |
-    JDSPSetProfileMethod |
-    JDSPSetDefaultsMethod;
+    JDSPSetProfileMethod;
 
 type ParamSendValueType<Param extends DSPParameter> =
     Param extends DSPParameterCompResponse | DSPParameterEQParameters ?
@@ -59,9 +56,9 @@ type ParamSendValueType<Param extends DSPParameter> =
 export type JDSPMethodArgs<Method extends JDSPMethod, Param extends DSPParameter = never> =
     Method extends JDSPSetMethod ? { parameter: Param, value: ParamSendValueType<Param> } :
     Method extends JDSPGetAllMethod ? {} :
-    Method extends JDSPSetProfileMethod ? { presetName: string, isManual: boolean } :
-    Method extends JDSPNewPresetMethod ? { presetName: string, fromPresetName?: string } :
     Method extends JDSPSetDefaultsMethod ? { defaultPreset: string } :
+    Method extends JDSPNewPresetMethod ? { presetName: string, fromPresetName?: string } :
+    Method extends JDSPSetProfileMethod ? { presetName: string, isManual: boolean } :
     never;
 
 export interface JDSPResponse {
@@ -102,6 +99,7 @@ export class Backend {
         return await this.serverAPI.callPluginMethod('test2', { });
     }
 
+    //jdsp specific calls
     static async setDsp<Param extends DSPParameter>(parameter: Param, value: DSPParameterType<Param>) {
         const val = parameter === 'compander_response' || parameter === 'tone_eq' ?
             stringifyNestedParams(value as DSPParameterType<DSPParameterCompResponse | DSPParameterEQParameters>) :
@@ -115,6 +113,9 @@ export class Backend {
     static async setDspDefaults(defaultPreset: string) {
         return parseJDSPAll(await this.callJDSP('set_jdsp_defaults', { defaultPreset }));
     }
+    static async newPreset(presetName: string, fromPresetName?: string) {
+        return await this.callJDSP('new_jdsp_preset', { presetName, fromPresetName });
+    }
     static async setProfile(presetName: string, isManual: boolean) {
         Log.log('set profile called');
         // const res = await this.serverAPI.callPluginMethod('set_profile', { presetName: presetName });
@@ -123,11 +124,9 @@ export class Backend {
         Log.log('set profile backend call done');
         return parseJDSPAll(res);
     }
-    static async newPreset(presetName: string, fromPresetName?: string) {
-        return await this.callJDSP('new_jdsp_preset', { presetName, fromPresetName });
-    }
 
 
+    //general plugin calls
     static async startJDSP() {
         return await this.callPlugin('start_jdsp', {});
     }
@@ -139,9 +138,6 @@ export class Backend {
     }
     static async setManuallyApplyProfiles(useManual: boolean) {
         return await this.callPlugin('set_manually_apply_profiles', { useManual });
-    }
-    static async setManualProfile(presetName: string) {
-        return await this.callPlugin('set_manual_profile', { presetName });
     }
     static async getSettings(): Promise<PluginSettings> {
         return await this.serverAPI.callPluginMethod('test', {});
