@@ -180,6 +180,19 @@ export class ProfileManager {
         }
     }
 
+    async deleteProfile(profileId: string) {
+        const presetName = ProfileManager.makePresetName(profileId, ProfileType.user);
+
+        try {
+            const res = await Backend.deletePreset(presetName);
+
+            delete this.profiles[profileId];
+            return res;
+        } catch (err) {
+            return useError(`Problem deleting profile - \n ${(err as Error).message ?? ''}`);
+        }
+    }
+
     async applyProfile(profileId: string, isManuallyApplied: boolean = false) {
         try {
             Log.log('applying profile', profileId);

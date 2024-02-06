@@ -48,6 +48,9 @@ class JdspProxy:
 
     def save_preset(self, presetName):
         return self.__run('--save-preset', presetName)
+
+    def delete_preset(self, presetName):
+        return self.__run('--delete-preset', presetName)
     
     def get_presets(self):
         return self.__run('--list-presets')

@@ -1,11 +1,14 @@
-import { DropdownOption, Field, Menu, MenuGroup, MenuItem, MultiDropdownOption, SingleDropdownOption, gamepadContextMenuClasses, showContextMenu, showModal } from 'decky-frontend-lib';
-import { VFC, useEffect, useState } from 'react';
+import { Field, Menu, MenuGroup, MenuItem, MultiDropdownOption, SingleDropdownOption, gamepadContextMenuClasses, showContextMenu, showModal } from 'decky-frontend-lib';
+import { VFC, createContext, useContext, useEffect, useState } from 'react';
 import { addClasses } from '../../lib/utils';
-import { useProfileMultiDropdownOptions } from '../../hooks/useProfileMultiDropdownOptions';
+import { useGameProfileMultiDropdownOption, useProfileMultiDropdownOptions, useUserProfileMultiDropdownOption } from '../../hooks/useProfileMultiDropdownOptions';
 import { CustomButton } from '../generic/CustomButton';
 import { usePluginContext } from '../../hooks/contextHooks';
 import { FaPlus } from "react-icons/fa6";
-import { NewProfileModal } from './NewProfileModalProps';
+import { NewProfileModal } from './NewProfileModal';
+import { DeleteProfileType, useDeleteProfile } from '../../hooks/useDeleteProfile';
+import { ProfileType } from '../../controllers/ProfileManager';
+import { DeleteProfileModal } from './DeleteProfileModal';
 
 interface ManualProfilesDropdownProps {
     selectedOption: any;
@@ -15,47 +18,19 @@ interface ManualProfilesDropdownProps {
 export const ManualProfilesDropdown: VFC<ManualProfilesDropdownProps> = ({ selectedOption: selectedOptionData, onSelectProfile }) => {
     const icon = <svg style={{ height: '1em', margin: 'auto' }} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36" fill="none"><path d="M17.98 26.54L3.20996 11.77H32.75L17.98 26.54Z" fill="currentColor"></path></svg>;
     const { ready } = usePluginContext();
-    const profileOptions: DropdownOption[] = useProfileMultiDropdownOptions();
+    const profileOptions = useProfileMultiDropdownOptions();
     const [selected, setSelected] = useState<SingleDropdownOption | undefined>(findMatchedOptionRecursive(profileOptions, selectedOptionData));
 
-    const newProfileOption = {
-        label: <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <FaPlus size={'9px'} />
-            New Custom Profile
-        </div>,
-        data: 'newprofile'
-    };
-
-    profileOptions.push(newProfileOption);
-
     useEffect(() => {
-        if (selected?.data !== selectedOptionData) {
-            setSelected(findMatchedOptionRecursive(profileOptions, selectedOptionData));
-        }
-    }, [selectedOptionData, profileOptions.length]);
+        if (selected?.data !== selectedOptionData) setSelected(findMatchedOptionRecursive(profileOptions, selectedOptionData));
+    }, [selectedOptionData, profileOptions[0].options.length, profileOptions[1]?.options.length]);
 
-    const onOptionChange = (option: SingleDropdownOption) => {
+    const onSelectOption = (option: SingleDropdownOption) => {
         setSelected(option);
         onSelectProfile?.(option.data);
     };
 
-    const onSelect = (option: SingleDropdownOption) => {
-        if (option.data === newProfileOption.data) showModal(<NewProfileModal onConfirm={profileName => onOptionChange({ label: profileName, data: profileName })} />);
-        else onOptionChange(option);
-    };
-
-    const mapOptions = (option: SingleDropdownOption | MultiDropdownOption) => !option.options ?
-        <MenuItem selected={option.data === selected?.data} onClick={() => onSelect(option)} onOKActionDescription={option.data === newProfileOption.data ? 'Create Custom Profile' : 'Apply Profile'}>
-            {option.label}
-        </MenuItem> :
-        //@ts-ignore
-        <MenuGroup label={option.label} className={addClasses(option.options.find(option => option.data === selected?.data) && gamepadContextMenuClasses.Selected)}>
-            {option.options.map(mapOptions)}
-        </MenuGroup>;
-
-    const separator = <div className={gamepadContextMenuClasses.ContextMenuSeparator} />;
-    const menuItems = profileOptions.map(mapOptions);
-    menuItems.splice(-1, 0, separator);
+    const deleteProfile = useDeleteProfile();
 
     return (
         <Field label={
@@ -63,13 +38,7 @@ export const ManualProfilesDropdown: VFC<ManualProfilesDropdownProps> = ({ selec
                 containerStyle={{ width: '100%' }}
                 style={{ padding: '10px 16px' }}
                 noAudio={true}
-                onClick={() => {
-                    showContextMenu(
-                        <Menu label={'Profiles'}>
-                            {menuItems}
-                        </Menu>
-                    );
-                }}
+                onClick={() => showContextMenu(<ProfileMenu selected={selected} deleteProfile={deleteProfile} onSelectOption={onSelectOption} />)}
                 disabled={!ready}
             >
                 <div style={{ display: 'flex', overflow: 'hidden' }}>
@@ -82,7 +51,7 @@ export const ManualProfilesDropdown: VFC<ManualProfilesDropdownProps> = ({ selec
                         {icon}
                     </div>
                 </div>
-            </CustomButton>
+            </CustomButton >
         }
             bottomSeparator='none'
         />
@@ -99,3 +68,104 @@ function findMatchedOptionRecursive(options: (SingleDropdownOption | MultiDropdo
     }
     return;
 }
+
+
+type ProfileMenuContextData = {
+    selected?: SingleDropdownOption;
+    deleteProfile?: DeleteProfileType;
+    onSelectOption?: (option: SingleDropdownOption) => void;
+};
+
+interface ProfileGroupContextData extends ProfileMenuContextData {
+    group: MultiDropdownOption;
+    groupType: ProfileType;
+    refreshGroup: () => void;
+}
+
+const ProfileGroupContext = createContext<ProfileGroupContextData | null>(null);
+const ProfileMenuContext = createContext<ProfileMenuContextData | null>(null);
+
+
+const ProfileMenu: VFC<ProfileMenuContextData> = ({ selected, deleteProfile, onSelectOption }) => {
+    return (
+        <ProfileMenuContext.Provider value={{ deleteProfile, onSelectOption, selected }}>
+            <Menu label={'Profiles'}>
+                <ProfileMenuGroup groupType={ProfileType.game} />
+                <ProfileMenuGroup groupType={ProfileType.user} />
+                <div className={gamepadContextMenuClasses.ContextMenuSeparator} />
+                <MenuItem onClick={() => showModal(<NewProfileModal onConfirm={profileName => onSelectOption?.({ label: profileName, data: profileName })} />)}                >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <FaPlus size={'9px'} />
+                        New Custom Profile
+                    </div>
+                </MenuItem>
+            </Menu>
+        </ProfileMenuContext.Provider>
+    );
+};
+
+interface ProfileMenuGroupProps {
+    groupType: ProfileType;
+}
+
+const ProfileMenuGroup: VFC<ProfileMenuGroupProps> = ({ groupType }) => {
+    const menuContext = useContext(ProfileMenuContext);
+    if (!menuContext) return null;
+
+    const { selected, deleteProfile, onSelectOption } = menuContext;
+    const group = groupType === ProfileType.game ? useGameProfileMultiDropdownOption() : useUserProfileMultiDropdownOption();
+    const [_, setState] = useState(false);
+
+    return group?.options && group.options.length > 0 ?
+        //@ts-ignore
+        <MenuGroup label={group.label} className={addClasses(group.options.find(option => option.data === selected?.data) && gamepadContextMenuClasses.Selected)}>
+            <ProfileGroupContext.Provider
+                value={{
+                    group,
+                    groupType,
+                    refreshGroup: () => setState(state => !state),
+                    selected,
+                    deleteProfile,
+                    onSelectOption
+                }}
+            >
+                <ProfileMenuItems />
+            </ProfileGroupContext.Provider>
+        </MenuGroup>
+        : null;
+};
+
+const ProfileMenuItems: VFC<{}> = ({ }) => {
+    const groupContext = useContext(ProfileGroupContext);
+    if (!groupContext) return null;
+
+    const { group, groupType, refreshGroup, selected, deleteProfile, onSelectOption } = groupContext;
+    const [options, setOptions] = useState(group.options);
+    const isUserGroup = groupType === ProfileType.user;
+
+    return (
+        <>
+            {options.map(option =>
+                <MenuItem
+                    selected={option.data === selected?.data}
+                    onClick={() => onSelectOption?.(option as SingleDropdownOption)}
+                    onOKActionDescription='Apply Profile'
+                    onSecondaryButton={isUserGroup && option.data !== selected?.data ?
+                        () => showModal(
+                            <DeleteProfileModal
+                                profileName={option.label}
+                                onConfirm={async () => {
+                                    await deleteProfile?.(option.data);
+                                    refreshGroup();
+                                    setOptions(useUserProfileMultiDropdownOption()?.options ?? [])
+                                }}
+                            />) : undefined
+                    }
+                    onSecondaryActionDescription={isUserGroup && option.data !== selected?.data ? 'Delete Profile' : undefined}
+                >
+                    {option.label}
+                </MenuItem>
+            )}
+        </>
+    );
+};

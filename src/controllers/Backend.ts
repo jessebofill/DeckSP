@@ -39,6 +39,7 @@ export type JDSPSetMethod = 'set_jdsp_param';
 export type JDSPGetAllMethod = 'get_all_jdsp_param';
 export type JDSPSetDefaultsMethod = 'set_jdsp_defaults';
 export type JDSPNewPresetMethod = 'new_jdsp_preset';
+export type JDSPDeletePresetMethod = 'delete_jdsp_preset';
 export type JDSPSetProfileMethod = 'set_profile';
 
 export type JDSPMethod =
@@ -46,6 +47,7 @@ export type JDSPMethod =
     JDSPGetAllMethod |
     JDSPSetDefaultsMethod |
     JDSPNewPresetMethod |
+    JDSPDeletePresetMethod |
     JDSPSetProfileMethod;
 
 type ParamSendValueType<Param extends DSPParameter> =
@@ -58,6 +60,7 @@ export type JDSPMethodArgs<Method extends JDSPMethod, Param extends DSPParameter
     Method extends JDSPGetAllMethod ? {} :
     Method extends JDSPSetDefaultsMethod ? { defaultPreset: string } :
     Method extends JDSPNewPresetMethod ? { presetName: string, fromPresetName?: string } :
+    Method extends JDSPDeletePresetMethod ? { presetName: string } :
     Method extends JDSPSetProfileMethod ? { presetName: string, isManual: boolean } :
     never;
 
@@ -115,6 +118,9 @@ export class Backend {
     }
     static async newPreset(presetName: string, fromPresetName?: string) {
         return await this.callJDSP('new_jdsp_preset', { presetName, fromPresetName });
+    }
+    static async deletePreset(presetName: string) {
+        return await this.callJDSP('delete_jdsp_preset', { presetName });
     }
     static async setProfile(presetName: string, isManual: boolean) {
         Log.log('set profile called');

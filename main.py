@@ -6,7 +6,7 @@ import sys
 from settings import SettingsManager
 from typing import List
 
-#for testing?
+# for testing?
 sys.path.append(os.path.dirname(__file__))
 
 from py_modules.jdspproxy import JdspProxy
@@ -50,12 +50,12 @@ class Plugin:
 
         Plugin.load_settings()
 
-        #install flatpak and change to correct version
-        #ADD ERROR CHECKING HERE
+        # install flatpak and change to correct version
+        # ADD ERROR CHECKING HERE
         subprocess.run(['flatpak', '--user', '-y', 'install', 'flathub', APPLICATION_ID])
         subprocess.run(['flatpak', '--user', '-y', 'update', '--commit=892695e011c19fc04de20973cb1c6b639753ed76084a170a966c61a64037ab9c', APPLICATION_ID], capture_output=True, text=True)
         log.info('flatpak installed')
-        
+
         # dbus = DBus(APPLICATION_ID, DBUS_PATH, DBUS_INTERFACE)
         Plugin.jdsp = JdspProxy(APPLICATION_ID, log)
         log.info('Plugin ready')
@@ -75,10 +75,9 @@ class Plugin:
         default_profiles_settings = {setting: Plugin.profiles[setting] for setting in Plugin.profiles.keys() - { 'currentPreset' }}
         profiles = settings_manager.getSetting('profiles', default_profiles_settings)
         Plugin.profiles.update(profiles)
-    
+
     def save_profile_settings():
         settings_manager.setSetting('profiles', {setting: Plugin.profiles[setting] for setting in Plugin.profiles.keys() - { 'currentPreset' }})
-
 
     """
     ===================================================================================================================================
@@ -94,13 +93,12 @@ class Plugin:
     Annotation: 'general-frontend-call'
     """
 
-    #general-frontend-call
+    # general-frontend-call
     async def start_jdsp(self):
         env = os.environ.copy()
         env["DBUS_SESSION_BUS_ADDRESS"] = f'unix:path=/run/user/{os.getuid()}/bus'
         env['XDG_RUNTIME_DIR']=f'/run/user/{os.getuid()}'
         env['DISPLAY']=':0'
-
 
         # process = await asyncio.create_subprocess_shell('flatpak kill ' + APPLICATION_ID, env=env)
         # await process.wait()
@@ -114,12 +112,12 @@ class Plugin:
         with open(JDSP_LOG, "w") as jdsp_log:
             subprocess.Popen(f'flatpak --user run {APPLICATION_ID} --tray', stdout=jdsp_log, stderr=jdsp_log, shell=True, env=env, universal_newlines=True)
 
-    #general-frontend-call
+    # general-frontend-call
     async def set_app_watch(self, appId, watch):
         Plugin.profiles['watchedApps'][appId] = watch
         Plugin.save_profile_settings()
 
-    #general-frontend-call
+    # general-frontend-call
     async def init_profiles(self, globalPreset):
         if Plugin.profiles['manualPreset'] == '':               # manual preset should be set from first loading settings file, if not then file doesn't exist yet
             Plugin.profiles['manualPreset'] = globalPreset
@@ -129,7 +127,7 @@ class Plugin:
         presets = Plugin.jdsp.get_presets()
         if JdspProxy.has_error(presets):
             return { 'error': str(presets) }
-        
+
         return { 
             'manualPreset': Plugin.profiles['manualPreset'], 
             'allPresets': presets['jdsp_result'], 
@@ -137,11 +135,9 @@ class Plugin:
             'manuallyApply': Plugin.profiles['useManual'] 
         }
 
-    #general-frontend-call
+    # general-frontend-call
     async def set_manually_apply_profiles(self, useManual):
         Plugin.profiles['useManual'] = useManual
-
-
 
     """
     ------------------------------------------
@@ -153,7 +149,7 @@ class Plugin:
     Annotation: 'jdsp-frontend-call'
     """
 
-    #jdsp-frontend-call
+    # jdsp-frontend-call
     async def set_jdsp_param(self, parameter, value):
         log.info('recieved')
         log.info(parameter)
@@ -162,14 +158,14 @@ class Plugin:
         # log.info(p)
         res = Plugin.jdsp.set_and_commit(parameter, value)
         Plugin.jdsp.save_preset(Plugin.profiles['currentPreset'])
-        #check errors
+        # check errors
         return res
 
-    #jdsp-frontend-call
+    # jdsp-frontend-call
     async def get_all_jdsp_param(self):
         return Plugin.jdsp.get_all()
-    
-    #jdsp-frontend-call
+
+    # jdsp-frontend-call
     async def set_jdsp_defaults(self, defaultPreset):
         loadres = Plugin.jdsp.load_preset(defaultPreset)                        # load the default preset settings
         if JdspProxy.has_error(loadres): return loadres
@@ -177,7 +173,7 @@ class Plugin:
         if JdspProxy.has_error(saveres): return saveres
         return Plugin.jdsp.get_all()
 
-    #jdsp-frontend-call
+    # jdsp-frontend-call
     async def new_jdsp_preset(self, presetName, fromPresetName = None):
         if fromPresetName is not None: 
             loadres = Plugin.jdsp.load_preset(fromPresetName)                   # load preset settings to copy
@@ -187,8 +183,12 @@ class Plugin:
             return Plugin.jdsp.load_preset(Plugin.profiles['currentPreset'])    # reload the previous preset settings
         else: 
             return Plugin.jdsp.save_preset(presetName)
-    
-    #jdsp-frontend-call
+
+    # jdsp-frontend-call
+    async def delete_jdsp_preset(self, presetName):
+        return Plugin.jdsp.delete_preset(presetName)
+
+    # jdsp-frontend-call
     async def set_profile(self, presetName, isManual):
         if isManual:
             Plugin.profiles['manualPreset'] = presetName
@@ -197,15 +197,14 @@ class Plugin:
         Plugin.profiles['currentPreset'] = presetName
         Plugin.save_profile_settings()
         return Plugin.jdsp.get_all()
-    
-    
+
     async def test(self):
         log.info("this is a test")
         return os.getuid()
-    
+
     async def test2(self):
         return Plugin.profiles
-    
+
     """
     ===================================================================================================================================
     """

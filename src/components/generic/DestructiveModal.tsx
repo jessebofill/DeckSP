@@ -1,11 +1,11 @@
 import { ConfirmModal, ConfirmModalProps, gamepadDialogClasses } from 'decky-frontend-lib';
-import { VFC } from 'react';
+import { FC } from 'react';
 
 export interface DestructiveModalProps extends Omit<ConfirmModalProps, 'bDestructiveWarning'> {
 
 }
 
-export const DestructiveModal: VFC<DestructiveModalProps> = ({ className, ...props }) => {
+export const DestructiveModal: FC<DestructiveModalProps> = ({ className, ...props }) => {
     const rootClass = 'destructive-modal';
 
     return (
