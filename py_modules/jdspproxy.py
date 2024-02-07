@@ -14,19 +14,28 @@ class JdspProxy:
 
     # def setAndCommit(self, key, value, logger):
     #     return self.dbus.send('setAndCommit', logger, f'string:{key}', f'variant:string:{value}')
-    
+
     # def get(self, key, logger):
     #     return self.dbus.send('get', logger, f'string:{key}')
-    
+
     def __run(self, command, *args):
         try:
-            return {'jdsp_result': subprocess.run(['flatpak', '--user', 'run', self.app_id, command, *args], check=True, capture_output=True, text=True, env=self.env).stdout}
+            result = subprocess.run(['flatpak', '--user', 'run', self.app_id, '-c', command, *args], check=True, capture_output=True, text=True, env=self.env)
+            return JdspProxy.parse_process_result(result)
+        
         except subprocess.CalledProcessError as e:
-            if e.stderr == '':
-                return {'jdsp_result': ''}
-            self.log.error(e)
-            return {JDSP_ERROR_STR: e.stderr}
-    
+            return JdspProxy.parse_process_result(e)
+        
+    @staticmethod
+    def parse_process_result(result: subprocess.CompletedProcess[str] | subprocess.CalledProcessError):
+        if result.stderr != '':
+            msg = result.stderr
+            if result.stderr.startswith("error:"):
+                msg = result.stderr[len("error:"):].strip()
+            return {JDSP_ERROR_STR: msg}
+            
+        return {'jdsp_result': result.stdout}
+
     @staticmethod
     def has_error(result: dict[str]):
         if JDSP_ERROR_STR in result:
@@ -36,13 +45,13 @@ class JdspProxy:
 
     def set_and_commit(self, key, value):
         return self.__run('--set', f'{key}={value}')
-    
+
     def get(self, key):
         return self.__run('--get', f'{key}')
 
     def get_all(self):
         return self.__run('--get-all')
-    
+
     def load_preset(self, presetName):
         return self.__run('--load-preset', presetName)
 
@@ -51,6 +60,6 @@ class JdspProxy:
 
     def delete_preset(self, presetName):
         return self.__run('--delete-preset', presetName)
-    
+
     def get_presets(self):
         return self.__run('--list-presets')
