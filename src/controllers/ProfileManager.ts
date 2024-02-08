@@ -189,7 +189,7 @@ export class ProfileManager {
             delete this.profiles[profileId];
             return res;
         } catch (err) {
-            return useError(`Problem deleting profile - \n ${(err as Error).message ?? ''}`);
+            return useError(`Problem deleting profile id: ${profileId} - \n ${(err as Error).message ?? ''}`);
         }
     }
 

@@ -1,4 +1,3 @@
-import { Focusable } from 'decky-frontend-lib';
 import { FC } from 'react';
 import { useDspSettings, usePluginSettings } from '../../hooks/contextHooks';
 import { QAMErrorWrapper } from '../generic/QAMErrorWrapper';
@@ -13,8 +12,8 @@ export const QAMPage: FC<QAMPageProps> = ({ children, dataProvider }) => {
     if (error) return <QAMErrorWrapper>{`Error: ${error.message}`}</QAMErrorWrapper>;
 
     return (
-        <Focusable>
+        <>
             {children}
-        </Focusable>
+        </>
     );
 };

@@ -23,8 +23,7 @@ export default definePlugin((serverApi: ServerAPI) => {
 
     return {
         titleView: (
-            <QAMTitleView title={PLUGIN_NAME} pagerLinker={pagerLinker}>
-            </QAMTitleView>
+            <QAMTitleView title={PLUGIN_NAME} pagerLinker={pagerLinker} />
         ),
         title: <></>,
         content: (

@@ -41,8 +41,7 @@ export const QAMTitleView: FC<QAMTitleViewProps> = ({ pagerLinker, title }) => {
                             position: 'relative',
                             height: `${underTitleHeight}px`
                         }}
-                    >
-                    </div>
+                    />
                     <div
                         className={titleViewClasses.belowTitle}
                         style={{
