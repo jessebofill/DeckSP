@@ -2,7 +2,7 @@ import { quickAccessMenuClasses, Focusable } from 'decky-frontend-lib';
 import { FC } from 'react';
 import { addClasses } from '../../lib/utils';
 import { CurrentProfile } from '../profile/CurrentProfile';
-import { titleViewClasses } from '../../defines/cssClasses';
+import { deckyQamTabClass, titleViewClasses } from '../../defines/cssClasses';
 import { PagerLinker, QAMPageSwitcher } from './QAMPager';
 
 interface QAMTitleViewProps {
@@ -17,7 +17,7 @@ export const QAMTitleView: FC<QAMTitleViewProps> = ({ pagerLinker, title }) => {
     return (
         <Focusable>
             <style>{`
-                .${quickAccessMenuClasses.Title}:not(.${titleViewClasses.innerContainer}) {
+                .${deckyQamTabClass} .${quickAccessMenuClasses.Title}:not(.${titleViewClasses.innerContainer}) {
                     align-items: flex-start;
                 }
             `}</style>
