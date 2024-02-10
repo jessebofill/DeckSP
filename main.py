@@ -24,6 +24,7 @@ DBUS_INTERFACE = "me.timschneeberger.jdsp4linux.Service"
 FLATPAK_PATH = 'defaults/jdsp4linux-headless.flatpak'
 JDSP_LOG_DIR =  os.path.join(decky_plugin.DECKY_PLUGIN_LOG_DIR, 'jdsp')
 JDSP_LOG = os.path.join(JDSP_LOG_DIR, 'jdsp.log')
+JDSP_REQ_VER = '2.6.1'
 
 jdspPresetPrefix = 'decksp.'
 jdspPresetGamePrefix = jdspPresetPrefix + 'game:'
@@ -44,32 +45,35 @@ class Plugin:
 
     # Asyncio-compatible long-running code, executed in a task when the plugin is loaded
     async def _main(self):
-        log.info('starting python')
+        log.info('Starting plugin backend...')
         if not os.path.exists(JDSP_LOG_DIR):
             os.makedirs(JDSP_LOG_DIR)
 
         Plugin.load_settings()
-
-        # install flatpak and change to correct version
-        # ADD ERROR CHECKING HERE
-        subprocess.run(['flatpak', '--user', '-y', 'install', 'flathub', APPLICATION_ID])
-        subprocess.run(['flatpak', '--user', '-y', 'update', '--commit=892695e011c19fc04de20973cb1c6b639753ed76084a170a966c61a64037ab9c', APPLICATION_ID], capture_output=True, text=True)
-        log.info('flatpak installed')
-
-        # dbus = DBus(APPLICATION_ID, DBUS_PATH, DBUS_INTERFACE)
         Plugin.jdsp = JdspProxy(APPLICATION_ID, log)
-        log.info('Plugin ready')
+
+        if(Plugin.handle_jdsp_install()):
+            log.info('Plugin ready')
+        else:
+            log.error('Problem with James DSP installation')
 
     # Function called first during the unload process, utilize this to handle your plugin being removed
     async def _unload(self):
+        log.info('Unloading plugin...')
         env = os.environ.copy()
         env["DBUS_SESSION_BUS_ADDRESS"] = f'unix:path=/run/user/{os.getuid()}/bus'
         env['XDG_RUNTIME_DIR']=f'/run/user/{os.getuid()}'
         env['DISPLAY']=':0'
 
-        subprocess.run(['flatpak', 'kill', APPLICATION_ID], env=env)
-        subprocess.run(['flatpak', '--user', '-y', 'uninstall', APPLICATION_ID])
-        log.info("Uninstalled James DSP")
+        subprocess.run(['flatpak', 'kill', APPLICATION_ID], check=True, capture_output=True, text=True, env=env)
+        try: 
+            log.info('Uninstalling James DSP...')
+            subprocess.run(['flatpak', '--user', '-y', 'uninstall', APPLICATION_ID], check=True, capture_output=True, text=True)
+            log.info("James DSP uninstalled sucessfully")
+
+        except subprocess.CalledProcessError as e:
+            log.error(e.stderr)
+            log.error('Problem uninstalling James DSP')
 
     def load_settings():
         default_profiles_settings = {setting: Plugin.profiles[setting] for setting in Plugin.profiles.keys() - { 'currentPreset' }}
@@ -78,6 +82,39 @@ class Plugin:
 
     def save_profile_settings():
         settings_manager.setSetting('profiles', {setting: Plugin.profiles[setting] for setting in Plugin.profiles.keys() - { 'currentPreset' }})
+
+    def handle_jdsp_install():
+        log.info('Checking for James DSP installation...')
+        try:
+            flatpakListRes = subprocess.run(['flatpak', 'list', '--app', '--columns=application,version'], check=True, capture_output=True, text=True)
+            installed_version = ''
+
+            for line in flatpakListRes.stdout.split('\n'):
+                if line.startswith(APPLICATION_ID):
+                    installed_version = line.split()[1]
+
+            if installed_version != '':
+                log.info(f'James DSP version {installed_version} is installed')
+                
+                if installed_version == JDSP_REQ_VER: return True
+                else: log.info(f'Required version is {JDSP_REQ_VER}')
+            
+            else:
+                log.info('No James DSP installation was found')
+                log.info('Installing James DSP flatpak...')
+                installRes = subprocess.run(['flatpak', '--user', '-y', 'install', 'flathub', APPLICATION_ID], check=True, capture_output=True, text=True)
+                log.info(installRes.stdout)
+            
+            log.info(f'Installing required version {JDSP_REQ_VER}...')
+            updateRes = subprocess.run(['flatpak', '--user', '-y', 'update', '--commit=892695e011c19fc04de20973cb1c6b639753ed76084a170a966c61a64037ab9c', APPLICATION_ID], check=True, capture_output=True, text=True)
+            log.info(updateRes.stdout)
+            log.info(f'Installed James DSP version {JDSP_REQ_VER}')
+
+            return True
+
+        except subprocess.CalledProcessError as e:
+            log.error(e.stderr)
+            return False
 
     """
     ===================================================================================================================================
@@ -100,17 +137,17 @@ class Plugin:
         env['XDG_RUNTIME_DIR']=f'/run/user/{os.getuid()}'
         env['DISPLAY']=':0'
 
-        # process = await asyncio.create_subprocess_shell('flatpak kill ' + APPLICATION_ID, env=env)
-        # await process.wait()
-
-        # # Start the flatpak application
-        # cmd = f'flatpak --user run {APPLICATION_ID} --tray'
-        # asyncio.create_subprocess_shell(cmd, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE, env=env)
-        # # stdout, stderr = await process.communicate()
-
         subprocess.run(['flatpak', 'kill', APPLICATION_ID], env=env)
         with open(JDSP_LOG, "w") as jdsp_log:
             subprocess.Popen(f'flatpak --user run {APPLICATION_ID} --tray', stdout=jdsp_log, stderr=jdsp_log, shell=True, env=env, universal_newlines=True)
+
+    # general-frontend-call
+    async def flatpak_repair(self):
+        try:
+            subprocess.run(['flatpak', 'repair', '--user'], check=True, capture_output=True, text=True)
+            return 
+        except subprocess.CalledProcessError as e:
+            return { 'error': e.stderr }
 
     # general-frontend-call
     async def set_app_watch(self, appId, watch):

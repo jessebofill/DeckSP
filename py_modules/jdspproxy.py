@@ -21,13 +21,13 @@ class JdspProxy:
     def __run(self, command, *args):
         try:
             result = subprocess.run(['flatpak', '--user', 'run', self.app_id, '-c', command, *args], check=True, capture_output=True, text=True, env=self.env)
-            return JdspProxy.parse_process_result(result)
+            return JdspProxy.wrap_process_result(result)
         
         except subprocess.CalledProcessError as e:
-            return JdspProxy.parse_process_result(e)
+            return JdspProxy.wrap_process_result(e)
         
     @staticmethod
-    def parse_process_result(result: subprocess.CompletedProcess[str] | subprocess.CalledProcessError):
+    def wrap_process_result(result: subprocess.CompletedProcess[str] | subprocess.CalledProcessError):
         if result.stderr != '':
             msg = result.stderr
             if result.stderr.startswith("error:"):
