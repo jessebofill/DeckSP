@@ -29,8 +29,7 @@ export async function handleWaitSettings(setData: DataProviderSetData<PluginData
 
         setData(data);
         setReady(true);
-    })
-
+    });
 }
 
 async function handleGetPluginStateOnMount() {

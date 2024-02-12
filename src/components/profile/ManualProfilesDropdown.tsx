@@ -1,6 +1,6 @@
 import { Field, Menu, MenuGroup, MenuItem, MultiDropdownOption, SingleDropdownOption, gamepadContextMenuClasses, showContextMenu, showModal } from 'decky-frontend-lib';
 import { VFC, createContext, useContext, useEffect, useState } from 'react';
-import { addClasses } from '../../lib/utils';
+import { addClasses, playUISound } from '../../lib/utils';
 import { useGameProfileMultiDropdownOption, useProfileMultiDropdownOptions, useUserProfileMultiDropdownOption } from '../../hooks/useProfileMultiDropdownOptions';
 import { CustomButton } from '../generic/CustomButton';
 import { usePluginContext } from '../../hooks/contextHooks';
@@ -93,7 +93,7 @@ const ProfileMenu: VFC<ProfileMenuContextData> = ({ selected, deleteProfile, onS
                 <ProfileMenuGroup groupType={ProfileType.game} />
                 <ProfileMenuGroup groupType={ProfileType.user} />
                 <div className={gamepadContextMenuClasses.ContextMenuSeparator} />
-                <MenuItem onClick={() => showModal(<NewProfileModal onConfirm={profileName => onSelectOption?.({ label: profileName, data: profileName })} />)}                >
+                <MenuItem onClick={() => showModal(<NewProfileModal onConfirm={profileName => onSelectOption?.({ label: profileName, data: profileName })} />)}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                         <FaPlus size={'9px'} />
                         New Custom Profile
@@ -148,7 +148,10 @@ const ProfileMenuItems: VFC<{}> = ({ }) => {
             {options.map(option =>
                 <MenuItem
                     selected={option.data === selected?.data}
-                    onClick={() => onSelectOption?.(option as SingleDropdownOption)}
+                    onClick={() => { 
+                        onSelectOption?.(option as SingleDropdownOption);
+                        playUISound('/sounds/deck_ui_hide_modal.wav');
+                    }}
                     onOKActionDescription='Apply Profile'
                     onSecondaryButton={isUserGroup && option.data !== selected?.data ?
                         () => showModal(
