@@ -2,7 +2,7 @@ import { Backend } from './Backend';
 import { PluginManager } from './PluginManager';
 import { Log } from '../lib/log';
 import { DSPParamSettings } from '../types/dspTypes';
-import { PluginData, PluginSettings } from '../types/types';
+import { PluginData, PluginStateData } from '../types/types';
 import { profileManager } from './ProfileManager';
 import { Dispatch, SetStateAction } from 'react';
 import { DataProviderSetData } from '../contexts/contexts';
@@ -10,7 +10,7 @@ import { PromiseStatus, useError } from '../lib/utils';
 
 export async function handleWaitSettings(setData: DataProviderSetData<PluginData>, setReady: Dispatch<SetStateAction<boolean>>) {
     profileManager.assignSetters(setData, setReady);
-    const promises: [Promise<PluginSettings | Error>, Promise<DSPParamSettings | Error>] = [handleGetPluginSettingsOnMount(), handleGetDspSettingsOnMount()];
+    const promises: [Promise<PluginStateData | Error>, Promise<DSPParamSettings | Error>] = [handleGetPluginStateOnMount(), handleGetDspSettingsOnMount()];
 
     Promise.allSettled(promises).then((results) => {
         Log.log('resuts', results)
@@ -33,27 +33,21 @@ export async function handleWaitSettings(setData: DataProviderSetData<PluginData
 
 }
 
-async function handleGetPluginSettingsOnMount() {
-    const profileManloaded = await PluginManager.state.profileManagerLoaded!;
-    if (profileManloaded instanceof Error) {
-        // Log.warn('Trying to use dsp settings but James DSP failed when trying to start');
-        return profileManloaded;
-    }
+async function handleGetPluginStateOnMount() {
+    const loaded = await PluginManager.state.jdspLoaded!;
+    if (loaded instanceof Error) return loaded;
 
-    try {
-        const settings = await Backend.getSettings();
-        return settings;
-    } catch (err) {
-        return useError(`Problem getting plugin settings - \n ${(err as Error).message ?? ''}`);
+    if (loaded) {
+        const profileManloaded = await PluginManager.state.profileManagerLoaded!;
+        if (profileManloaded instanceof Error) return profileManloaded;
     }
+    
+    return { jdspInstall: loaded };
 }
 
 async function handleGetDspSettingsOnMount() {
     const loaded = await PluginManager.state.jdspLoaded!;
-    if (loaded instanceof Error) {
-        Log.warn('Trying to use dsp settings but James DSP failed when trying to start');
-        return loaded;
-    }
+    if (loaded instanceof Error) return loaded;
 
     return await handleGetDspSettingsAfterProfileLoad();
 }

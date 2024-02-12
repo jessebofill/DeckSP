@@ -1,11 +1,12 @@
 import { useContext } from 'react';
-import { DspSettingsContext } from '../contexts/contexts';
-import { PluginSettingsContext } from '../contexts/contexts';
-import { PluginContext } from '../contexts/contexts';
-import { EQDataContext } from '../contexts/contexts';
+import { CompanderDataContext, DspSettingsContext, EQDataContext, FlatpakFixContext, PluginContext, PluginStateContext } from '../contexts/contexts';
+
 
 export const useDspSettings = () => useContext(DspSettingsContext);
-export const usePluginSettings = () => useContext(PluginSettingsContext);
+export const usePluginState = () => useContext(PluginStateContext);
 export const usePluginContext = () => useContext(PluginContext);
+export const useFlatpakFix = () => useContext(FlatpakFixContext);
 export const useEQData = () => useContext(EQDataContext);
+export const useCompanderData = () => useContext(CompanderDataContext);;
+
 

@@ -6,12 +6,12 @@ declare global {
     var SteamUIStore: SteamUiStore;
 }
 
-type PluginSettings = {
-
+type PluginStateData = {
+    jdspInstall: boolean;
 };
 
 type PluginData = {
     dsp?: DSPParamSettings;
-    plugin?: PluginSettings;
+    plugin?: PluginStateData;
     errors: { dsp?: Error, plugin?: Error };
 };

@@ -1,7 +1,8 @@
 import { useState, FC, useEffect } from 'react';
 import { usePluginContext } from '../../hooks/contextHooks';
-import { PluginSettingsContext } from '../../contexts/contexts';
+import { PluginStateContext } from '../../contexts/contexts';
 import { DspSettingsContext } from '../../contexts/contexts';
+import { FlatpakFixProvider } from './FlatpakFixContextProvider';
 
 export const PluginDataProvider: FC<{}> = ({ children }) => {
     const { data } = usePluginContext();
@@ -20,10 +21,12 @@ export const PluginDataProvider: FC<{}> = ({ children }) => {
     }, [data]);
 
     return (
-        <PluginSettingsContext.Provider value={{ data: plugin, setData: setPlugin, error: pluginError, setError: setPluginError }}>
-            <DspSettingsContext.Provider value={{ data: dsp, setData: setDsp, error: dspError, setError: setDspError }}>
-                {children}
-            </DspSettingsContext.Provider>
-        </PluginSettingsContext.Provider>
+        <PluginStateContext.Provider value={{ data: plugin, setData: setPlugin, error: pluginError, setError: setPluginError }}>
+            <FlatpakFixProvider>
+                <DspSettingsContext.Provider value={{ data: dsp, setData: setDsp, error: dspError, setError: setDspError }}>
+                    {children}
+                </DspSettingsContext.Provider>
+            </FlatpakFixProvider>
+        </PluginStateContext.Provider>
     );
 };

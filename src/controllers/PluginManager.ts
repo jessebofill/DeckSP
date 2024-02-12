@@ -12,20 +12,24 @@ export class PluginManager {
         profileManagerLoaded?: Promise<DSPParamSettings | Error>
     } = {}
 
-    static start(serverApi: ServerAPI) {
+    static async start(serverApi: ServerAPI) {
         initSystemPerfStore();
         Toaster.init(serverApi);
         Backend.init(serverApi);
 
+        Log.log('Trying to start James DSP...')
+        this.state.jdspLoaded = Backend.startJDSP().then(res => {
+            if (res) Log.log('James DSP was started');
+            else useError(`James DSP couldn't be started because a problem was detected with it's installation`);
+
+            return res;
+        }).catch((err: Error) => useError(`Encountered an error when trying to start James DSP - \n ${err.message}`));
+
+        await this.state.jdspLoaded;
+
         const profileManagerInit = profileManager.init();
         profileManager.setLock(profileManagerInit);
         this.state.profileManagerLoaded = profileManagerInit.then((res) => res instanceof Error ? useError(`Problem during ProfileManager init process - \n ${res.message}`) : res);
-
-        Log.log('Trying to start James DSP')
-        this.state.jdspLoaded = Backend.startJDSP().then(() => {
-            Log.log('James DSP was started');
-            return true;
-        }).catch((err: Error) => useError(`Encountered an error when trying to start James DSP - \n ${err.message}`));
     }
 }
 

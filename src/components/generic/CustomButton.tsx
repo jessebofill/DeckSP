@@ -2,9 +2,8 @@ import { FocusableProps, Focusable, DialogButton, GamepadEvent } from "decky-fro
 import { ReactNode, FC, useState, CSSProperties } from "react";
 import { SoundEffect, SFXPath } from "../../lib/GamepadUIAudio";
 import { playUISound } from '../../lib/utils';
-import { Log } from '../../lib/log';
 
-export interface CustomButtonProps extends Omit<FocusableProps, 'focusWithinClassName' | 'flow-children' | 'onActivate' | 'onCancel' | 'onClick' | 'children' | 'noFocusRing' | 'onChange'> {
+export interface CustomButtonProps extends Omit<FocusableProps, 'focusWithinClassName' | 'flow-children' | 'onActivate' | 'onCancel' | 'onClick' | 'children' | 'noFocusRing' | 'onChange' | 'onFocus' | 'onBlur'> {
   /** The sound effect to use when clicking @default 'deck_ui_default_activation.wav' */
   audioSFX?: SoundEffect;
 
@@ -63,7 +62,9 @@ export const CustomButton: FC<CustomButtonProps> = ({
   transparent,
   focusMode,
   onFocus,
+  onGamepadFocus,
   onBlur,
+  onGamepadBlur,
   onClick,
   style,
   className,
@@ -80,7 +81,6 @@ export const CustomButton: FC<CustomButtonProps> = ({
   const audioPath: SFXPath = `/sounds/${audioSFX ?? 'deck_ui_default_activation.wav'}`;
 
   const onClicked = (e: CustomEvent) => {
-    Log.log('button clicked')
     if (!disabled) {
       !noAudio && playUISound(audioPath);
       onClick?.(e);
@@ -94,8 +94,8 @@ export const CustomButton: FC<CustomButtonProps> = ({
       className={addClasses(CustomButtonClasses.buttonContainer, containerClassName)}
       style={containerStyle}
       onActivate={focusable ?? true ? onClicked : undefined}
-      onGamepadFocus={(e) => { setFocused(true); onFocus?.(e); }}
-      onGamepadBlur={(e) => { setFocused(false); onBlur?.(e); }}
+      onGamepadFocus={(e) => { setFocused(true); onFocus?.(e); onGamepadFocus?.(e); }}
+      onGamepadBlur={(e) => { setFocused(false); onBlur?.(e); onGamepadBlur?.(e); }}
       noFocusRing={!(focusMode ?? false)}
       onOKActionDescription={disabled ? '' : onOKActionDescription}
       {...focusableProps}

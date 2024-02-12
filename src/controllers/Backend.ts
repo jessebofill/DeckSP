@@ -3,7 +3,6 @@ import { parseJDSPAll, stringifyNestedParams } from '../lib/parseDspParams';
 import { DSPParameter, DSPParameterCompResponse, DSPParameterEQParameters, DSPParameterType, DSPScaledParameter } from '../types/dspTypes';
 import { Log } from '../lib/log';
 import { dspScaledParams } from '../defines/dspParameterDefines';
-import { PluginSettings } from '../types/types';
 
 export type BackendMethod = PluginMethod | JDSPMethod;
 
@@ -11,23 +10,26 @@ export type PluginStartJDSPMethod = 'start_jdsp';
 export type PluginSetAppWatchMethod = 'set_app_watch';
 export type PluginInitProfilesMethod = 'init_profiles';
 export type PluginSetManuallyApplyProfilesMethod = 'set_manually_apply_profiles';
+export type PluginFlatpakRepairMethod = 'flatpak_repair';
 
 
 export type PluginMethod =
     PluginStartJDSPMethod |
     PluginSetAppWatchMethod |
     PluginInitProfilesMethod |
-    PluginSetManuallyApplyProfilesMethod;
+    PluginSetManuallyApplyProfilesMethod |
+    PluginFlatpakRepairMethod;
 
 export type PluginMethodArgs<Method extends PluginMethod> =
-    Method extends PluginStartJDSPMethod ? {} :
+    Method extends PluginStartJDSPMethod | PluginFlatpakRepairMethod ? {} :
     Method extends PluginSetAppWatchMethod ? { appId: string, watch: boolean } :
     Method extends PluginInitProfilesMethod ? { globalPreset: string } :
     Method extends PluginSetManuallyApplyProfilesMethod ? { useManual: boolean } :
     never;
 
 export type PluginMethodResponse<Method extends PluginMethod> =
-    Method extends PluginStartJDSPMethod | PluginSetAppWatchMethod | PluginSetManuallyApplyProfilesMethod ? undefined :
+    Method extends PluginStartJDSPMethod ? boolean :
+    Method extends PluginSetAppWatchMethod | PluginSetManuallyApplyProfilesMethod | PluginFlatpakRepairMethod ? undefined :
     Method extends PluginInitProfilesMethod ? { manualPreset: string, allPresets: string, watchedGames: { [appId: string]: boolean }, manuallyApply: boolean } :
     never;
 
@@ -99,7 +101,7 @@ export class Backend {
     }
 
     static async checkpy() {
-        return await this.serverAPI.callPluginMethod('test2', { });
+        return await this.serverAPI.callPluginMethod('test2', {});
     }
 
     //jdsp specific calls
@@ -136,6 +138,9 @@ export class Backend {
     static async startJDSP() {
         return await this.callPlugin('start_jdsp', {});
     }
+    static async flatpakRepair() {
+        return await this.callPlugin('flatpak_repair', {});
+    }
     static async setAppWatch(appId: string, watch: boolean) {
         return await this.callPlugin('set_app_watch', { appId, watch });
     }
@@ -144,8 +149,5 @@ export class Backend {
     }
     static async setManuallyApplyProfiles(useManual: boolean) {
         return await this.callPlugin('set_manually_apply_profiles', { useManual });
-    }
-    static async getSettings(): Promise<PluginSettings> {
-        return await this.serverAPI.callPluginMethod('test', {});
     }
 }

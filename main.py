@@ -6,7 +6,7 @@ import sys
 from settings import SettingsManager
 from typing import List
 
-# for testing?
+# add working dir to path to import modules from
 sys.path.append(os.path.dirname(__file__))
 
 from py_modules.jdspproxy import JdspProxy
@@ -36,6 +36,7 @@ settings_manager = SettingsManager(name="settings", settings_directory=os.enviro
 
 class Plugin:
     jdsp: JdspProxy = None
+    jdsp_install_state = False
     profiles = {
         'currentPreset': '',
         'manualPreset': '',
@@ -53,6 +54,7 @@ class Plugin:
         Plugin.jdsp = JdspProxy(APPLICATION_ID, log)
 
         if(Plugin.handle_jdsp_install()):
+            Plugin.jdsp_install_state = True
             log.info('Plugin ready')
         else:
             log.error('Problem with James DSP installation')
@@ -132,6 +134,8 @@ class Plugin:
 
     # general-frontend-call
     async def start_jdsp(self):
+        if not Plugin.jdsp_install_state:
+            return False
         env = os.environ.copy()
         env["DBUS_SESSION_BUS_ADDRESS"] = f'unix:path=/run/user/{os.getuid()}/bus'
         env['XDG_RUNTIME_DIR']=f'/run/user/{os.getuid()}'
@@ -140,12 +144,13 @@ class Plugin:
         subprocess.run(['flatpak', 'kill', APPLICATION_ID], env=env)
         with open(JDSP_LOG, "w") as jdsp_log:
             subprocess.Popen(f'flatpak --user run {APPLICATION_ID} --tray', stdout=jdsp_log, stderr=jdsp_log, shell=True, env=env, universal_newlines=True)
+        return True
 
     # general-frontend-call
     async def flatpak_repair(self):
         try:
             subprocess.run(['flatpak', 'repair', '--user'], check=True, capture_output=True, text=True)
-            return 
+            return
         except subprocess.CalledProcessError as e:
             return { 'error': e.stderr }
 

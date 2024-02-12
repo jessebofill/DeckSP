@@ -1,11 +1,9 @@
-import { VFC, useCallback, useContext } from 'react';
+import { VFC, useCallback } from 'react';
 import { DSPCompanderParameters, DSPEQParameters, DSPRangeParameter } from '../../../types/dspTypes';
 import { dspParamDefines } from '../../../defines/dspParameterDefines';
 import { Backend } from '../../../controllers/Backend';
-import { useDspSettings } from '../../../hooks/contextHooks';
+import { useCompanderData, useDspSettings, useEQData } from '../../../hooks/contextHooks';
 import { ThrottledWaitSlider } from '../../waitable/WaitSlider';
-import { useEQData } from '../../../hooks/contextHooks';
-import { CompanderDataContext } from '../../../contexts/contexts';
 
 export interface ParameterSliderProps {
     parameter: DSPRangeParameter;
@@ -49,7 +47,7 @@ interface EQParameterSliderProps {
 
 export const EQParameterSlider: VFC<EQParameterSliderProps> = ({ parameter }) => {
     const { data: values, setParameter } = useEQData();
-    if (!values || !setParameter) return <></>;
+    if (!values || !setParameter) return null;
 
     const [min, max] = dspParamDefines['tone_eq'][parameter].limits;
 
@@ -77,8 +75,8 @@ interface CompanderParameterSliderProps {
 }
 
 export const CompanderParameterSlider: VFC<CompanderParameterSliderProps> = ({ parameter }) => {
-    const { data: values, setParameter } = useContext(CompanderDataContext);
-    if (!values || !setParameter) return <></>;
+    const { data: values, setParameter } = useCompanderData();
+    if (!values || !setParameter) return null;
 
     const [min, max] = dspParamDefines['compander_response'][parameter].limits;
 
