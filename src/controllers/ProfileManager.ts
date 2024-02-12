@@ -26,8 +26,9 @@ export class ProfileManager {
     profiles: { [id: string]: Profile<ProfileType> } = {};
     lock?: { promise: Promise<DSPParamSettings | Error>, status: PromiseStatus };
     activeGameReactionDisposer?: IReactionDisposer;
-    setReady:  Dispatch<SetStateAction<boolean>> = (_) => { };
-    setData:  DataProviderSetData<PluginData> = (_) => { };
+    setReady: Dispatch<SetStateAction<boolean>> = (_) => { };
+    setData: DataProviderSetData<PluginData> = (_) => { };
+    queudGameChangeHandler: null | (() => Promise<any>) = null;
 
     constructor() {
         makeObservable(this, { activeProfileId: observable });
@@ -65,11 +66,11 @@ export class ProfileManager {
             let profileToApply: string = '';
             const { manualPreset, allPresets, watchedGames, manuallyApply } = await Backend.initProfiles(jdspPresetPrefix + jdspGamePresetIdentifier + globalAppId);
             const { profiles, hasDefault } = ProfileManager.parseProfiles(allPresets);
-            
+
             this.profiles = profiles;
             this.watchedGames = watchedGames;
             this.manuallyApply = manuallyApply;
-            
+
             const { id: profileId } = ProfileManager.parsePresetName(manualPreset) ?? {};
             if (!profileId) return useError(`Problem parsing manually applied jdsp preset - "${manualPreset}" cannot be parsed as a preset}`);
             this.manualProfileId = profileId;
@@ -79,7 +80,7 @@ export class ProfileManager {
             } else {
                 profileToApply = this.watchedGames[getActiveAppId()] ? getActiveAppId() : globalAppId;
             }
-            
+
             return { profileToApply, hasDefault };
         } catch (err) {
             return useError(`Problem when trying to load profiles - \n ${(err as Error).message ?? ''}`);
@@ -94,27 +95,33 @@ export class ProfileManager {
         const activeAppId = activeAppIdString.toString();
         Log.log('game reaction called', activeAppId)
         if (!this.manuallyApply && this.watchedGames[activeAppId] && this.activeProfileId !== activeAppId) {
-            if (this.lock && this.lock.status === PromiseStatus.pending) {
-                const res = await this.lock.promise;
-                if (res instanceof Error) return;
-            }
-            this.setReady(false);
-            const applyProfile = this.applyProfile(activeAppId);
-            this.setLock(applyProfile);
-            const dsp = await applyProfile;
-        
-            const errors: { plugin?: Error, dsp?: Error } = {};
-            const newData: PluginData = { errors: errors };
+            const handle = async () => {
+                this.setReady(false);
+                const applyProfile = this.applyProfile(activeAppId);
+                this.setLock(applyProfile);
+                const dsp = await applyProfile;
 
-            if (dsp instanceof Error) errors.dsp = dsp;
-            else newData.dsp = dsp;
+                const errors: { plugin?: Error, dsp?: Error } = {};
+                const newData: PluginData = { errors: errors };
 
-            this.setData(data => ({ ...data, ...newData }));
-            this.setReady(true);
+                if (dsp instanceof Error) errors.dsp = dsp;
+                else newData.dsp = dsp;
+
+                this.setData(data => ({ ...data, ...newData }));
+                this.setReady(true);
+                if (this.queudGameChangeHandler) {
+                    const handle = this.queudGameChangeHandler;
+                    this.queudGameChangeHandler = null;
+                    handle();
+                }
+            };
+
+            if (this.lock && this.lock.status === PromiseStatus.pending) this.queudGameChangeHandler = handle;
+            else handle();            
         }
     }
 
-    assignSetters(setData: DataProviderSetData<PluginData>, setReady:  Dispatch<SetStateAction<boolean>>) {
+    assignSetters(setData: DataProviderSetData<PluginData>, setReady: Dispatch<SetStateAction<boolean>>) {
         this.setData = setData;
         this.setReady = setReady;
     }
@@ -142,7 +149,7 @@ export class ProfileManager {
         try {
             const profile = ProfileManager.makeProfileType(profileName, ProfileType.user);
             const presetName = ProfileManager.makePresetName(profileName, ProfileType.user);
-            
+
             const fromProfile = fromProfileId ? this.profiles[fromProfileId] : undefined;
             const fromPresetName = fromProfile ? ProfileManager.makePresetName(fromProfile.id, fromProfile.type) : undefined;
             const res = await Backend.newPreset(presetName, fromPresetName);
@@ -277,7 +284,7 @@ export class ProfileManager {
     static makeProfileType(id: string, type: ProfileType) {
         return type === ProfileType.user ? { id, type: ProfileType.user, get name() { return this.id } } :
             id === globalAppId ? { id, type: ProfileType.game, name: globalProfileName } :
-            { id, type: ProfileType.game, get name() { return getAppName(id) } };
+                { id, type: ProfileType.game, get name() { return getAppName(id) } };
     }
 }
 
