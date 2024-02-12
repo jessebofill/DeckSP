@@ -10,7 +10,7 @@ export const CurrentProfile: VFC<CurrentProfileTextProps> = observer(({ useMarqu
 
     return (
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', minHeight: '22px' }}>
-            <ProfileIcon profileId={profileManager.activeProfileId} size='22px' />
+            <ProfileIcon profileId={profileManager.activeProfileId} profileManager={profileManager} size='22px' />
             <CurrentProfileText useMarquee={useMarquee} />
         </div>
     );

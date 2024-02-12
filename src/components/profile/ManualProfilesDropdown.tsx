@@ -7,7 +7,7 @@ import { usePluginContext } from '../../hooks/contextHooks';
 import { FaPlus } from "react-icons/fa6";
 import { NewProfileModal } from './NewProfileModal';
 import { DeleteProfileType, useDeleteProfile } from '../../hooks/useDeleteProfile';
-import { ProfileType } from '../../controllers/ProfileManager';
+import { ProfileType } from '../../types/types';
 import { DeleteProfileModal } from './DeleteProfileModal';
 
 interface ManualProfilesDropdownProps {

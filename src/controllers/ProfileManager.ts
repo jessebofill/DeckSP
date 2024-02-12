@@ -5,15 +5,14 @@ import { Backend } from './Backend';
 import { DSPParamSettings } from '../types/dspTypes';
 import { Dispatch, SetStateAction } from 'react';
 import { DataProviderSetData } from '../contexts/contexts';
-import { PluginData } from '../types/types';
+import { PluginData, ProfileType, Profile } from '../types/types';
 import { ToastApplyingProfile } from '../components/profile/ApplyProfileToast';
+import { globalAppId } from '../defines/profileConstants';
+import { globalProfileName } from '../defines/profileConstants';
 
 const jdspPresetPrefix = 'decksp.';
 const jdspGamePresetIdentifier = 'game:';
 const jdspUserPresetIndentifier = 'user:';
-
-export const globalAppId = '769';
-export const globalProfileName = 'Global';
 
 const defaultStr = 'default';
 const defaultPresetName = jdspPresetPrefix + defaultStr;
@@ -199,7 +198,7 @@ export class ProfileManager {
             const profile = this.profiles[profileId];
             if (!profile) return useError(`Problem applying profile id: ${profileId} - Profile does not exist}`);
 
-            ToastApplyingProfile(profile, isManuallyApplied);
+            ToastApplyingProfile(profile, this, isManuallyApplied);
             const presetName = ProfileManager.makePresetName(profileId, profile.type);
             const res = await Backend.setProfile(presetName, isManuallyApplied);
 
@@ -281,16 +280,5 @@ export class ProfileManager {
             { id, type: ProfileType.game, get name() { return getAppName(id) } };
     }
 }
-
-export enum ProfileType {
-    'game',
-    'user'
-}
-
-export type Profile<Type extends ProfileType> = {
-        id: string;
-        get name(): string;
-        type: Type;
-    };
 
 export const profileManager = new ProfileManager();

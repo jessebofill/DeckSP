@@ -3,7 +3,7 @@ import { VFC } from 'react';
 import { usePerGameProfileState } from '../../hooks/usePerGameProfileState';
 import { WaitToggle } from '../waitable/WaitToggle';
 import { getActiveAppId } from '../../lib/utils';
-import { globalAppId } from '../../controllers/ProfileManager';
+import { globalAppId } from '../../defines/profileConstants';
 import { QAMUnderTitleHider } from '../qam/QAMUnderTitleHider';
 import { observer } from 'mobx-react-lite';
 import { useManualProfilesState } from '../../hooks/useManualProfilesState';

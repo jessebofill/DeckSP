@@ -3,7 +3,8 @@ import { VFC } from 'react';
 import { Backend } from '../../controllers/Backend';
 import { useError } from '../../lib/utils';
 import { useFlatpakFix } from '../../hooks/contextHooks';
-import { FixFlatpakDescriptions, FlatpakFixState } from './FlatpakFixContextProvider';
+import { FixFlatpakDescriptions } from './FlatpakFixContextProvider';
+import { FlatpakFixState } from '../../types/types';
 
 export const FixFlatpak: VFC<{}> = ({ }) => {
     const { state, setState, description, setDescription } = useFlatpakFix();

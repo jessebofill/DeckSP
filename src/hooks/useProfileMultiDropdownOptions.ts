@@ -1,5 +1,6 @@
 import { MultiDropdownOption } from 'decky-frontend-lib';
-import { ProfileType, profileManager } from '../controllers/ProfileManager'
+import { profileManager } from '../controllers/ProfileManager'
+import { ProfileType } from '../types/types';
 
 export const useProfileMultiDropdownOptions = () => {
     const gameOptions = useGameProfileMultiDropdownOption();
