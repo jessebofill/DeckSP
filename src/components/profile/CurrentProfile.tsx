@@ -11,11 +11,11 @@ export const CurrentProfile: VFC<CurrentProfileTextProps> = observer(({ useMarqu
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', minHeight: '22px' }}>
             <ProfileIcon profileId={profileManager.activeProfileId} profileManager={profileManager} size='22px' />
             <CurrentProfileText useMarquee={useMarquee} />
-            {profileManager.manuallyApply && 
+            {profileManager.manuallyApply && (
                 <div style={{ display: 'flex', marginLeft: 'auto' }}>
                     <BsFillHandIndexThumbFill size='16px' fill='#999696' />
                 </div>
-            }
+            )}
         </div>
     );
 });
