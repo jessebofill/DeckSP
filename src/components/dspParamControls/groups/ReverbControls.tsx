@@ -15,13 +15,7 @@ export const ReverbControls: VFC<{}> = ({ }) => {
                 <PresetDropdown type='reverb' />
             </PanelSectionRow>
             <PanelSectionRow>
-                <ParameterSlider parameter='reverb_bassboost' />
-            </PanelSectionRow>
-            <PanelSectionRow>
-                <ParameterSlider parameter='reverb_decay' />
-            </PanelSectionRow>
-            <PanelSectionRow>
-                <ParameterSlider parameter='reverb_delay' />
+                <ParameterSlider parameter='reverb_wet' />
             </PanelSectionRow>
             <PanelSectionRow>
                 <ParameterSlider parameter='reverb_finaldry' />
@@ -30,10 +24,28 @@ export const ReverbControls: VFC<{}> = ({ }) => {
                 <ParameterSlider parameter='reverb_finalwet' />
             </PanelSectionRow>
             <PanelSectionRow>
-                <ParameterSlider parameter='reverb_lfo_spin' />
+                <ParameterSlider parameter='reverb_reflection_amount' />
             </PanelSectionRow>
             <PanelSectionRow>
-                <ParameterSlider parameter='reverb_lfo_wander' />
+                <ParameterSlider parameter='reverb_reflection_factor' />
+            </PanelSectionRow>
+            <PanelSectionRow>
+                <ParameterSlider parameter='reverb_reflection_width' />
+            </PanelSectionRow>
+            <PanelSectionRow>
+                <ParameterSlider parameter='reverb_decay' />
+            </PanelSectionRow>
+            <PanelSectionRow>
+                <ParameterSlider parameter='reverb_delay' />
+            </PanelSectionRow>
+            <PanelSectionRow>
+                <ParameterSlider parameter='reverb_osf' />
+            </PanelSectionRow>
+            <PanelSectionRow>
+                <ParameterSlider parameter='reverb_width' />
+            </PanelSectionRow>
+            <PanelSectionRow>
+                <ParameterSlider parameter='reverb_bassboost' />
             </PanelSectionRow>
             <PanelSectionRow>
                 <ParameterSlider parameter='reverb_lpf_bass' />
@@ -48,22 +60,10 @@ export const ReverbControls: VFC<{}> = ({ }) => {
                 <ParameterSlider parameter='reverb_lpf_output' />
             </PanelSectionRow>
             <PanelSectionRow>
-                <ParameterSlider parameter='reverb_osf' />
+                <ParameterSlider parameter='reverb_lfo_spin' />
             </PanelSectionRow>
             <PanelSectionRow>
-                <ParameterSlider parameter='reverb_reflection_amount' />
-            </PanelSectionRow>
-            <PanelSectionRow>
-                <ParameterSlider parameter='reverb_reflection_factor' />
-            </PanelSectionRow>
-            <PanelSectionRow>
-                <ParameterSlider parameter='reverb_reflection_width' />
-            </PanelSectionRow>
-            <PanelSectionRow>
-                <ParameterSlider parameter='reverb_wet' />
-            </PanelSectionRow>
-            <PanelSectionRow>
-                <ParameterSlider parameter='reverb_width' />
+                <ParameterSlider parameter='reverb_lfo_wander' />
             </PanelSectionRow>
         </PanelSection>
     );
