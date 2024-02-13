@@ -1,5 +1,4 @@
 import { IReactionDisposer, makeObservable, observable, reaction } from 'mobx';
-import { Log } from '../lib/log';
 import { MakeQueryablePromise, PromiseStatus, getActiveAppId, getAppName, useError } from '../lib/utils';
 import { Backend } from './Backend';
 import { DSPParamSettings } from '../types/dspTypes';
@@ -19,6 +18,9 @@ const defaultPresetName = jdspPresetPrefix + defaultStr;
 
 export class ProfileManager {
     private static instance: ProfileManager;
+    private setReady: Dispatch<SetStateAction<boolean>> = (_) => { };
+    private setData: DataProviderSetData<PluginData> = (_) => { };
+    private queudGameChangeHandler: null | (() => Promise<any>) = null;
     manuallyApply: boolean = false;
     activeProfileId: string = globalAppId;
     manualProfileId: string = globalAppId;
@@ -26,9 +28,6 @@ export class ProfileManager {
     profiles: { [id: string]: Profile<ProfileType> } = {};
     lock?: { promise: Promise<DSPParamSettings | Error>, status: PromiseStatus };
     activeGameReactionDisposer?: IReactionDisposer;
-    setReady: Dispatch<SetStateAction<boolean>> = (_) => { };
-    setData: DataProviderSetData<PluginData> = (_) => { };
-    queudGameChangeHandler: null | (() => Promise<any>) = null;
 
     constructor() {
         makeObservable(this, { activeProfileId: observable });
@@ -62,7 +61,6 @@ export class ProfileManager {
 
     private async initProfiles() {
         try {
-            //todo need to check/ handle if settings are new
             let profileToApply: string = '';
             const { manualPreset, allPresets, watchedGames, manuallyApply } = await Backend.initProfiles(jdspPresetPrefix + jdspGamePresetIdentifier + globalAppId);
             const { profiles, hasDefault } = ProfileManager.parseProfiles(allPresets);
@@ -93,7 +91,6 @@ export class ProfileManager {
 
     private async onActiveGameChange(activeAppIdString: number = 769) {
         const activeAppId = activeAppIdString.toString();
-        Log.log('game reaction called', activeAppId)
         if (!this.manuallyApply && this.watchedGames[activeAppId] && this.activeProfileId !== activeAppId) {
             const handle = async () => {
                 this.setReady(false);
@@ -201,7 +198,6 @@ export class ProfileManager {
 
     async applyProfile(profileId: string, isManuallyApplied: boolean = false) {
         try {
-            Log.log('applying profile', profileId);
             const profile = this.profiles[profileId];
             if (!profile) return useError(`Problem applying profile id: ${profileId} - Profile does not exist}`);
 
@@ -209,7 +205,6 @@ export class ProfileManager {
             const presetName = ProfileManager.makePresetName(profileId, profile.type);
             const res = await Backend.setProfile(presetName, isManuallyApplied);
 
-            Log.log('done waiting for lock')
             if (isManuallyApplied) this.manualProfileId = profileId;
             this.activeProfileId = profileId;
             return res;
