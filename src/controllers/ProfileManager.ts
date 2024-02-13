@@ -30,7 +30,7 @@ export class ProfileManager {
     activeGameReactionDisposer?: IReactionDisposer;
 
     constructor() {
-        makeObservable(this, { activeProfileId: observable });
+        makeObservable(this, { activeProfileId: observable, manuallyApply: observable });
         if (!ProfileManager.instance) ProfileManager.instance = this;
         return ProfileManager.instance;
     }
