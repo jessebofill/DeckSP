@@ -19,7 +19,7 @@ export const useProfileMultiDropdownOptions = () => {
 }
 
 export const useGameProfileMultiDropdownOption = () => {
-    const gameProfiles = Object.values(profileManager.profiles).filter(profile => profile.type === ProfileType.game);
+    const gameProfiles = Object.values(profileManager.profiles).filter(profile => profile.type === ProfileType.Game);
 
     return {
         label: 'Game',
@@ -28,7 +28,7 @@ export const useGameProfileMultiDropdownOption = () => {
 }
 
 export const useUserProfileMultiDropdownOption = () => {
-    const userProfiles = Object.values(profileManager.profiles).filter(profile => profile.type === ProfileType.user);
+    const userProfiles = Object.values(profileManager.profiles).filter(profile => profile.type === ProfileType.User);
 
     return userProfiles.length > 0 ?
         {

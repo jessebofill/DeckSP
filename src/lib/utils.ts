@@ -45,19 +45,19 @@ export function getAppName(appId: string) {
 }
 
 export enum PromiseStatus {
-    'pending',
-    'fulfilled',
-    'rejected'
+    Pending,
+    Fulfilled,
+    Rejected
 }
 export function MakeQueryablePromise(promise: Promise<any>) {
-    let state = PromiseStatus.pending;
+    let state = PromiseStatus.Pending;
 
     let result = promise.then(res => {
-        state = PromiseStatus.fulfilled;
+        state = PromiseStatus.Fulfilled;
         return res;
     },
         e => {
-            state = PromiseStatus.rejected;
+            state = PromiseStatus.Rejected;
             throw e;
         }
     );

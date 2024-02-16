@@ -113,7 +113,7 @@ export class ProfileManager {
                 }
             };
 
-            if (this.lock && this.lock.status === PromiseStatus.pending) this.queudGameChangeHandler = handle;
+            if (this.lock && this.lock.status === PromiseStatus.Pending) this.queudGameChangeHandler = handle;
             else handle();            
         }
     }
@@ -124,7 +124,7 @@ export class ProfileManager {
     }
 
     setLock(promise: Promise<DSPParamSettings | Error>) {
-        if (!this.lock || this.lock.status !== PromiseStatus.pending) {
+        if (!this.lock || this.lock.status !== PromiseStatus.Pending) {
             this.lock = MakeQueryablePromise(promise);
             return;
         }
@@ -144,8 +144,8 @@ export class ProfileManager {
 
     async createUserProfile(profileName: string, fromProfileId?: string) {
         try {
-            const profile = ProfileManager.makeProfileType(profileName, ProfileType.user);
-            const presetName = ProfileManager.makePresetName(profileName, ProfileType.user);
+            const profile = ProfileManager.makeProfileType(profileName, ProfileType.User);
+            const presetName = ProfileManager.makePresetName(profileName, ProfileType.User);
 
             const fromProfile = fromProfileId ? this.profiles[fromProfileId] : undefined;
             const fromPresetName = fromProfile ? ProfileManager.makePresetName(fromProfile.id, fromProfile.type) : undefined;
@@ -160,8 +160,8 @@ export class ProfileManager {
 
     async createGameProfile(appId: string) {
         try {
-            const profile = ProfileManager.makeProfileType(appId, ProfileType.game);
-            const presetName = ProfileManager.makePresetName(appId, ProfileType.game);
+            const profile = ProfileManager.makeProfileType(appId, ProfileType.Game);
+            const presetName = ProfileManager.makePresetName(appId, ProfileType.Game);
             const res = await Backend.newPreset(presetName);
 
             this.profiles[appId] = profile;
@@ -184,7 +184,7 @@ export class ProfileManager {
     }
 
     async deleteProfile(profileId: string) {
-        const presetName = ProfileManager.makePresetName(profileId, ProfileType.user);
+        const presetName = ProfileManager.makePresetName(profileId, ProfileType.User);
 
         try {
             const res = await Backend.deletePreset(presetName);
@@ -264,22 +264,22 @@ export class ProfileManager {
         const profileId = suffix.startsWith(jdspGamePresetIdentifier) ? suffix.slice(jdspGamePresetIdentifier.length) :
             isUser ? suffix.slice(jdspUserPresetIndentifier.length) : null;
         if (!profileId) throw new Error(`Unknown id when parsing jdsp preset name: ${suffix}`);
-        return { id: profileId, type: isUser ? ProfileType.user : ProfileType.game };
+        return { id: profileId, type: isUser ? ProfileType.User : ProfileType.Game };
     }
 
     static makePresetName(id: string, type: ProfileType) {
         switch (type) {
-            case ProfileType.game:
+            case ProfileType.Game:
                 return jdspPresetPrefix + jdspGamePresetIdentifier + id;
-            case ProfileType.user:
+            case ProfileType.User:
                 return jdspPresetPrefix + jdspUserPresetIndentifier + id;
         }
     }
 
     static makeProfileType(id: string, type: ProfileType) {
-        return type === ProfileType.user ? { id, type: ProfileType.user, get name() { return this.id } } :
-            id === globalAppId ? { id, type: ProfileType.game, name: globalProfileName } :
-                { id, type: ProfileType.game, get name() { return getAppName(id) } };
+        return type === ProfileType.User ? { id, type: ProfileType.User, get name() { return this.id } } :
+            id === globalAppId ? { id, type: ProfileType.Game, name: globalProfileName } :
+                { id, type: ProfileType.Game, get name() { return getAppName(id) } };
     }
 }
 

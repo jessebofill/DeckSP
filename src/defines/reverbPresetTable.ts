@@ -1,22 +1,22 @@
 
 export enum ReverbPresetTableParamMap {
-    'reverb_osf',
-    'reverb_finalwet',
-    'reverb_finaldry',
-    'reverb_wet',
-    'reverb_reflection_amount',
-    'reverb_reflection_factor',
-    'reverb_reflection_width',
-    'reverb_width',
-    'reverb_bassboost',
-    'reverb_lfo_wander',
-    'reverb_lfo_spin',
-    'reverb_lpf_input',
-    'reverb_lpf_bass',
-    'reverb_lpf_damp',
-    'reverb_lpf_output',
-    'reverb_decay',
-    'reverb_delay'
+    reverb_osf,
+    reverb_finalwet,
+    reverb_finaldry,
+    reverb_wet,
+    reverb_reflection_amount,
+    reverb_reflection_factor,
+    reverb_reflection_width,
+    reverb_width,
+    reverb_bassboost,
+    reverb_lfo_wander,
+    reverb_lfo_spin,
+    reverb_lpf_input,
+    reverb_lpf_bass,
+    reverb_lpf_damp,
+    reverb_lpf_output,
+    reverb_decay,
+    reverb_delay
 };
 
 export const reverbPresetTable = {

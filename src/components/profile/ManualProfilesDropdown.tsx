@@ -90,8 +90,8 @@ const ProfileMenu: VFC<ProfileMenuContextData> = ({ selected, deleteProfile, onS
     return (
         <ProfileMenuContext.Provider value={{ deleteProfile, onSelectOption, selected }}>
             <Menu label={'Profiles'}>
-                <ProfileMenuGroup groupType={ProfileType.game} />
-                <ProfileMenuGroup groupType={ProfileType.user} />
+                <ProfileMenuGroup groupType={ProfileType.Game} />
+                <ProfileMenuGroup groupType={ProfileType.User} />
                 <div className={gamepadContextMenuClasses.ContextMenuSeparator} />
                 <MenuItem onClick={() => showModal(<NewProfileModal onConfirm={profileName => onSelectOption?.({ label: profileName, data: profileName })} />)}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -113,7 +113,7 @@ const ProfileMenuGroup: VFC<ProfileMenuGroupProps> = ({ groupType }) => {
     if (!menuContext) return null;
 
     const { selected, deleteProfile, onSelectOption } = menuContext;
-    const group = groupType === ProfileType.game ? useGameProfileMultiDropdownOption() : useUserProfileMultiDropdownOption();
+    const group = groupType === ProfileType.Game ? useGameProfileMultiDropdownOption() : useUserProfileMultiDropdownOption();
     const [_, setState] = useState(false);
 
     return group?.options && group.options.length > 0 ?
@@ -141,7 +141,7 @@ const ProfileMenuItems: VFC<{}> = ({ }) => {
 
     const { group, groupType, refreshGroup, selected, deleteProfile, onSelectOption } = groupContext;
     const [options, setOptions] = useState(group.options);
-    const isUserGroup = groupType === ProfileType.user;
+    const isUserGroup = groupType === ProfileType.User;
 
     return (
         <>

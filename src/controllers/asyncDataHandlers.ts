@@ -52,7 +52,7 @@ async function handleGetDspSettingsOnMount() {
 }
 
 export async function handleGetDspSettingsAfterProfileLoad() {
-    const profileLoadRes = profileManager.lock?.status === PromiseStatus.pending ? await profileManager.lock.promise : null;
+    const profileLoadRes = profileManager.lock?.status === PromiseStatus.Pending ? await profileManager.lock.promise : null;
     if (profileLoadRes) return profileLoadRes;
 
     return await handleGetDspSettings();

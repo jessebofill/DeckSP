@@ -9,7 +9,7 @@ export const FixFlatpakDescriptions = {
 };
 
 export const FlatpakFixProvider: FC<{}> = ({ children }) => {
-    const [state, setState] = useState(FlatpakFixState.default);
+    const [state, setState] = useState(FlatpakFixState.Default);
     const [description, setDescription] = useState(FixFlatpakDescriptions.default);
 
     return (

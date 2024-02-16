@@ -16,22 +16,22 @@ export const FixFlatpak: VFC<{}> = ({ }) => {
                 <Field description={description} childrenLayout='below'>
                     <DialogButton
                         style={{ height: '40px', padding: '5px 14px' }}
-                        disabled={state !== FlatpakFixState.default}
+                        disabled={state !== FlatpakFixState.Default}
                         onClick={async () => {
                             try {
-                                setState(FlatpakFixState.busy);
+                                setState(FlatpakFixState.Busy);
                                 await Backend.flatpakRepair();
-                                setState(FlatpakFixState.done)
+                                setState(FlatpakFixState.Done)
                                 setDescription(FixFlatpakDescriptions.done)
                             } catch (err) {
                                 const errorMsg = `There a was a problem when trying to repair flatpak - \n ${(err as Error).message ?? ''}`;
                                 useError(errorMsg);
-                                setState(FlatpakFixState.error)
+                                setState(FlatpakFixState.Error)
                                 setDescription(errorMsg);
                             }
                         }}
                     >
-                        {state !== FlatpakFixState.busy ? state === FlatpakFixState.default ? 'Attempt Fix' : 'Done' :
+                        {state !== FlatpakFixState.Busy ? state === FlatpakFixState.Default ? 'Attempt Fix' : 'Done' :
                             <div style={{ height: '100%' }}>
                                 <img alt="Loading..." src="/images/steam_spinner.png" style={{ height: '100%' }} />
                             </div>

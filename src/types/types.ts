@@ -18,8 +18,8 @@ export type PluginData = {
 };
 
 export enum ProfileType {
-    'game',
-    'user'
+    Game,
+    User
 }
 
 export type Profile<Type extends ProfileType> = {
@@ -29,8 +29,8 @@ export type Profile<Type extends ProfileType> = {
 };
 
 export enum FlatpakFixState {
-    'default',
-    'busy',
-    'done',
-    'error'
+    Default,
+    Busy,
+    Done,
+    Error
 };
