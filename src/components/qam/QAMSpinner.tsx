@@ -14,17 +14,19 @@ export const QAMSpinner: FC<{}> = ({ children }) => {
     return (
         <>
             {!ready && <QAMUnderTitleHider />}
+            <div style={{ position: 'absolute', width: '100%'}} ref={ref} />
             <div
                 style={{
                     backdropFilter: 'blur(8px)',
-                    position: 'absolute',
                     zIndex: '100',
-                    height: '100%',
-                    width: '100%',
+                    top: '50px',
+                    bottom: '0',
+                    position: 'fixed',
+                    width: `calc(${width}px)`,
                     transition: 'opacity ease-out 250ms',
                     opacity: ready ? 0 : undefined
                 }}
-                ref={ref}
+                
             />
             <FadeSpinner
                 isLoading={!ready}
