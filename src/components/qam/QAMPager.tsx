@@ -1,8 +1,9 @@
 import { ReactElement, VFC, useEffect, useState } from 'react';
-import { Focusable, GamepadButton, GamepadEvent } from 'decky-frontend-lib';
+import { Focusable, GamepadButton, GamepadEvent, scrollPanelClasses } from 'decky-frontend-lib';
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import { CustomButton } from '../generic/CustomButton';
 import { playUISound } from '../../lib/utils';
+import { deckyQamTabClass } from '../../defines/cssClasses';
 
 
 export class PagerLinker {
@@ -42,9 +43,10 @@ export interface QAMPagerProps {
 export const QAMPager: VFC<QAMPagerProps> = ({ pagerLinker, pages, noWrap }) => {
     const [page, setPage] = useState(0);
     useEffect(() => pagerLinker.linkPager(setPage, pages.length), []);
-
+    
     return (
         <Focusable
+            key={page}
             onButtonDown={(evt: GamepadEvent) => {
                 switch (evt.detail.button) {
                     case GamepadButton.BUMPER_LEFT:
@@ -63,6 +65,11 @@ export const QAMPager: VFC<QAMPagerProps> = ({ pagerLinker, pages, noWrap }) => 
             }}
         >
             {pages[page]}
+            <style>{`
+                .${deckyQamTabClass}.${scrollPanelClasses.ScrollPanel} {
+                    scroll-padding-top: 150px;
+                }
+            `}</style>
         </Focusable>
     );
 };
