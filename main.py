@@ -1,16 +1,14 @@
-import asyncio
-import logging
 import os
 import subprocess
 import sys
 from settings import SettingsManager
-from typing import List
 
 # add working dir to path to import modules from
 sys.path.append(os.path.dirname(__file__))
 
+from py_modules.env import env
 from py_modules.jdspproxy import JdspProxy
-from py_modules.dbuss import DBus
+from py_modules.utils import flatpak_CMD
 
 # The decky plugin module is located at decky-loader/plugin
 # For easy intellisense checkout the decky-loader code one directory up
@@ -59,23 +57,23 @@ class Plugin:
         else:
             log.error('Problem with James DSP installation')
 
-    # Function called first during the unload process, utilize this to handle your plugin being removed
-    async def _unload(self):
-        log.info('Unloading plugin...')
-        env = os.environ.copy()
-        env["DBUS_SESSION_BUS_ADDRESS"] = f'unix:path=/run/user/{os.getuid()}/bus'
-        env['XDG_RUNTIME_DIR']=f'/run/user/{os.getuid()}'
-        env['DISPLAY']=':0'
 
-        subprocess.run(['flatpak', 'kill', APPLICATION_ID], check=True, capture_output=True, text=True, env=env)
+    async def _uninstall(self):
+        log.info('Uninstalling plugin...')
+
+        flatpak_CMD(['kill', APPLICATION_ID], noCheck=True)
         try: 
             log.info('Uninstalling James DSP...')
-            subprocess.run(['flatpak', '--user', '-y', 'uninstall', APPLICATION_ID], check=True, capture_output=True, text=True)
+            flatpak_CMD(['--user', '-y', 'uninstall', APPLICATION_ID])
             log.info("James DSP uninstalled sucessfully")
 
         except subprocess.CalledProcessError as e:
-            log.error(e.stderr)
             log.error('Problem uninstalling James DSP')
+            log.error(e.stderr)
+
+    async def _unload(self):
+        log.info('Unloading plugin...')
+        flatpak_CMD(['kill', APPLICATION_ID], noCheck=True)
 
     def load_settings():
         default_profiles_settings = {setting: Plugin.profiles[setting] for setting in Plugin.profiles.keys() - { 'currentPreset' }}
@@ -88,7 +86,7 @@ class Plugin:
     def handle_jdsp_install():
         log.info('Checking for James DSP installation...')
         try:
-            flatpakListRes = subprocess.run(['flatpak', 'list', '--app', '--columns=application,version'], check=True, capture_output=True, text=True)
+            flatpakListRes = flatpak_CMD(['list', '--app', '--columns=application,version'])
             installed_version = ''
 
             for line in flatpakListRes.stdout.split('\n'):
@@ -104,11 +102,11 @@ class Plugin:
             else:
                 log.info('No James DSP installation was found')
                 log.info('Installing James DSP flatpak...')
-                installRes = subprocess.run(['flatpak', '--user', '-y', 'install', 'flathub', APPLICATION_ID], check=True, capture_output=True, text=True)
+                installRes = flatpak_CMD(['--user', '-y', 'install', 'flathub', APPLICATION_ID])
                 log.info(installRes.stdout)
             
             log.info(f'Installing required version {JDSP_REQ_VER}...')
-            updateRes = subprocess.run(['flatpak', '--user', '-y', 'update', '--commit=892695e011c19fc04de20973cb1c6b639753ed76084a170a966c61a64037ab9c', APPLICATION_ID], check=True, capture_output=True, text=True)
+            updateRes = flatpak_CMD(['--user', '-y', 'update', '--commit=892695e011c19fc04de20973cb1c6b639753ed76084a170a966c61a64037ab9c', APPLICATION_ID])
             log.info(updateRes.stdout)
             log.info(f'Installed James DSP version {JDSP_REQ_VER}')
 
@@ -136,20 +134,16 @@ class Plugin:
     async def start_jdsp(self):
         if not Plugin.jdsp_install_state:
             return False
-        env = os.environ.copy()
-        env["DBUS_SESSION_BUS_ADDRESS"] = f'unix:path=/run/user/{os.getuid()}/bus'
-        env['XDG_RUNTIME_DIR']=f'/run/user/{os.getuid()}'
-        env['DISPLAY']=':0'
 
-        subprocess.run(['flatpak', 'kill', APPLICATION_ID], env=env)
+        flatpak_CMD(['kill', APPLICATION_ID], noCheck=True)
         with open(JDSP_LOG, "w") as jdsp_log:
             subprocess.Popen(f'flatpak --user run {APPLICATION_ID} --tray', stdout=jdsp_log, stderr=jdsp_log, shell=True, env=env, universal_newlines=True)
-        return True
+        return True # assume process has started ignoring errors so that the frontend doesn't hang. the jdsp process errors will be logged in its own file
 
     # general-frontend-call
     async def flatpak_repair(self):
         try:
-            subprocess.run(['flatpak', 'repair', '--user'], check=True, capture_output=True, text=True)
+            flatpak_CMD(['repair', '--user'])
             return
         except subprocess.CalledProcessError as e:
             return { 'error': e.stderr }
@@ -193,9 +187,9 @@ class Plugin:
 
     # jdsp-frontend-call
     async def set_jdsp_param(self, parameter, value):
-        log.info('recieved')
-        log.info(parameter)
-        log.info(value)
+        # log.info('recieved')
+        # log.info(parameter)
+        # log.info(value)
         # p = subprocess.run(['flatpak', '--user', 'run', DBUS_SERVICE, '--set', f'{parameter}={value}'], capture_output=True, text=True)
         # log.info(p)
         res = Plugin.jdsp.set_and_commit(parameter, value)
