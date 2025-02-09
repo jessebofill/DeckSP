@@ -13,7 +13,7 @@ export async function handleWaitSettings(setData: DataProviderSetData<PluginData
     const promises: [Promise<PluginStateData | Error>, Promise<DSPParamSettings | Error>] = [handleGetPluginStateOnMount(), handleGetDspSettingsOnMount()];
 
     Promise.allSettled(promises).then((results) => {
-        Log.log('resuts', results)
+        Log.log('results', results)
         const errors: { plugin?: Error, dsp?: Error } = {};
         const data: PluginData = {
             errors: errors
