@@ -1,5 +1,5 @@
 import { PanelSection, PanelSectionRow } from '@decky/ui';
-import { FC, VFC, useEffect, useState } from 'react';
+import { FC17, VFC, useEffect, useState } from 'react';
 import { ParameterSlider } from '../base/ParameterSlider';
 import { ParameterToggle } from '../base/ParameterToggle';
 import { DSPCompanderParameters } from '../../../types/dspTypes';
@@ -8,7 +8,7 @@ import { useDspSettings } from '../../../hooks/contextHooks';
 import { CompanderParameterSlider } from '../base/ParameterSlider';
 import { CompanderDataContext } from '../../../contexts/contexts';
 
-export const CompanderDataProvider: FC<{}> = ({ children }) => {
+export const CompanderDataProvider: FC17<{}> = ({ children }) => {
     const { data: settings, setData: setSettings } = useDspSettings();
     if (!settings || !setSettings) return null;
 

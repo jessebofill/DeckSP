@@ -1,4 +1,4 @@
-import { FC, VFC } from 'react';
+import { FC17, VFC } from 'react';
 import { LimiterControls } from '../dspParamControls/groups/LimiterControls';
 import { WidenessControls } from '../dspParamControls/groups/WidenessControls';
 import { CrossfeedControls } from '../dspParamControls/groups/CrossfeedControls';
@@ -10,7 +10,7 @@ import { EQControls } from '../dspParamControls/groups/EQControls';
 import { MasterControls } from '../dspParamControls/groups/MasterControls';
 import { QAMPage } from './QAMPage';
 
-const QAMDspPage: FC<{}> = ({ children }) => {
+const QAMDspPage: FC17<{}> = ({ children }) => {
     return (
         <QAMPage dataProvider='dsp'>
             {children}

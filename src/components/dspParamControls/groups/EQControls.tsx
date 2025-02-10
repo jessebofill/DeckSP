@@ -1,5 +1,5 @@
 import { PanelSection, PanelSectionRow } from '@decky/ui';
-import { FC, VFC, useEffect, useState } from 'react';
+import { FC17, VFC, useEffect, useState } from 'react';
 import { ParameterToggle } from '../base/ParameterToggle';
 import { Backend } from '../../../controllers/Backend';
 import { useDspSettings } from '../../../hooks/contextHooks';
@@ -8,7 +8,7 @@ import { PresetDropdown } from '../base/PresetDropdown';
 import { EQParameterSlider } from '../base/ParameterSlider';
 import { EQDataContext } from '../../../contexts/contexts';
 
-export const EQDataProvider: FC<{}> = ({ children }) => {
+export const EQDataProvider: FC17<{}> = ({ children }) => {
     const { data: settings, setData: setSettings } = useDspSettings();
     if (!settings || !setSettings) return null;
 

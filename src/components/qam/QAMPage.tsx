@@ -1,4 +1,4 @@
-import { FC } from 'react';
+import { FC17 } from 'react';
 import { useDspSettings, usePluginState } from '../../hooks/contextHooks';
 import { QAMErrorWrapper } from '../generic/QAMErrorWrapper';
 
@@ -6,7 +6,7 @@ import { QAMErrorWrapper } from '../generic/QAMErrorWrapper';
 export interface QAMPageProps {
     dataProvider: 'plugin' | 'dsp';
 }
-export const QAMPage: FC<QAMPageProps> = ({ children, dataProvider }) => {
+export const QAMPage: FC17<QAMPageProps> = ({ children, dataProvider }) => {
     const useData = dataProvider === 'plugin' ? usePluginState : useDspSettings;
     const { error } = useData();
 

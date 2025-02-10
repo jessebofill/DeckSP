@@ -1,5 +1,5 @@
 import { FocusableProps, Focusable, DialogButton, GamepadEvent } from "@decky/ui";
-import { ReactNode, FC, useState, CSSProperties } from "react";
+import { ReactNode, FC17, useState, CSSProperties } from "react";
 import { SoundEffect, SFXPath } from "../../lib/GamepadUIAudio";
 import { addClasses, playUISound } from '../../lib/utils';
 
@@ -54,7 +54,7 @@ export enum CustomButtonClasses {
 }
 
 /** A button component with many customizable options */
-export const CustomButton: FC<CustomButtonProps> = ({
+export const CustomButton: FC17<CustomButtonProps> = ({
     audioSFX,
     noAudio,
     disabled,

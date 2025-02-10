@@ -1,5 +1,5 @@
 import { quickAccessMenuClasses, Focusable } from '@decky/ui';
-import { FC } from 'react';
+import { FC17 } from 'react';
 import { addClasses } from '../../lib/utils';
 import { CurrentProfile } from '../profile/CurrentProfile';
 import { deckyQamTabClass, titleViewClasses } from '../../defines/cssClasses';
@@ -10,7 +10,7 @@ interface QAMTitleViewProps {
     pagerLinker: PagerLinker;
 }
 
-export const QAMTitleView: FC<QAMTitleViewProps> = ({ pagerLinker, title }) => {
+export const QAMTitleView: FC17<QAMTitleViewProps> = ({ pagerLinker, title }) => {
     const underTitleHeight = 24;
 
     return (

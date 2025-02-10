@@ -1,10 +1,10 @@
-import { useState, FC, useEffect } from 'react';
+import { useState, FC17, useEffect } from 'react';
 import { usePluginContext } from '../../hooks/contextHooks';
 import { PluginStateContext } from '../../contexts/contexts';
 import { DspSettingsContext } from '../../contexts/contexts';
 import { FlatpakFixProvider } from './FlatpakFixContextProvider';
 
-export const PluginDataProvider: FC<{}> = ({ children }) => {
+export const PluginDataProvider: FC17<{}> = ({ children }) => {
     const { data } = usePluginContext();
     if (!data) return null;
 

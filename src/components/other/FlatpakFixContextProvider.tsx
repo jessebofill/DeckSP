@@ -1,4 +1,4 @@
-import { useState, FC } from 'react';
+import { useState, FC17 } from 'react';
 import { FlatpakFixContext } from '../../contexts/contexts';
 import { PLUGIN_NAME } from '../../defines/pluginName';
 import { FlatpakFixState } from '../../types/types';
@@ -8,7 +8,7 @@ export const FixFlatpakDescriptions = {
     done: `The repair process completed. Reload ${PLUGIN_NAME} from the Decky plugin menu. An active internet connection is required during the reload process.`
 };
 
-export const FlatpakFixProvider: FC<{}> = ({ children }) => {
+export const FlatpakFixProvider: FC17<{}> = ({ children }) => {
     const [state, setState] = useState(FlatpakFixState.Default);
     const [description, setDescription] = useState(FixFlatpakDescriptions.default);
 

@@ -1,10 +1,10 @@
 import { quickAccessMenuClasses } from '@decky/ui';
 import { FadeSpinner } from '../generic/FadeSpinner';
-import { FC, useLayoutEffect, useRef, useState } from 'react';
+import { FC17, useLayoutEffect, useRef, useState } from 'react';
 import { usePluginContext } from '../../hooks/contextHooks';
 import { QAMUnderTitleHider } from './QAMUnderTitleHider';
 
-export const QAMSpinner: FC<{}> = ({ children }) => {
+export const QAMSpinner: FC17<{}> = ({ children }) => {
     const { ready } = usePluginContext();
     const [width, setWidth] = useState(0);
     const ref = useRef<HTMLDivElement>(null);

@@ -1,4 +1,4 @@
-import { CSSProperties, FC } from 'react'
+import { CSSProperties, FC17 } from 'react'
 
 export interface FadeSpinnerProps {
     isLoading: boolean;
@@ -7,7 +7,7 @@ export interface FadeSpinnerProps {
     showChildrenLoading?: boolean
 }
 
-export const FadeSpinner: FC<FadeSpinnerProps> = ({ isLoading, className, style, showChildrenLoading, children }) => {
+export const FadeSpinner: FC17<FadeSpinnerProps> = ({ isLoading, className, style, showChildrenLoading, children }) => {
     return (
         <>
             <div

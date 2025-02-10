@@ -1,5 +1,5 @@
 import { Focusable, ModalPosition, GamepadButton, ScrollPanelGroup, gamepadDialogClasses, scrollPanelClasses, FooterLegendProps } from "@decky/ui";
-import { FC, useLayoutEffect, useRef, useState } from "react";
+import { FC17, useLayoutEffect, useRef, useState } from "react";
 
 export interface ScrollableWindowProps extends FooterLegendProps {
     height: string;
@@ -12,7 +12,7 @@ export interface ScrollableWindowProps extends FooterLegendProps {
     onCancel?: (e: CustomEvent) => void;
 }
 
-export const ScrollableWindow: FC<ScrollableWindowProps> = ({ height, fadeAmount, scrollBarWidth, alwaysFocus, noScrollDescription, children, actionDescriptionMap, ...focusableProps }) => {
+export const ScrollableWindow: FC17<ScrollableWindowProps> = ({ height, fadeAmount, scrollBarWidth, alwaysFocus, noScrollDescription, children, actionDescriptionMap, ...focusableProps }) => {
     const fade = fadeAmount === undefined || fadeAmount === '' ? '10px' : fadeAmount;
     const barWidth = scrollBarWidth === undefined || scrollBarWidth === '' ? '4px' : scrollBarWidth;
     const [isOverflowing, setIsOverflowing] = useState(false);
@@ -93,7 +93,7 @@ interface ScrollableWindowAutoProps extends Omit<ScrollableWindowProps, 'height'
     heightPercent?: number;
 }
 
-export const ScrollableWindowRelative: FC<ScrollableWindowAutoProps> = ({ heightPercent, ...props }) => {
+export const ScrollableWindowRelative: FC17<ScrollableWindowAutoProps> = ({ heightPercent, ...props }) => {
     return (
         <div style={{ flex: 'auto' }}>
             <ScrollableWindow height={`${heightPercent ?? 100}%`} {...props} />

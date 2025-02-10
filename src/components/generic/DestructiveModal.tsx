@@ -1,11 +1,11 @@
 import { ConfirmModal, ConfirmModalProps, gamepadDialogClasses } from '@decky/ui';
-import { FC } from 'react';
+import { FC17 } from 'react';
 
 export interface DestructiveModalProps extends Omit<ConfirmModalProps, 'bDestructiveWarning'> {
 
 }
 
-export const DestructiveModal: FC<DestructiveModalProps> = ({ className, ...props }) => {
+export const DestructiveModal: FC17<DestructiveModalProps> = ({ className, ...props }) => {
     const rootClass = 'destructive-modal';
 
     return (

@@ -1,9 +1,9 @@
-import { FC, useState } from 'react';
+import { FC17, useState } from 'react';
 import { PluginContext } from '../../contexts/contexts';
 import { quickAccessMenuClasses } from '@decky/ui';
 import { FadeSpinner } from '../generic/FadeSpinner';
 
-export const QAMWaiter: FC<{}> = ({ children }) => {
+export const QAMWaiter: FC17<{}> = ({ children }) => {
     const [ready, setReady] = useState(true);
 
     return (
