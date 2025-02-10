@@ -196,6 +196,15 @@ class Plugin:
         Plugin.jdsp.save_preset(Plugin.profiles['currentPreset'])
         # check errors
         return res
+    
+    async def set_jdsp_params(self, values):
+        for parameter, value in values:
+            res = Plugin.jdsp.set_and_commit(parameter, value)
+            if JdspProxy.has_error(res):
+                return res
+    
+        Plugin.jdsp.save_preset(Plugin.profiles['currentPreset'])
+        return {'jdsp_result': ''}
 
     # jdsp-frontend-call
     async def get_all_jdsp_param(self):

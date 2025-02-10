@@ -1,10 +1,12 @@
 import { SFXPath, GamepadUIAudio } from './GamepadUIAudio';
-import { PresetSectionType, PresetTable } from '../types/dspTypes';
+import { DSPParameter, DSPParameterCompResponse, DSPParameterEQParameters, DSPParameterType, PresetSectionType, PresetTable } from '../types/dspTypes';
 import { Log } from './log';
 import { findModuleChild, Module } from '@decky/ui';
-import { dspParamDefines } from '../defines/dspParameterDefines';
+import { dspParamDefines, dspScaledParams } from '../defines/dspParameterDefines';
 import { toaster } from '@decky/api';
 import { ReactNode } from 'react';
+import { stringifyNestedParams } from './parseDspParams';
+import { ParamSendValueType } from '../controllers/Backend';
 
 export function playUISound(path: SFXPath) {
     //@ts-ignore
@@ -20,6 +22,18 @@ export function reverseLookupSectionPreset<PresetType extends PresetSectionType>
         const parameter = presetTable.paramMap[index];
         return value === (typeof compareObject[parameter] === 'number' ? parseFloat(compareObject[parameter].toFixed(dspParamDefines[parameter]?.step === 0.01 ? 2 : 1)) : compareObject[parameter]);
     }));
+}
+
+export function isDSPScaledParameter(parameter: string): parameter is keyof typeof dspScaledParams {
+    return parameter in dspScaledParams;
+}
+
+export function formatDspValue<Param extends DSPParameter>(parameter: Param, value: DSPParameterType<Param>) {
+    return (parameter === 'compander_response' || parameter === 'tone_eq' ?
+        stringifyNestedParams(value as DSPParameterType<DSPParameterCompResponse | DSPParameterEQParameters>) :
+        isDSPScaledParameter(parameter) ?
+            (value as number) / dspScaledParams[parameter] :
+            value) as ParamSendValueType<Param>;
 }
 
 export function getThrottled(func: Function, wait: number) {

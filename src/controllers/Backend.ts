@@ -1,8 +1,8 @@
 import { call } from '@decky/api';
-import { parseJDSPAll, stringifyNestedParams } from '../lib/parseDspParams';
-import { DSPParameter, DSPParameterCompResponse, DSPParameterEQParameters, DSPParameterType, DSPScaledParameter } from '../types/dspTypes';
+import { parseJDSPAll } from '../lib/parseDspParams';
+import { DSPParameter, DSPParameterCompResponse, DSPParameterEQParameters, DSPParameterType } from '../types/dspTypes';
 import { Log } from '../lib/log';
-import { dspScaledParams } from '../defines/dspParameterDefines';
+import { formatDspValue } from '../lib/utils';
 
 export type BackendMethod = PluginMethod | JDSPMethod;
 
@@ -38,6 +38,7 @@ interface PluginMethodError {
 }
 
 export type JDSPSetMethod = 'set_jdsp_param';
+export type JDSPSetMultipleMethod = 'set_jdsp_params';
 export type JDSPGetAllMethod = 'get_all_jdsp_param';
 export type JDSPSetDefaultsMethod = 'set_jdsp_defaults';
 export type JDSPNewPresetMethod = 'new_jdsp_preset';
@@ -46,19 +47,21 @@ export type JDSPSetProfileMethod = 'set_profile';
 
 export type JDSPMethod =
     JDSPSetMethod |
+    JDSPSetMultipleMethod |
     JDSPGetAllMethod |
     JDSPSetDefaultsMethod |
     JDSPNewPresetMethod |
     JDSPDeletePresetMethod |
     JDSPSetProfileMethod;
 
-type ParamSendValueType<Param extends DSPParameter> =
+export type ParamSendValueType<Param extends DSPParameter> =
     Param extends DSPParameterCompResponse | DSPParameterEQParameters ?
     string :
     DSPParameterType<Param>;
 
 export type JDSPMethodArgs<Method extends JDSPMethod, Param extends DSPParameter = never> =
     Method extends JDSPSetMethod ? [ parameter: Param, value: ParamSendValueType<Param> ] :
+    Method extends JDSPSetMultipleMethod ? [ [DSPParameter, ParamSendValueType<DSPParameter>][] ] :
     Method extends JDSPGetAllMethod ? [] :
     Method extends JDSPSetDefaultsMethod ? [ defaultPreset: string ] :
     Method extends JDSPNewPresetMethod ? [ presetName: string, fromPresetName?: string ] :
@@ -74,26 +77,26 @@ export interface JDSPResponse {
 export class Backend {
     static async callPlugin<Method extends PluginMethod>(method: Method, ...args: PluginMethodArgs<Method>) {
         const response = await call<PluginMethodArgs<Method>, PluginMethodResponse<Method> | PluginMethodError>(method, ...args);
-        Log.log('Backend call response ', response)
+        Log.log('Backend call response ', response);
         if ((response as PluginMethodError)?.error !== undefined) throw new Error(`Backend error: ${(response as PluginMethodError).error}`);
         return response as PluginMethodResponse<Method>;
     }
 
     private static async callJDSP<Method extends JDSPMethod, Param extends DSPParameter>(method: Method, ...args: JDSPMethodArgs<Method, Param>) {
-
         const response = await call<JDSPMethodArgs<Method, Param>, JDSPResponse>(method, ...args);
-        Log.log('response ', response)
+        Log.log('response ', response);
         if (response.jdsp_error !== undefined) throw new Error(`JDSP error: ${response.jdsp_error}`);
         else return response.jdsp_result!;
     }
 
     //jdsp specific calls
     static async setDsp<Param extends DSPParameter>(parameter: Param, value: DSPParameterType<Param>) {
-        const val = parameter === 'compander_response' || parameter === 'tone_eq' ?
-            stringifyNestedParams(value as DSPParameterType<DSPParameterCompResponse | DSPParameterEQParameters>) :
-            dspScaledParams[parameter as any] !== undefined ? (value as number) / dspScaledParams[parameter as DSPScaledParameter] : value;
-
-        return await this.callJDSP('set_jdsp_param', parameter, val as ParamSendValueType<Param>);
+        return await this.callJDSP('set_jdsp_param', parameter, formatDspValue(parameter, value));
+    }
+    static async setMultipleDsp<Params extends DSPParameter[]>(...parameters: { [K in keyof Params]: [Params[K], DSPParameterType<Params[K]>] }) {
+        const params = parameters.map(([param, value]) => [param, formatDspValue(param, value)] as [DSPParameter, ParamSendValueType<DSPParameter>]);
+        Log.log("inner params", params)
+        return await this.callJDSP('set_jdsp_params', params);
     }
     static async getDspAll() {
         return parseJDSPAll(await this.callJDSP('get_all_jdsp_param'));

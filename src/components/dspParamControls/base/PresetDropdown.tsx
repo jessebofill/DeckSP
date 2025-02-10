@@ -38,18 +38,18 @@ export function PresetDropdown<PresetType extends PresetSectionType>({ type }: P
             if (!settings || !setSettings || !setError) return null;
             presetTable = reverbPresetTable;
             selected = reverseLookupSectionPreset(presetTable, settings);
-
             onSelect = (option: SingleDropdownOption) => {
-                const promises: Promise<string | Error>[] = []
+                const sendParams: [DSPRangeParameter, number][] = [];
                 const newSettings = { ...settings };
                 setReady(false);
                 (presetTable.presets[option.data] as number[]).forEach((value, index) => {
                     const parameter = presetTable.paramMap[index] as DSPRangeParameter;
-                    promises.push(Backend.setDsp(parameter, value));
+                    sendParams.push([parameter, value]);
                     newSettings[parameter] = value;
                 });
+
                 setSettings(newSettings);
-                Promise.all(promises).then(() => setReady(true)).catch(err => {
+                Backend.setMultipleDsp(...sendParams).then(() => setReady(true)).catch(err => {
                     setError(useError(`Problem applying reverb preset - \n ${(err as Error).message ?? ''}`));
                     setReady(true);
                 })
