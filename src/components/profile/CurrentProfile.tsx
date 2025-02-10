@@ -1,4 +1,4 @@
-import { Marquee } from 'decky-frontend-lib';
+import { Marquee } from '@decky/ui';
 import { VFC } from 'react';
 import { profileManager } from '../../controllers/ProfileManager';
 import { observer } from 'mobx-react-lite';

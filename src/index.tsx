@@ -1,4 +1,4 @@
-import { definePlugin, ServerAPI } from "decky-frontend-lib";
+import { definePlugin } from "@decky/api"
 import { RiEqualizerLine } from "react-icons/ri";
 import { PluginManager } from './controllers/PluginManager';
 import { PagerLinker, QAMPager } from './components/qam/QAMPager';
@@ -8,20 +8,20 @@ import { QAMDspCompanderPage, QAMDspEQPage, QAMDspMainPage, QAMDspOtherPage, QAM
 import { QAMPluginSettingsPage } from './components/qam/QAMPluginSettingsPage';
 import { QAMDataProvider } from './components/qam/QAMDataProvider';
 import { profileManager } from './controllers/ProfileManager';
-import { Backend } from './controllers/Backend';
 
-export default definePlugin((serverApi: ServerAPI) => {
+export default definePlugin(() => {
     // serverApi.routerHook.addRoute("/decky-plugin-test", DeckyPluginRouterTest, {
     //     exact: true,
     // });
-    PluginManager.start(serverApi);
+    PluginManager.start();
     
     const pagerLinker = new PagerLinker();
     window.proMan = profileManager;
-    window.getPy =  () => Backend.checkpy().then(res => console.log('res', res))
+    // window.getPy =  () => Backend.checkpy().then(res => console.log('res', res))
 
 
     return {
+        name: 'DeckSP',
         titleView: (
             <QAMTitleView title={PLUGIN_NAME} pagerLinker={pagerLinker} />
         ),

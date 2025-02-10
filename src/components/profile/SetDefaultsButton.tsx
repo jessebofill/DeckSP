@@ -1,4 +1,4 @@
-import { Field, FieldProps, showModal } from 'decky-frontend-lib';
+import { Field, FieldProps, showModal } from '@decky/ui';
 import { VFC, useEffect } from 'react';
 import { useSetDefaults } from '../../hooks/useSetDefaults';
 import { DestructiveModal } from '../generic/DestructiveModal';

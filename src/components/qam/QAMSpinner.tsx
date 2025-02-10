@@ -1,4 +1,4 @@
-import { quickAccessMenuClasses } from 'decky-frontend-lib';
+import { quickAccessMenuClasses } from '@decky/ui';
 import { FadeSpinner } from '../generic/FadeSpinner';
 import { FC, useLayoutEffect, useRef, useState } from 'react';
 import { usePluginContext } from '../../hooks/contextHooks';

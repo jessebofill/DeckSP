@@ -1,4 +1,4 @@
-import { DialogButton, Field, PanelSection, PanelSectionRow } from 'decky-frontend-lib';
+import { DialogButton, Field, PanelSection, PanelSectionRow } from '@decky/ui';
 import { VFC } from 'react';
 import { Backend } from '../../controllers/Backend';
 import { useError } from '../../lib/utils';

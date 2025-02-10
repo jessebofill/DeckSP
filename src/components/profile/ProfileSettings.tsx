@@ -1,4 +1,4 @@
-import { PanelSection, PanelSectionRow } from 'decky-frontend-lib';
+import { PanelSection, PanelSectionRow } from '@decky/ui';
 import { VFC } from 'react';
 import { usePerGameProfileState } from '../../hooks/usePerGameProfileState';
 import { WaitToggle } from '../waitable/WaitToggle';

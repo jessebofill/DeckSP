@@ -1,4 +1,4 @@
-import { MultiDropdownOption } from 'decky-frontend-lib';
+import { MultiDropdownOption } from '@decky/ui';
 import { profileManager } from '../controllers/ProfileManager'
 import { ProfileType } from '../types/types';
 

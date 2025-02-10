@@ -1,8 +1,8 @@
-import { DialogButton, Dropdown, DropdownOption, Focusable, ModalRoot, TextField } from 'decky-frontend-lib';
+import { DialogButton, Dropdown, DropdownOption, Focusable, ModalRoot, TextField } from '@decky/ui';
 import { VFC, useState } from 'react';
 import { profileManager } from '../../controllers/ProfileManager';
 import { useProfileMultiDropdownOptions } from '../../hooks/useProfileMultiDropdownOptions';
-import { Toaster } from '../../controllers/Toaster';
+import { toast } from '../../lib/utils';
 
 interface NewProfileModalProps {
     onConfirm?: (profileName: string) => void;
@@ -24,7 +24,7 @@ export const NewProfileModal: VFC<NewProfileModalProps> = ({ onConfirm, closeMod
             onConfirm?.(name);
             closeModal?.();
         } else {
-            Toaster.toast('Cannot Create Profile', 'A profile with this name already exists');
+            toast('Cannot Create Profile', 'A profile with this name already exists');
         }
     };
 

@@ -1,6 +1,6 @@
 import { ReactElement, useMemo } from 'react';
 import { DSPEQParameters, DSPRangeParameter, PresetSectionType } from '../../../types/dspTypes';
-import { SingleDropdownOption } from 'decky-frontend-lib';
+import { SingleDropdownOption } from '@decky/ui';
 import { reverseLookupSectionPreset, useError } from '../../../lib/utils';
 import { useDspSettings, usePluginContext } from '../../../hooks/contextHooks';
 import { reverbPresetTable } from '../../../defines/reverbPresetTable';

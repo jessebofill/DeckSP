@@ -2,11 +2,11 @@ import logging
 import os
 import subprocess
 from typing import List
-import decky_plugin
+import decky
 
 from env import env
 
-def get_loggers(jdsp_log_dir, jdsp_log, decky_plugin: decky_plugin):
+def get_loggers(jdsp_log_dir, jdsp_log, decky_plugin: decky):
     jdsp_log_dir = os.path.join(decky_plugin.DECKY_PLUGIN_LOG_DIR, 'jdsp')
     if not os.path.exists(jdsp_log_dir):
         os.makedirs(jdsp_log_dir)

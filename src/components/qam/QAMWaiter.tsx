@@ -1,7 +1,7 @@
 import { Dispatch, ReactNode, SetStateAction, useEffect, useState } from 'react';
 import { DataProviderSetData } from '../../contexts/contexts';
 import { PluginContext } from '../../contexts/contexts';
-import { quickAccessMenuClasses } from 'decky-frontend-lib';
+import { quickAccessMenuClasses } from '@decky/ui';
 import { FadeSpinner } from '../generic/FadeSpinner';
 import { PluginData } from '../../types/types';
 

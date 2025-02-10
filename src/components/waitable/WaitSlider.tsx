@@ -1,4 +1,4 @@
-import { SliderField, SliderFieldProps } from 'decky-frontend-lib';
+import { SliderField, SliderFieldProps } from '@decky/ui';
 import { ThrottledSlider } from '../generic/ThrottledSlider';
 import { VFC } from 'react';
 import { usePluginContext } from '../../hooks/contextHooks';

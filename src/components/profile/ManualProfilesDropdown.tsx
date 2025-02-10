@@ -1,4 +1,4 @@
-import { Field, Menu, MenuGroup, MenuItem, MultiDropdownOption, SingleDropdownOption, gamepadContextMenuClasses, showContextMenu, showModal } from 'decky-frontend-lib';
+import { Field, Menu, MenuGroup, MenuItem, MultiDropdownOption, SingleDropdownOption, gamepadContextMenuClasses, showContextMenu, showModal } from '@decky/ui';
 import { VFC, createContext, useContext, useEffect, useState } from 'react';
 import { addClasses, playUISound } from '../../lib/utils';
 import { useGameProfileMultiDropdownOption, useProfileMultiDropdownOptions, useUserProfileMultiDropdownOption } from '../../hooks/useProfileMultiDropdownOptions';

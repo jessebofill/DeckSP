@@ -1,4 +1,4 @@
-import { SingleDropdownOption } from 'decky-frontend-lib';
+import { SingleDropdownOption } from '@decky/ui';
 import { VFC, useMemo } from 'react';
 import { dspParamDefines } from '../../../defines/dspParameterDefines';
 import { useDspSettings } from '../../../hooks/contextHooks';

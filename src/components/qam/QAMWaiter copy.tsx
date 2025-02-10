@@ -1,6 +1,6 @@
 import { FC, useState } from 'react';
 import { PluginContext } from '../../contexts/contexts';
-import { quickAccessMenuClasses } from 'decky-frontend-lib';
+import { quickAccessMenuClasses } from '@decky/ui';
 import { FadeSpinner } from '../generic/FadeSpinner';
 
 export const QAMWaiter: FC<{}> = ({ children }) => {

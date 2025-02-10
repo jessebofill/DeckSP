@@ -1,4 +1,4 @@
-import { ServerAPI } from 'decky-frontend-lib';
+import { call } from '@decky/api';
 import { parseJDSPAll, stringifyNestedParams } from '../lib/parseDspParams';
 import { DSPParameter, DSPParameterCompResponse, DSPParameterEQParameters, DSPParameterType, DSPScaledParameter } from '../types/dspTypes';
 import { Log } from '../lib/log';
@@ -21,10 +21,10 @@ export type PluginMethod =
     PluginFlatpakRepairMethod;
 
 export type PluginMethodArgs<Method extends PluginMethod> =
-    Method extends PluginStartJDSPMethod | PluginFlatpakRepairMethod ? {} :
-    Method extends PluginSetAppWatchMethod ? { appId: string, watch: boolean } :
-    Method extends PluginInitProfilesMethod ? { globalPreset: string } :
-    Method extends PluginSetManuallyApplyProfilesMethod ? { useManual: boolean } :
+    Method extends PluginStartJDSPMethod | PluginFlatpakRepairMethod ? [] :
+    Method extends PluginSetAppWatchMethod ? [ appId: string, watch: boolean ] :
+    Method extends PluginInitProfilesMethod ? [ globalPreset: string ] :
+    Method extends PluginSetManuallyApplyProfilesMethod ? [ useManual: boolean ] :
     never;
 
 export type PluginMethodResponse<Method extends PluginMethod> =
@@ -58,12 +58,12 @@ type ParamSendValueType<Param extends DSPParameter> =
     DSPParameterType<Param>;
 
 export type JDSPMethodArgs<Method extends JDSPMethod, Param extends DSPParameter = never> =
-    Method extends JDSPSetMethod ? { parameter: Param, value: ParamSendValueType<Param> } :
-    Method extends JDSPGetAllMethod ? {} :
-    Method extends JDSPSetDefaultsMethod ? { defaultPreset: string } :
-    Method extends JDSPNewPresetMethod ? { presetName: string, fromPresetName?: string } :
-    Method extends JDSPDeletePresetMethod ? { presetName: string } :
-    Method extends JDSPSetProfileMethod ? { presetName: string, isManual: boolean } :
+    Method extends JDSPSetMethod ? [ parameter: Param, value: ParamSendValueType<Param> ] :
+    Method extends JDSPGetAllMethod ? [] :
+    Method extends JDSPSetDefaultsMethod ? [ defaultPreset: string ] :
+    Method extends JDSPNewPresetMethod ? [ presetName: string, fromPresetName?: string ] :
+    Method extends JDSPDeletePresetMethod ? [ presetName: string ] :
+    Method extends JDSPSetProfileMethod ? [ presetName: string, isManual: boolean ] :
     never;
 
 export interface JDSPResponse {
@@ -72,36 +72,19 @@ export interface JDSPResponse {
 }
 
 export class Backend {
-    private static serverAPI: ServerAPI;
-
-    static init(serverApi: ServerAPI) {
-        this.serverAPI = serverApi;
-    }
-
-    static async callPlugin<Method extends PluginMethod>(method: Method, args: PluginMethodArgs<Method>) {
-        const response = await this.serverAPI.callPluginMethod<PluginMethodArgs<Method>, PluginMethodResponse<Method> | PluginMethodError>(method, args);
+    static async callPlugin<Method extends PluginMethod>(method: Method, ...args: PluginMethodArgs<Method>) {
+        const response = await call<PluginMethodArgs<Method>, PluginMethodResponse<Method> | PluginMethodError>(method, ...args);
         Log.log('Backend call response ', response)
-        if (response.success) {
-            if ((response.result as PluginMethodError)?.error !== undefined) throw new Error(`Backend error: ${(response.result as PluginMethodError).error}`);
-            return response.result as PluginMethodResponse<Method>;
-        } else {
-            throw new Error(`Backend responded with '${response.result}'`);
-        }
+        if ((response as PluginMethodError)?.error !== undefined) throw new Error(`Backend error: ${(response as PluginMethodError).error}`);
+        return response as PluginMethodResponse<Method>;
     }
 
-    private static async callJDSP<Method extends JDSPMethod, Param extends DSPParameter>(method: Method, args: JDSPMethodArgs<Method, Param>) {
-        const response = await this.serverAPI.callPluginMethod<JDSPMethodArgs<Method, Param>, JDSPResponse>(method, args);
+    private static async callJDSP<Method extends JDSPMethod, Param extends DSPParameter>(method: Method, ...args: JDSPMethodArgs<Method, Param>) {
+
+        const response = await call<JDSPMethodArgs<Method, Param>, JDSPResponse>(method, ...args);
         Log.log('response ', response)
-        if (response.success) {
-            if (response.result.jdsp_error !== undefined) throw new Error(`JDSP error: ${response.result.jdsp_error}`);
-            else return response.result.jdsp_result!;
-        } else {
-            throw new Error(`Backend responded with '${response.result}'`);
-        }
-    }
-
-    static async checkpy() {
-        return await this.serverAPI.callPluginMethod('test2', {});
+        if (response.jdsp_error !== undefined) throw new Error(`JDSP error: ${response.jdsp_error}`);
+        else return response.jdsp_result!;
     }
 
     //jdsp specific calls
@@ -110,25 +93,25 @@ export class Backend {
             stringifyNestedParams(value as DSPParameterType<DSPParameterCompResponse | DSPParameterEQParameters>) :
             dspScaledParams[parameter as any] !== undefined ? (value as number) / dspScaledParams[parameter as DSPScaledParameter] : value;
 
-        return await this.callJDSP('set_jdsp_param', { parameter, value: val as ParamSendValueType<Param> });
+        return await this.callJDSP('set_jdsp_param', parameter, val as ParamSendValueType<Param>);
     }
     static async getDspAll() {
-        return parseJDSPAll(await this.callJDSP('get_all_jdsp_param', {}));
+        return parseJDSPAll(await this.callJDSP('get_all_jdsp_param'));
     }
     static async setDspDefaults(defaultPreset: string) {
-        return parseJDSPAll(await this.callJDSP('set_jdsp_defaults', { defaultPreset }));
+        return parseJDSPAll(await this.callJDSP('set_jdsp_defaults', defaultPreset));
     }
     static async newPreset(presetName: string, fromPresetName?: string) {
-        return await this.callJDSP('new_jdsp_preset', { presetName, fromPresetName });
+        return await this.callJDSP('new_jdsp_preset', presetName, fromPresetName);
     }
     static async deletePreset(presetName: string) {
-        return await this.callJDSP('delete_jdsp_preset', { presetName });
+        return await this.callJDSP('delete_jdsp_preset', presetName);
     }
     static async setProfile(presetName: string, isManual: boolean) {
         Log.log('set profile called');
         // const res = await this.serverAPI.callPluginMethod('set_profile', { presetName: presetName });
         // await sleep(5000);
-        const res = await this.callJDSP('set_profile', { presetName, isManual });
+        const res = await this.callJDSP('set_profile', presetName, isManual);
         Log.log('set profile backend call done');
         return parseJDSPAll(res);
     }
@@ -136,18 +119,18 @@ export class Backend {
 
     //general plugin calls
     static async startJDSP() {
-        return await this.callPlugin('start_jdsp', {});
+        return await this.callPlugin('start_jdsp');
     }
     static async flatpakRepair() {
-        return await this.callPlugin('flatpak_repair', {});
+        return await this.callPlugin('flatpak_repair');
     }
     static async setAppWatch(appId: string, watch: boolean) {
-        return await this.callPlugin('set_app_watch', { appId, watch });
+        return await this.callPlugin('set_app_watch', appId, watch);
     }
     static async initProfiles(globalPreset: string) {
-        return await this.callPlugin('init_profiles', { globalPreset });
+        return await this.callPlugin('init_profiles', globalPreset);
     }
     static async setManuallyApplyProfiles(useManual: boolean) {
-        return await this.callPlugin('set_manually_apply_profiles', { useManual });
+        return await this.callPlugin('set_manually_apply_profiles', useManual);
     }
 }

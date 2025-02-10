@@ -2,8 +2,18 @@
   "name": "DeckSP",
   "author": "Jesse Bofill",
   "flags": ["debug"],
+  "api_version": 1,
   "publish": {
-    "tags": [],
+    "tags": [    
+      "dsp",
+      "eq",
+      "equalizer",
+      "sound",
+      "audio",
+      "fx",
+      "effects",
+      "reverb",
+      "compressor"],
     "description": "Decky example plugin.",
     "image": "https://opengraph.githubassets.com/1/SteamDeckHomebrew/PluginLoader"
   }

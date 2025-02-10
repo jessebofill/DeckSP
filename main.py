@@ -14,13 +14,13 @@ from py_modules.utils import flatpak_CMD
 # For easy intellisense checkout the decky-loader code one directory up
 # or add the `decky-loader/plugin` path to `python.analysis.extraPaths` in `.vscode/settings.json`
 
-import decky_plugin
+import decky
 
 APPLICATION_ID = "me.timschneeberger.jdsp4linux"
 DBUS_PATH = "/jdsp4linux/service"
 DBUS_INTERFACE = "me.timschneeberger.jdsp4linux.Service"
 FLATPAK_PATH = 'defaults/jdsp4linux-headless.flatpak'
-JDSP_LOG_DIR =  os.path.join(decky_plugin.DECKY_PLUGIN_LOG_DIR, 'jdsp')
+JDSP_LOG_DIR =  os.path.join(decky.DECKY_PLUGIN_LOG_DIR, 'jdsp')
 JDSP_LOG = os.path.join(JDSP_LOG_DIR, 'jdsp.log')
 JDSP_REQ_VER = '2.6.1'
 
@@ -28,7 +28,7 @@ jdspPresetPrefix = 'decksp.'
 jdspPresetGamePrefix = jdspPresetPrefix + 'game:'
 jdspPresetUserPrefix = jdspPresetPrefix + 'user:'
 
-log = decky_plugin.logger
+log = decky.logger
 
 settings_manager = SettingsManager(name="settings", settings_directory=os.environ["DECKY_PLUGIN_SETTINGS_DIR"])
 

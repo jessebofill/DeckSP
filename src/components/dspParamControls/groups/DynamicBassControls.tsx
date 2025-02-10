@@ -1,4 +1,4 @@
-import { PanelSection, PanelSectionRow } from 'decky-frontend-lib';
+import { PanelSection, PanelSectionRow } from '@decky/ui';
 import { VFC } from 'react'
 import { ParameterToggle } from '../base/ParameterToggle';
 import { ParameterSlider } from '../base/ParameterSlider';

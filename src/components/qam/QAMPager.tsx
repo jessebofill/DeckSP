@@ -1,5 +1,5 @@
 import { ReactElement, VFC, useEffect, useState } from 'react';
-import { Focusable, GamepadButton, GamepadEvent, scrollPanelClasses } from 'decky-frontend-lib';
+import { Focusable, GamepadButton, GamepadEvent, scrollPanelClasses } from '@decky/ui';
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import { CustomButton } from '../generic/CustomButton';
 import { playUISound } from '../../lib/utils';

@@ -1,4 +1,4 @@
-import { quickAccessMenuClasses, Focusable } from 'decky-frontend-lib';
+import { quickAccessMenuClasses, Focusable } from '@decky/ui';
 import { FC } from 'react';
 import { addClasses } from '../../lib/utils';
 import { CurrentProfile } from '../profile/CurrentProfile';

@@ -1,4 +1,4 @@
-import { SliderField, SliderFieldProps } from 'decky-frontend-lib'
+import { SliderField, SliderFieldProps } from '@decky/ui'
 import { VFC, useEffect, useMemo, useState } from 'react'
 import { getThrottled } from '../../lib/utils';
 

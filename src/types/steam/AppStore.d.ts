@@ -1,4 +1,4 @@
-import { SteamAppOverview } from 'decky-frontend-lib';
+import { SteamAppOverview } from '@decky/ui';
 
 type AppStore = {
     GetAppOverviewByAppID: (appId: number) => AppOverview | undefined;

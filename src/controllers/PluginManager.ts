@@ -1,10 +1,8 @@
-import { ServerAPI } from 'decky-frontend-lib';
 import { Backend } from './Backend';
 import { Log } from '../lib/log';
 import { profileManager } from './ProfileManager';
 import { initSystemPerfStore, useError } from '../lib/utils';
 import { DSPParamSettings } from '../types/dspTypes';
-import { Toaster } from './Toaster';
 
 export class PluginManager {
     static state: {
@@ -12,10 +10,8 @@ export class PluginManager {
         profileManagerLoaded?: Promise<DSPParamSettings | Error>
     } = {}
 
-    static async start(serverApi: ServerAPI) {
+    static async start() {
         initSystemPerfStore();
-        Toaster.init(serverApi);
-        Backend.init(serverApi);
 
         Log.log('Trying to start James DSP...')
         this.state.jdspLoaded = Backend.startJDSP().then(res => {

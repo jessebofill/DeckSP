@@ -1,9 +1,9 @@
 import { VFC } from 'react';
-import { Toaster } from '../../controllers/Toaster';
 import { PLUGIN_NAME } from '../../defines/pluginName';
 import { ProfileIcon } from './ProfileIcon';
 import { Profile, ProfileType } from '../../types/types';
 import { ProfileManager } from '../../controllers/ProfileManager';
+import { toast } from '../../lib/utils';
 
 interface ApplyProfileToastTitleProps {
     profile: Profile<ProfileType>;
@@ -20,4 +20,4 @@ const ApplyProfileToastTitle: VFC<ApplyProfileToastTitleProps> = ({ profile, pro
     );
 };
 
-export const ToastApplyingProfile = (profile: Profile<ProfileType>, profileManager: ProfileManager, isManuallyApplied?: boolean) => Toaster.toast(<ApplyProfileToastTitle profile={profile} profileManager={profileManager} />, `${isManuallyApplied ? 'Manually' : 'Automatically'} applying ${PLUGIN_NAME} profile`);
+export const ToastApplyingProfile = (profile: Profile<ProfileType>, profileManager: ProfileManager, isManuallyApplied?: boolean) => toast(<ApplyProfileToastTitle profile={profile} profileManager={profileManager} />, `${isManuallyApplied ? 'Manually' : 'Automatically'} applying ${PLUGIN_NAME} profile`);

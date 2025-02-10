@@ -1,4 +1,4 @@
-import { PanelSection, PanelSectionRow } from 'decky-frontend-lib';
+import { PanelSection, PanelSectionRow } from '@decky/ui';
 import { FC, VFC, useEffect, useState } from 'react';
 import { ParameterToggle } from '../base/ParameterToggle';
 import { Backend } from '../../../controllers/Backend';

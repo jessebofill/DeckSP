@@ -1,4 +1,4 @@
-import { ToggleField, ToggleFieldProps } from 'decky-frontend-lib';
+import { ToggleField, ToggleFieldProps } from '@decky/ui';
 import { VFC } from 'react';
 import { usePluginContext } from '../../hooks/contextHooks';
 

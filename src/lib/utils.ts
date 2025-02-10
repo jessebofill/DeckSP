@@ -1,8 +1,10 @@
 import { SFXPath, GamepadUIAudio } from './GamepadUIAudio';
 import { PresetSectionType, PresetTable } from '../types/dspTypes';
 import { Log } from './log';
-import { findModuleChild, Module } from 'decky-frontend-lib';
+import { findModuleChild, Module } from '@decky/ui';
 import { dspParamDefines } from '../defines/dspParameterDefines';
+import { toaster } from '@decky/api';
+import { ReactNode } from 'react';
 
 export function playUISound(path: SFXPath) {
     //@ts-ignore
@@ -11,7 +13,7 @@ export function playUISound(path: SFXPath) {
 
 export function addClasses(...strings: any[]) {
     return strings.filter(string => string).join(' ');
-  }
+}
 
 export function reverseLookupSectionPreset<PresetType extends PresetSectionType>(presetTable: PresetTable<PresetType>, compareObject: { [key: string]: any }) {
     return Object.keys(presetTable.presets).find(preset => (presetTable.presets[preset] as number[]).every((value, index) => {
@@ -78,4 +80,13 @@ export function useError(message: string) {
     const error = new Error(message);
     Log.error(error);
     return error;
+}
+
+export function toast(title: ReactNode, message: string, durationMs: number = 4000, icon?: ReactNode) {
+    toaster.toast({
+        title,
+        body: message,
+        duration: durationMs,
+        icon
+    });
 }

@@ -1,4 +1,4 @@
-import { findModuleChild, Module } from 'decky-frontend-lib';
+import { findModuleChild, Module } from '@decky/ui';
 import { CSSProperties, VFC } from 'react';
 
 export enum AppArtworkAssetType {

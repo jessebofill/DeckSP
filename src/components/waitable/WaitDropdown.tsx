@@ -1,4 +1,4 @@
-import { DropdownItem, DropdownItemProps } from 'decky-frontend-lib';
+import { DropdownItem, DropdownItemProps } from '@decky/ui';
 import { VFC } from 'react';
 import { usePluginContext } from '../../hooks/contextHooks';
 
