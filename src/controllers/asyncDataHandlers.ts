@@ -63,7 +63,7 @@ export async function handleGetDspSettings() {
         const settings = await Backend.getDspAll();
         Log.log('Got dsp settings', settings);
         return settings;
-    } catch (err) {
-        return useError(`Problem getting dsp settings - \n ${(err as Error).message ?? ''}`);
+    } catch (e) {
+        return useError('Problem getting dsp settings', e);
     }
 }

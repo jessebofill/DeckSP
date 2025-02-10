@@ -23,11 +23,9 @@ export const FixFlatpak: VFC<{}> = ({ }) => {
                                 await Backend.flatpakRepair();
                                 setState(FlatpakFixState.Done)
                                 setDescription(FixFlatpakDescriptions.done)
-                            } catch (err) {
-                                const errorMsg = `There a was a problem when trying to repair flatpak - \n ${(err as Error).message ?? ''}`;
-                                useError(errorMsg);
+                            } catch (e) {
                                 setState(FlatpakFixState.Error)
-                                setDescription(errorMsg);
+                                setDescription(useError('There a was a problem when trying to repair flatpak', e).message);
                             }
                         }}
                     >

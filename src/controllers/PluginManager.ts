@@ -19,13 +19,13 @@ export class PluginManager {
             else useError(`James DSP couldn't be started because a problem was detected with it's installation`);
 
             return res;
-        }).catch((err: Error) => useError(`Encountered an error when trying to start James DSP - \n ${err.message}`));
+        }).catch(e => useError('Encountered an error when trying to start James DSP', e));
 
         await this.state.jdspLoaded;
 
         const profileManagerInit = profileManager.init();
         profileManager.setLock(profileManagerInit);
-        this.state.profileManagerLoaded = profileManagerInit.then((res) => res instanceof Error ? useError(`Problem during ProfileManager init process - \n ${res.message}`) : res);
+        this.state.profileManagerLoaded = profileManagerInit.then((res) => res instanceof Error ? useError('Problem during ProfileManager init process', res) : res);
     }
 }
 

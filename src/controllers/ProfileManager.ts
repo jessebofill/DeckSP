@@ -70,7 +70,7 @@ export class ProfileManager {
             this.manuallyApply = manuallyApply;
 
             const { id: profileId } = ProfileManager.parsePresetName(manualPreset) ?? {};
-            if (!profileId) return useError(`Problem parsing manually applied jdsp preset - "${manualPreset}" cannot be parsed as a preset}`);
+            if (!profileId) return useError(`Problem parsing manually applied jdsp preset`, `"${manualPreset}" cannot be parsed as a preset}`);
             this.manualProfileId = profileId;
 
             if (manuallyApply) {
@@ -80,8 +80,8 @@ export class ProfileManager {
             }
 
             return { profileToApply, hasDefault };
-        } catch (err) {
-            return useError(`Problem when trying to load profiles - \n ${(err as Error).message ?? ''}`);
+        } catch (e) {
+            return useError('Problem when trying to load profiles', e);
         }
     }
 
@@ -153,8 +153,8 @@ export class ProfileManager {
 
             this.profiles[profileName] = profile;
             return res;
-        } catch (err) {
-            return useError(`Problem creating custom profile: ${profileName} - \n ${(err as Error).message ?? ''}`);
+        } catch (e) {
+            return useError(`Problem creating custom profile: ${profileName}`, e);
         }
     }
 
@@ -166,8 +166,8 @@ export class ProfileManager {
 
             this.profiles[appId] = profile;
             return res;
-        } catch (err) {
-            return useError(`Problem creating game profile id: ${appId} - \n ${(err as Error).message ?? ''}`);
+        } catch (e) {
+            return useError(`Problem creating game profile id: ${appId}`, e);
         }
     }
 
@@ -178,8 +178,8 @@ export class ProfileManager {
     private async createDefaults() {
         try {
             return await Backend.newPreset(defaultPresetName);
-        } catch (err) {
-            return useError(`Problem creating default preset - \n ${(err as Error).message ?? ''}`);
+        } catch (e) {
+            return useError(`Problem creating default preset`, e);
         }
     }
 
@@ -191,15 +191,15 @@ export class ProfileManager {
 
             delete this.profiles[profileId];
             return res;
-        } catch (err) {
-            return useError(`Problem deleting profile id: ${profileId} - \n ${(err as Error).message ?? ''}`);
+        } catch (e) {
+            return useError(`Problem deleting profile id: ${profileId}`, e);
         }
     }
 
     async applyProfile(profileId: string, isManuallyApplied: boolean = false) {
         try {
             const profile = this.profiles[profileId];
-            if (!profile) return useError(`Problem applying profile id: ${profileId} - Profile does not exist}`);
+            if (!profile) return useError(`Problem applying profile id: ${profileId}`, 'Profile does not exist');
 
             ToastApplyingProfile(profile, this, isManuallyApplied);
             const presetName = ProfileManager.makePresetName(profileId, profile.type);
@@ -208,16 +208,16 @@ export class ProfileManager {
             if (isManuallyApplied) this.manualProfileId = profileId;
             this.activeProfileId = profileId;
             return res;
-        } catch (err) {
-            return useError(`Problem applying profile id: ${profileId} - \n ${(err as Error).message ?? ''}`);
+        } catch (e) {
+            return useError(`Problem applying profile id: ${profileId}`, e);
         }
     }
 
     async setDefaults() {
         try {
             return await Backend.setDspDefaults(defaultPresetName);
-        } catch (err) {
-            return useError(`Problem setting jdsp parameters to default - \n ${(err as Error).message ?? ''}`);
+        } catch (e) {
+            return useError(`Problem setting jdsp parameters to default`, e);
         }
     }
 
@@ -228,8 +228,8 @@ export class ProfileManager {
 
             const profileToApply = useManual ? this.manualProfileId : this.watchedGames[getActiveAppId()] ? getActiveAppId() : globalAppId;
             return await this.applyProfile(profileToApply, useManual);
-        } catch (err) {
-            return useError(`Problem try to set manual profile usage - \n ${(err as Error).message ?? ''}`)
+        } catch (e) {
+            return useError(`Problem try to set manual profile usage`, e)
         }
     }
 
@@ -238,8 +238,8 @@ export class ProfileManager {
             const res = await Backend.setAppWatch(appId, watch);
             this.watchedGames[appId] = watch;
             return res;
-        } catch (err) {
-            return useError(`Problem trying to set app watch for appId: ${appId} - \n ${(err as Error).message ?? ''}`);
+        } catch (e) {
+            return useError(`Problem trying to set app watch for appId: ${appId}`, e);
         }
     }
 

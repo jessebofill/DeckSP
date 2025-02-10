@@ -90,7 +90,15 @@ export function initSystemPerfStore() {
     })?.Get();
 }
 
-export function useError(message: string) {
+export function useError(message: string, exception?: any) {
+    let append: String | undefined;
+    if (exception instanceof String) append = exception;
+    else if (exception?.message !== undefined) {
+        append = exception.message;
+        if (exception.pythonTraceback) append = `${append}\n${exception.pythonTraceback}`;
+    }
+
+    if (append) message = `${message} -\n${append}`;
     const error = new Error(message);
     Log.error(error);
     return error;

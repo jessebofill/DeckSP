@@ -49,8 +49,8 @@ export function PresetDropdown<PresetType extends PresetSectionType>({ type }: P
                 });
 
                 setSettings(newSettings);
-                Backend.setMultipleDsp(...sendParams).then(() => setReady(true)).catch(err => {
-                    setError(useError(`Problem applying reverb preset - \n ${(err as Error).message ?? ''}`));
+                Backend.setMultipleDsp(...sendParams).then(() => setReady(true)).catch(e => {
+                    setError(useError('Problem applying reverb preset', e));
                     setReady(true);
                 })
             }
