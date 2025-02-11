@@ -1,14 +1,10 @@
 import os
 import subprocess
-import sys
 from settings import SettingsManager
 
-# add working dir to path to import modules from
-sys.path.append(os.path.dirname(__file__))
-
-from py_modules.env import env
-from py_modules.jdspproxy import JdspProxy
-from py_modules.utils import flatpak_CMD
+from env import env
+from jdspproxy import JdspProxy
+from utils import flatpak_CMD
 
 # The decky plugin module is located at decky-loader/plugin
 # For easy intellisense checkout the decky-loader code one directory up
