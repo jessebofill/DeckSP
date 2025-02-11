@@ -43,33 +43,35 @@ export interface QAMPagerProps {
 export const QAMPager: VFC<QAMPagerProps> = ({ pagerLinker, pages, noWrap }) => {
     const [page, setPage] = useState(0);
     useEffect(() => pagerLinker.linkPager(setPage, pages.length), []);
-    
+
     return (
-        <Focusable
-            key={page}
-            onButtonDown={(evt: GamepadEvent) => {
-                switch (evt.detail.button) {
-                    case GamepadButton.BUMPER_LEFT:
-                        pagerLinker.setPage(getNewIndex(page, -1, pagerLinker.numPages, noWrap));
-                        playUISound('/sounds/deck_ui_tab_transition_01.wav');
-                        break;
-                    case GamepadButton.BUMPER_RIGHT:
-                        pagerLinker.setPage(getNewIndex(page, 1, pagerLinker.numPages, noWrap));
-                        playUISound('/sounds/deck_ui_tab_transition_01.wav');
-                        break;
-                }
-            }}
-            actionDescriptionMap={{
-                [GamepadButton.BUMPER_LEFT]: 'Previous Page',
-                [GamepadButton.BUMPER_RIGHT]: 'Next Page'
-            }}
-        >
-            {pages[page]}
-            <style>{`
+        //@ts-ignore
+        <Focusable retainFocus={true}>
+            <Focusable
+                onButtonDown={(evt: GamepadEvent) => {
+                    switch (evt.detail.button) {
+                        case GamepadButton.BUMPER_LEFT:
+                            pagerLinker.setPage(getNewIndex(page, -1, pagerLinker.numPages, noWrap));
+                            playUISound('/sounds/deck_ui_tab_transition_01.wav');
+                            break;
+                        case GamepadButton.BUMPER_RIGHT:
+                            pagerLinker.setPage(getNewIndex(page, 1, pagerLinker.numPages, noWrap));
+                            playUISound('/sounds/deck_ui_tab_transition_01.wav');
+                            break;
+                    }
+                }}
+                actionDescriptionMap={{
+                    [GamepadButton.BUMPER_LEFT]: 'Previous Page',
+                    [GamepadButton.BUMPER_RIGHT]: 'Next Page'
+                }}
+            >
+                {pages[page]}
+                <style>{`
                 .${deckyQamTabClass}.${scrollPanelClasses.ScrollPanel} {
                     scroll-padding-top: 150px;
                 }
             `}</style>
+            </Focusable>
         </Focusable>
     );
 };
@@ -87,7 +89,7 @@ export const QAMPageSwitcher: VFC<QAMPageSwitcherProps> = ({ pagerLinker, onPage
     const [page, setPage] = useState(0);
 
     useEffect(() => {
-        pagerLinker.linkSwitcher((page: number)=> {
+        pagerLinker.linkSwitcher((page: number) => {
             setPage(page);
             onPageChange?.(page);
         }, setNumPages);
