@@ -14,7 +14,7 @@ export default definePlugin(() => {
     //     exact: true,
     // });
     PluginManager.start();
-    
+
     const pagerLinker = new PagerLinker();
     window.proMan = profileManager;
     // window.getPy =  () => Backend.checkpy().then(res => console.log('res', res))
@@ -22,24 +22,19 @@ export default definePlugin(() => {
 
     return {
         name: 'DeckSP',
-        titleView: (
-            <QAMTitleView title={PLUGIN_NAME} pagerLinker={pagerLinker} />
-        ),
+        titleView: <QAMTitleView title={PLUGIN_NAME} pagerLinker={pagerLinker} />,
         title: <></>,
         content: (
             <QAMDataProvider>
-                    <QAMPager
-                        pagerLinker={pagerLinker}
-                        pages={[
-                            <QAMPluginSettingsPage />,
-                            <QAMDspMainPage />,
-                            <QAMDspEQPage />,
-                            <QAMDspCompanderPage />,
-                            <QAMDspStereoPage />,
-                            <QAMDspReverbPage />,
-                            <QAMDspOtherPage />
-                        ]}
-                    />
+                <QAMPager pagerLinker={pagerLinker}>
+                    <QAMPluginSettingsPage />
+                    <QAMDspMainPage />
+                    <QAMDspEQPage />
+                    <QAMDspCompanderPage />
+                    <QAMDspStereoPage />
+                    <QAMDspReverbPage />
+                    <QAMDspOtherPage />
+                </QAMPager>
             </QAMDataProvider>
         ),
         alwaysRender: true,

@@ -1,4 +1,4 @@
-import { ReactElement, VFC, useEffect, useState } from 'react';
+import { FC, ReactElement, useEffect, useState } from 'react';
 import { Focusable, GamepadButton, GamepadEvent, scrollPanelClasses } from '@decky/ui';
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import { CustomButton } from '../generic/CustomButton';
@@ -35,14 +35,14 @@ export class PagerLinker {
 }
 
 export interface QAMPagerProps {
+    children: ReactElement[];
     pagerLinker: PagerLinker;
-    pages: ReactElement[];
     noWrap?: boolean;
 }
 
-export const QAMPager: VFC<QAMPagerProps> = ({ pagerLinker, pages, noWrap }) => {
+export const QAMPager: FC<QAMPagerProps> = ({ children, pagerLinker, noWrap }) => {
     const [page, setPage] = useState(0);
-    useEffect(() => pagerLinker.linkPager(setPage, pages.length), []);
+    useEffect(() => pagerLinker.linkPager(setPage, children.length), []);
 
     return (
         //@ts-ignore
@@ -65,7 +65,7 @@ export const QAMPager: VFC<QAMPagerProps> = ({ pagerLinker, pages, noWrap }) => 
                     [GamepadButton.BUMPER_RIGHT]: 'Next Page'
                 }}
             >
-                {pages[page]}
+                {children[page]}
                 <style>{`
                 .${deckyQamTabClass}.${scrollPanelClasses.ScrollPanel} {
                     scroll-padding-top: 150px;
@@ -84,7 +84,7 @@ export interface QAMPageSwitcherProps {
 
 const buttonStyle = { height: '28px', width: '40px', minWidth: 0, padding: 0, display: 'flex', justifyContent: 'center', alignItems: 'center' };
 
-export const QAMPageSwitcher: VFC<QAMPageSwitcherProps> = ({ pagerLinker, onPageChange, noWrap }) => {
+export const QAMPageSwitcher: FC<QAMPageSwitcherProps> = ({ pagerLinker, onPageChange, noWrap }) => {
     const [numPages, setNumPages] = useState(0);
     const [page, setPage] = useState(0);
 
