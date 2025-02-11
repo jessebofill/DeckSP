@@ -1,5 +1,5 @@
 import { DialogButton, Dropdown, DropdownOption, Focusable, ModalRoot, TextField } from '@decky/ui';
-import { VFC, useState } from 'react';
+import { FC, useState } from 'react';
 import { profileManager } from '../../controllers/ProfileManager';
 import { useProfileMultiDropdownOptions } from '../../hooks/useProfileMultiDropdownOptions';
 import { toast } from '../../lib/utils';
@@ -9,7 +9,7 @@ interface NewProfileModalProps {
     closeModal?: () => void;
 }
 
-export const NewProfileModal: VFC<NewProfileModalProps> = ({ onConfirm, closeModal }) => {
+export const NewProfileModal: FC<NewProfileModalProps> = ({ onConfirm, closeModal }) => {
     const [name, setName] = useState('');
 
     const defaultOption = { label: 'Default', data: 'default' };

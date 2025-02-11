@@ -1,5 +1,5 @@
 import { Focusable, SingleDropdownOption } from "@decky/ui";
-import { CSSProperties, VFC, useEffect, useMemo, useState } from "react";
+import { CSSProperties, FC, useEffect, useMemo, useState } from "react";
 import { SoundEffect } from "../../lib/GamepadUIAudio";
 import { CustomButton, CustomButtonFocusMode } from "./CustomButton";
 import { CustomDropdown, CustomDropdownProps } from './CustomDropdown';
@@ -102,7 +102,7 @@ export enum EnhancedSelectorClasses {
 }
 
 /** A configurable component that allows to select from a list of options by cycling with buttons or from a dropdown menu. */
-export const EnhancedSelector: VFC<EnhancedSelectorProps> = ({
+export const EnhancedSelector: FC<EnhancedSelectorProps> = ({
     rgOptions,
     selectedOption: selectedOptionData,
     onChange,

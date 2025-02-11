@@ -1,11 +1,11 @@
 import { PanelSection, PanelSectionRow } from '@decky/ui';
-import { VFC } from 'react';
+import { FC } from 'react';
 import { ParameterSlider } from '../base/ParameterSlider';
 import { ParameterToggle } from '../base/ParameterToggle';
 import { useDspSettings } from '../../../hooks/contextHooks';
 import { CrossfeedModeDropdown } from '../base/CrossfeedModeDropdown';
 
-export const CrossfeedControls: VFC<{}> = ({ }) => {
+export const CrossfeedControls: FC<{}> = ({ }) => {
     const { data: settings } = useDspSettings();
     if (!settings) return null;
 

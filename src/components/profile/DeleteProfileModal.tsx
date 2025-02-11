@@ -1,4 +1,4 @@
-import { ReactNode, VFC, useState } from 'react';
+import { ReactNode, FC, useState } from 'react';
 import { DestructiveModal } from '../generic/DestructiveModal';
 import { FadeSpinner } from '../generic/FadeSpinner';
 
@@ -7,7 +7,7 @@ interface DeleteProfileModalProps {
     onConfirm?: () => void;
     closeModal?: () => void;
 }
-export const DeleteProfileModal: VFC<DeleteProfileModalProps> = ({ profileName, onConfirm, closeModal }) => {
+export const DeleteProfileModal: FC<DeleteProfileModalProps> = ({ profileName, onConfirm, closeModal }) => {
     const [ready, setReady] = useState(true);
 
     return (

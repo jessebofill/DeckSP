@@ -1,11 +1,11 @@
 import { Marquee } from '@decky/ui';
-import { VFC } from 'react';
+import { FC } from 'react';
 import { profileManager } from '../../controllers/ProfileManager';
 import { observer } from 'mobx-react-lite';
 import { BsFillHandIndexThumbFill } from "react-icons/bs";
 import { ProfileIcon } from './ProfileIcon';
 
-export const CurrentProfile: VFC<CurrentProfileTextProps> = observer(({ useMarquee }) => {
+export const CurrentProfile: FC<CurrentProfileTextProps> = observer(({ useMarquee }) => {
 
     return (
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', minHeight: '22px' }}>
@@ -24,7 +24,7 @@ interface CurrentProfileTextProps {
     useMarquee?: boolean;
 }
 
-export const CurrentProfileText: VFC<CurrentProfileTextProps> = ({ useMarquee }) => {
+export const CurrentProfileText: FC<CurrentProfileTextProps> = ({ useMarquee }) => {
     const containerClass = 'profile-name-container';
     const text = `Using ${profileManager.activeProfile?.name} profile`;
 

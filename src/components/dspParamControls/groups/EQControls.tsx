@@ -1,5 +1,5 @@
 import { PanelSection, PanelSectionRow } from '@decky/ui';
-import { FC17, VFC, useEffect, useState } from 'react';
+import { FC17, FC, useEffect, useState } from 'react';
 import { ParameterToggle } from '../base/ParameterToggle';
 import { Backend } from '../../../controllers/Backend';
 import { useDspSettings } from '../../../hooks/contextHooks';
@@ -35,7 +35,7 @@ export const EQDataProvider: FC17<{}> = ({ children }) => {
     );
 }
 
-export const EQControls: VFC<{}> = ({ }) => {
+export const EQControls: FC<{}> = ({ }) => {
 
     return (
         <EQDataProvider>

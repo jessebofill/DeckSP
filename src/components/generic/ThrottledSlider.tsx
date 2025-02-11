@@ -1,8 +1,8 @@
 import { SliderField, SliderFieldProps } from '@decky/ui'
-import { VFC, useEffect, useMemo, useState } from 'react'
+import { FC, useEffect, useMemo, useState } from 'react'
 import { getThrottled } from '../../lib/utils';
 
-export const ThrottledSlider: VFC<SliderFieldProps> = (props) => {
+export const ThrottledSlider: FC<SliderFieldProps> = (props) => {
     const [value, setValue] = useState(props.value);
 
     useEffect(() => setValue(props.value), [props.value]);

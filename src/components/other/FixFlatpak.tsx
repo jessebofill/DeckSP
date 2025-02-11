@@ -1,12 +1,12 @@
 import { DialogButton, Field, PanelSection, PanelSectionRow } from '@decky/ui';
-import { VFC } from 'react';
+import { FC } from 'react';
 import { Backend } from '../../controllers/Backend';
 import { useError } from '../../lib/utils';
 import { useFlatpakFix } from '../../hooks/contextHooks';
 import { FixFlatpakDescriptions } from './FlatpakFixContextProvider';
 import { FlatpakFixState } from '../../types/types';
 
-export const FixFlatpak: VFC<{}> = ({ }) => {
+export const FixFlatpak: FC<{}> = ({ }) => {
     const { state, setState, description, setDescription } = useFlatpakFix();
     if (!setState || !setDescription ) return null;
 

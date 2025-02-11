@@ -1,5 +1,5 @@
 import { DropdownProps, SingleDropdownOption, showContextMenu, Menu, MenuItem, showModal } from '@decky/ui';
-import { ReactElement, VFC, useState, useEffect } from 'react';
+import { ReactElement, FC, useState, useEffect } from 'react';
 import { CustomButtonProps, CustomButton } from './CustomButton';
 import { FaEllipsis } from 'react-icons/fa6';
 import { addClasses } from '../../lib/utils';
@@ -31,7 +31,7 @@ export interface CustomDropdownProps extends Omit<DropdownProps, 'rgOptions' | '
     customDropdownIcon?: ReactElement;
 
     /** A custom modal to use to select options instead of the default context menu */
-    customModal?: VFC<BaseModalProps>;
+    customModal?: FC<BaseModalProps>;
 
     /** CSS style for the selection label div */
     labelStyle?: React.CSSProperties;
@@ -48,7 +48,7 @@ export enum CustomDropdownClasses {
 }
 
 /** A dropdown component with many customizable options */
-export const CustomDropdown: VFC<CustomDropdownProps> = ({
+export const CustomDropdown: FC<CustomDropdownProps> = ({
     rgOptions,
     selectedOption: selectedOptionData,
     style,

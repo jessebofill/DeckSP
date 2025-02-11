@@ -1,9 +1,9 @@
 import { PanelSection, PanelSectionRow } from '@decky/ui';
-import { VFC } from 'react';
+import { FC } from 'react';
 import { ParameterSlider } from '../base/ParameterSlider';
 import { ParameterToggle } from '../base/ParameterToggle';
 
-export const MasterControls: VFC<{}> = ({ }) => {
+export const MasterControls: FC<{}> = ({ }) => {
     return (
         <PanelSection title="Master">
             <PanelSectionRow>

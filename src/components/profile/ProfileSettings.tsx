@@ -1,5 +1,5 @@
 import { PanelSection, PanelSectionRow } from '@decky/ui';
-import { VFC } from 'react';
+import { FC } from 'react';
 import { usePerGameProfileState } from '../../hooks/usePerGameProfileState';
 import { WaitToggle } from '../waitable/WaitToggle';
 import { getActiveAppId } from '../../lib/utils';
@@ -11,7 +11,7 @@ import { ManualProfilesDropdown } from './ManualProfilesDropdown';
 import { CurrentProfile } from './CurrentProfile';
 import { SetDefaultsButton } from './SetDefaultsButton';
 
-export const ProfileSettings: VFC<{}> = observer(({ }) => {
+export const ProfileSettings: FC<{}> = observer(({ }) => {
     const { checked: perGameGecked, onChange: onChangePerGame } = usePerGameProfileState();
     const { useManual, onChangeUseManual, manualProfileId, onChangeManualProfile } = useManualProfilesState();
     if (!onChangePerGame || !onChangeUseManual || !onChangeManualProfile) return null;

@@ -1,8 +1,8 @@
 import { PanelSection, PanelSectionRow } from '@decky/ui';
-import { VFC } from 'react';
+import { FC } from 'react';
 import { ParameterSlider } from '../base/ParameterSlider';
 
-export const LimiterControls: VFC<{}> = ({ }) => {
+export const LimiterControls: FC<{}> = ({ }) => {
 
     return (
         <PanelSection title='Limiter'>

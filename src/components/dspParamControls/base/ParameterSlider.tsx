@@ -1,4 +1,4 @@
-import { VFC, useCallback } from 'react';
+import { FC, useCallback } from 'react';
 import { DSPCompanderParameters, DSPEQParameters, DSPRangeParameter } from '../../../types/dspTypes';
 import { dspParamDefines } from '../../../defines/dspParameterDefines';
 import { Backend } from '../../../controllers/Backend';
@@ -10,7 +10,7 @@ export interface ParameterSliderProps {
     disable?: boolean;
 }
 
-export const ParameterSlider: VFC<ParameterSliderProps> = ({ parameter, disable }) => {
+export const ParameterSlider: FC<ParameterSliderProps> = ({ parameter, disable }) => {
     const { data: settings, setData: setSettings } = useDspSettings();
     if (!settings || !setSettings) return null;
 
@@ -45,7 +45,7 @@ interface EQParameterSliderProps {
     parameter: keyof DSPEQParameters;
 }
 
-export const EQParameterSlider: VFC<EQParameterSliderProps> = ({ parameter }) => {
+export const EQParameterSlider: FC<EQParameterSliderProps> = ({ parameter }) => {
     const { data: values, setParameter } = useEQData();
     if (!values || !setParameter) return null;
 
@@ -74,7 +74,7 @@ interface CompanderParameterSliderProps {
     parameter: keyof DSPCompanderParameters;
 }
 
-export const CompanderParameterSlider: VFC<CompanderParameterSliderProps> = ({ parameter }) => {
+export const CompanderParameterSlider: FC<CompanderParameterSliderProps> = ({ parameter }) => {
     const { data: values, setParameter } = useCompanderData();
     if (!values || !setParameter) return null;
 

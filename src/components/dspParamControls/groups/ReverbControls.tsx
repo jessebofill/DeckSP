@@ -1,10 +1,10 @@
 import { PanelSection, PanelSectionRow } from '@decky/ui';
-import { VFC } from 'react';
+import { FC } from 'react';
 import { ParameterSlider } from '../base/ParameterSlider';
 import { ParameterToggle } from '../base/ParameterToggle';
 import { PresetDropdown } from '../base/PresetDropdown';
 
-export const ReverbControls: VFC<{}> = ({ }) => {
+export const ReverbControls: FC<{}> = ({ }) => {
 
     return (
         <PanelSection title='Reverb'>

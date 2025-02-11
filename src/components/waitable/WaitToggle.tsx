@@ -1,8 +1,8 @@
 import { ToggleField, ToggleFieldProps } from '@decky/ui';
-import { VFC } from 'react';
+import { FC } from 'react';
 import { usePluginContext } from '../../hooks/contextHooks';
 
-export const WaitToggle: VFC<ToggleFieldProps> = (props) => {
+export const WaitToggle: FC<ToggleFieldProps> = (props) => {
     const { ready } = usePluginContext();
 
     return <ToggleField {...props} disabled={!ready || props.disabled} />;

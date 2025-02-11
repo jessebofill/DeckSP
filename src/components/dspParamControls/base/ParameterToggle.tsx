@@ -1,4 +1,4 @@
-import { VFC, useEffect, useState } from 'react';
+import { FC, useEffect, useState } from 'react';
 import { Backend } from '../../../controllers/Backend';
 import { DSPBooleanParameter } from '../../../types/dspTypes';
 import { useDspSettings } from '../../../hooks/contextHooks';
@@ -10,7 +10,7 @@ export interface ParameterToggleProps {
     customLabel?: string;
 }
 
-export const ParameterToggle: VFC<ParameterToggleProps> = ({ parameter, invert, customLabel }) => {
+export const ParameterToggle: FC<ParameterToggleProps> = ({ parameter, invert, customLabel }) => {
     const { data: settings, setData: setSettings } = useDspSettings();
     if (!settings) return null;
 

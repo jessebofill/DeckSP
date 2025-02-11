@@ -1,7 +1,7 @@
-import { VFC } from 'react';
+import { FC } from 'react';
 import { titleViewClasses } from '../../defines/cssClasses';
 
-export const QAMUnderTitleHider: VFC<{}> = () => {
+export const QAMUnderTitleHider: FC<{}> = () => {
     return (
         <style>{`
             .${titleViewClasses.belowTitle} {

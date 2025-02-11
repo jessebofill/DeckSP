@@ -1,5 +1,5 @@
 import { Field, Menu, MenuGroup, MenuItem, MultiDropdownOption, SingleDropdownOption, gamepadContextMenuClasses, showContextMenu, showModal } from '@decky/ui';
-import { VFC, createContext, useContext, useEffect, useState } from 'react';
+import { FC, createContext, useContext, useEffect, useState } from 'react';
 import { addClasses, playUISound } from '../../lib/utils';
 import { useGameProfileMultiDropdownOption, useProfileMultiDropdownOptions, useUserProfileMultiDropdownOption } from '../../hooks/useProfileMultiDropdownOptions';
 import { CustomButton } from '../generic/CustomButton';
@@ -15,7 +15,7 @@ interface ManualProfilesDropdownProps {
     onSelectProfile?: (profileId: string) => void;
 }
 
-export const ManualProfilesDropdown: VFC<ManualProfilesDropdownProps> = ({ selectedOption: selectedOptionData, onSelectProfile }) => {
+export const ManualProfilesDropdown: FC<ManualProfilesDropdownProps> = ({ selectedOption: selectedOptionData, onSelectProfile }) => {
     const icon = <svg style={{ height: '1em', margin: 'auto' }} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36" fill="none"><path d="M17.98 26.54L3.20996 11.77H32.75L17.98 26.54Z" fill="currentColor"></path></svg>;
     const { ready } = usePluginContext();
     const profileOptions = useProfileMultiDropdownOptions();
@@ -86,7 +86,7 @@ const ProfileGroupContext = createContext<ProfileGroupContextData | null>(null);
 const ProfileMenuContext = createContext<ProfileMenuContextData | null>(null);
 
 
-const ProfileMenu: VFC<ProfileMenuContextData> = ({ selected, deleteProfile, onSelectOption }) => {
+const ProfileMenu: FC<ProfileMenuContextData> = ({ selected, deleteProfile, onSelectOption }) => {
     return (
         <ProfileMenuContext.Provider value={{ deleteProfile, onSelectOption, selected }}>
             <Menu label={'Profiles'}>
@@ -108,7 +108,7 @@ interface ProfileMenuGroupProps {
     groupType: ProfileType;
 }
 
-const ProfileMenuGroup: VFC<ProfileMenuGroupProps> = ({ groupType }) => {
+const ProfileMenuGroup: FC<ProfileMenuGroupProps> = ({ groupType }) => {
     const menuContext = useContext(ProfileMenuContext);
     if (!menuContext) return null;
 
@@ -135,7 +135,7 @@ const ProfileMenuGroup: VFC<ProfileMenuGroupProps> = ({ groupType }) => {
         : null;
 };
 
-const ProfileMenuItems: VFC<{}> = ({ }) => {
+const ProfileMenuItems: FC<{}> = ({ }) => {
     const groupContext = useContext(ProfileGroupContext);
     if (!groupContext) return null;
 

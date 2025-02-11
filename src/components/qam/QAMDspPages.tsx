@@ -1,4 +1,4 @@
-import { FC17, VFC } from 'react';
+import { FC17, FC } from 'react';
 import { LimiterControls } from '../dspParamControls/groups/LimiterControls';
 import { WidenessControls } from '../dspParamControls/groups/WidenessControls';
 import { CrossfeedControls } from '../dspParamControls/groups/CrossfeedControls';
@@ -18,7 +18,7 @@ const QAMDspPage: FC17<{}> = ({ children }) => {
     );
 };
 
-export const QAMDspMainPage: VFC<{}> = ({ }) => {
+export const QAMDspMainPage: FC<{}> = ({ }) => {
     return (
         <QAMDspPage>
             <MasterControls />
@@ -27,7 +27,7 @@ export const QAMDspMainPage: VFC<{}> = ({ }) => {
     );
 };
 
-export const QAMDspEQPage: VFC<{}> = ({ }) => {
+export const QAMDspEQPage: FC<{}> = ({ }) => {
     return (
         <QAMDspPage>
             <EQControls />
@@ -35,7 +35,7 @@ export const QAMDspEQPage: VFC<{}> = ({ }) => {
     );
 };
 
-export const QAMDspCompanderPage: VFC<{}> = ({ }) => {
+export const QAMDspCompanderPage: FC<{}> = ({ }) => {
     return (
         <QAMDspPage>
             <CompanderControls />
@@ -43,7 +43,7 @@ export const QAMDspCompanderPage: VFC<{}> = ({ }) => {
     );
 };
 
-export const QAMDspStereoPage: VFC<{}> = ({ }) => {
+export const QAMDspStereoPage: FC<{}> = ({ }) => {
     return (
         <QAMDspPage>
             <WidenessControls />
@@ -52,7 +52,7 @@ export const QAMDspStereoPage: VFC<{}> = ({ }) => {
     );
 };
 
-export const QAMDspReverbPage: VFC<{}> = ({ }) => {
+export const QAMDspReverbPage: FC<{}> = ({ }) => {
     return (
         <QAMDspPage>
             <ReverbControls />
@@ -60,7 +60,7 @@ export const QAMDspReverbPage: VFC<{}> = ({ }) => {
     );
 };
 
-export const QAMDspOtherPage: VFC<{}> = ({ }) => {
+export const QAMDspOtherPage: FC<{}> = ({ }) => {
     return (
         <QAMDspPage>
             <DynamicBassControls />

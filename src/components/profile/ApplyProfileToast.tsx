@@ -1,4 +1,4 @@
-import { VFC } from 'react';
+import { FC } from 'react';
 import { PLUGIN_NAME } from '../../defines/pluginName';
 import { ProfileIcon } from './ProfileIcon';
 import { Profile, ProfileType } from '../../types/types';
@@ -10,7 +10,7 @@ interface ApplyProfileToastTitleProps {
     profileManager: ProfileManager;
 }
 
-const ApplyProfileToastTitle: VFC<ApplyProfileToastTitleProps> = ({ profile, profileManager }) => {
+const ApplyProfileToastTitle: FC<ApplyProfileToastTitleProps> = ({ profile, profileManager }) => {
 
     return (
         <div style={{ gap: '4px', display: 'flex', alignItems: 'center' }}>

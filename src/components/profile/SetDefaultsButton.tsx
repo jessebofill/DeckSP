@@ -1,5 +1,5 @@
 import { Field, FieldProps, showModal } from '@decky/ui';
-import { VFC, useEffect } from 'react';
+import { FC, useEffect } from 'react';
 import { useSetDefaults } from '../../hooks/useSetDefaults';
 import { DestructiveModal } from '../generic/DestructiveModal';
 import { profileManager } from '../../controllers/ProfileManager';
@@ -10,7 +10,7 @@ export interface SetDefaultsButtonProps {
     bottomSeparator?: FieldProps['bottomSeparator'];
 }
 
-export const SetDefaultsButton: VFC<SetDefaultsButtonProps> = ({ }) => {
+export const SetDefaultsButton: FC<SetDefaultsButtonProps> = ({ }) => {
     const setDefaults = useSetDefaults();
 
     return (
@@ -30,7 +30,7 @@ interface ConfirmSetDefaultModalProps {
     closeModal?: () => void;
 }
 
-const ConfirmSetDefaultModal: VFC<ConfirmSetDefaultModalProps> = ({ onConfirm, closeModal }) => {
+const ConfirmSetDefaultModal: FC<ConfirmSetDefaultModalProps> = ({ onConfirm, closeModal }) => {
     const profileName = profileManager.activeProfile?.name ?? '';
 
     useEffect(() => reaction(() => profileManager.activeProfileId, () => closeModal?.()), []);

@@ -1,12 +1,12 @@
 import { PanelSection, PanelSectionRow } from '@decky/ui';
-import { VFC } from 'react'
+import { FC } from 'react'
 import { ParameterToggle } from '../base/ParameterToggle';
 import { ParameterSlider } from '../base/ParameterSlider';
 interface DynamicBassControls {
 
 }
 
-export const DynamicBassControls: VFC<DynamicBassControls> = ({ }) => {
+export const DynamicBassControls: FC<DynamicBassControls> = ({ }) => {
 
     return (
         <PanelSection title='Dynamic Bass'>

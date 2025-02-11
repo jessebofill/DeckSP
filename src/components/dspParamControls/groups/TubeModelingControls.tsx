@@ -1,9 +1,9 @@
 import { PanelSection, PanelSectionRow } from '@decky/ui';
-import { VFC } from 'react';
+import { FC } from 'react';
 import { ParameterSlider } from '../base/ParameterSlider';
 import { ParameterToggle } from '../base/ParameterToggle';
 
-export const TubeModelingControls: VFC<{}> = ({ }) => {
+export const TubeModelingControls: FC<{}> = ({ }) => {
 
     return (
         <PanelSection title='Tube Modeling'>

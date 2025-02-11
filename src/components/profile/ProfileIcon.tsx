@@ -1,4 +1,4 @@
-import { VFC } from 'react';
+import { FC } from 'react';
 import { FaGlobeAsia } from 'react-icons/fa';
 import { ProfileManager } from '../../controllers/ProfileManager';
 import { globalAppId } from '../../defines/profileConstants';
@@ -10,7 +10,7 @@ export interface ProfileIconProps {
     size?: string;
 }
 
-export const ProfileIcon: VFC<ProfileIconProps> = ({ profileId, profileManager, size }) => {
+export const ProfileIcon: FC<ProfileIconProps> = ({ profileId, profileManager, size }) => {
     const defaultSize = '20px'
 
     const isGame = profileId !== globalAppId && Object.keys(profileManager.profiles).includes(profileId);
