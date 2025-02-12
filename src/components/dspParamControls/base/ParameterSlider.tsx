@@ -17,7 +17,7 @@ export const ParameterSlider: FC<ParameterSliderProps> = ({ parameter, disable }
     const [min, max] = dspParamDefines[parameter].limits;
 
     const onChange = useCallback((value: number) => {
-        //todo make async and check error
+        //todo make async and check error (it might mess up throttling)
         Backend.setDsp(parameter, value);
         setSettings({ ...settings, [parameter]: value });
     }, [settings])

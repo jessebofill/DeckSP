@@ -183,14 +183,9 @@ class Plugin:
 
     # jdsp-frontend-call
     async def set_jdsp_param(self, parameter, value):
-        # log.info('recieved')
-        # log.info(parameter)
-        # log.info(value)
-        # p = subprocess.run(['flatpak', '--user', 'run', DBUS_SERVICE, '--set', f'{parameter}={value}'], capture_output=True, text=True)
-        # log.info(p)
         res = Plugin.jdsp.set_and_commit(parameter, value)
-        Plugin.jdsp.save_preset(Plugin.profiles['currentPreset'])
-        # check errors
+        if not JdspProxy.has_error(res):
+            Plugin.jdsp.save_preset(Plugin.profiles['currentPreset'])
         return res
     
     async def set_jdsp_params(self, values):
@@ -238,13 +233,6 @@ class Plugin:
         Plugin.profiles['currentPreset'] = presetName
         Plugin.save_profile_settings()
         return Plugin.jdsp.get_all()
-
-    async def test(self):
-        log.info("this is a test")
-        return os.getuid()
-
-    async def test2(self):
-        return Plugin.profiles
 
     """
     ===================================================================================================================================

@@ -38,10 +38,8 @@ export function formatDspValue<Param extends DSPParameter>(parameter: Param, val
 }
 
 export function getThrottled(func: Function, wait: number) {
-    Log.log('getting throttled')
     let timeout: NodeJS.Timeout | null;
     return function (this: any, ..._: any[]) {
-        Log.log('calling throt')
         const context = this, args = arguments;
         const later = function () {
             timeout = null;

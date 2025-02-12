@@ -1,6 +1,5 @@
 import { Backend } from './Backend';
 import { PluginManager } from './PluginManager';
-import { Log } from '../lib/log';
 import { DSPParamSettings } from '../types/dspTypes';
 import { PluginData, PluginStateData } from '../types/types';
 import { profileManager } from './ProfileManager';
@@ -13,7 +12,6 @@ export async function handleWaitSettings(setData: DataProviderSetData<PluginData
     const promises: [Promise<PluginStateData | Error>, Promise<DSPParamSettings | Error>] = [handleGetPluginStateOnMount(), handleGetDspSettingsOnMount()];
 
     Promise.allSettled(promises).then((results) => {
-        Log.log('results', results)
         const errors: { plugin?: Error, dsp?: Error } = {};
         const data: PluginData = {
             errors: errors
@@ -60,9 +58,7 @@ export async function handleGetDspSettingsAfterProfileLoad() {
 
 export async function handleGetDspSettings() {
     try {
-        const settings = await Backend.getDspAll();
-        Log.log('Got dsp settings', settings);
-        return settings;
+        return await Backend.getDspAll();
     } catch (e) {
         return useError('Problem getting dsp settings', e);
     }

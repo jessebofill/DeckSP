@@ -1,7 +1,6 @@
 import { call } from '@decky/api';
 import { parseJDSPAll } from '../lib/parseDspParams';
 import { DSPParameter, DSPParameterCompResponse, DSPParameterEQParameters, DSPParameterType } from '../types/dspTypes';
-import { Log } from '../lib/log';
 import { formatDspValue } from '../lib/utils';
 
 export type BackendMethod = PluginMethod | JDSPMethod;
@@ -77,14 +76,12 @@ export interface JDSPResponse {
 export class Backend {
     static async callPlugin<Method extends PluginMethod>(method: Method, ...args: PluginMethodArgs<Method>) {
         const response = await call<PluginMethodArgs<Method>, PluginMethodResponse<Method> | PluginMethodError>(method, ...args);
-        Log.log('Backend call response ', response);
         if ((response as PluginMethodError)?.error !== undefined) throw new Error(`Backend error: ${(response as PluginMethodError).error}`);
         return response as PluginMethodResponse<Method>;
     }
 
     private static async callJDSP<Method extends JDSPMethod, Param extends DSPParameter>(method: Method, ...args: JDSPMethodArgs<Method, Param>) {
         const response = await call<JDSPMethodArgs<Method, Param>, JDSPResponse>(method, ...args);
-        Log.log('response ', response);
         if (response.jdsp_error !== undefined) throw new Error(`JDSP error: ${response.jdsp_error}`);
         else return response.jdsp_result!;
     }
@@ -95,7 +92,6 @@ export class Backend {
     }
     static async setMultipleDsp<Params extends DSPParameter[]>(...parameters: { [K in keyof Params]: [Params[K], DSPParameterType<Params[K]>] }) {
         const params = parameters.map(([param, value]) => [param, formatDspValue(param, value)] as [DSPParameter, ParamSendValueType<DSPParameter>]);
-        Log.log("inner params", params)
         return await this.callJDSP('set_jdsp_params', params);
     }
     static async getDspAll() {
@@ -111,12 +107,7 @@ export class Backend {
         return await this.callJDSP('delete_jdsp_preset', presetName);
     }
     static async setProfile(presetName: string, isManual: boolean) {
-        Log.log('set profile called');
-        // const res = await this.serverAPI.callPluginMethod('set_profile', { presetName: presetName });
-        // await sleep(5000);
-        const res = await this.callJDSP('set_profile', presetName, isManual);
-        Log.log('set profile backend call done');
-        return parseJDSPAll(res);
+        return parseJDSPAll(await this.callJDSP('set_profile', presetName, isManual));
     }
 
 

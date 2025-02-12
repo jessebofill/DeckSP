@@ -14,11 +14,7 @@ export default definePlugin(() => {
     //     exact: true,
     // });
     PluginManager.start();
-
     const pagerLinker = new PagerLinker();
-    window.proMan = profileManager;
-    // window.getPy =  () => Backend.checkpy().then(res => console.log('res', res))
-
 
     return {
         name: 'DeckSP',
