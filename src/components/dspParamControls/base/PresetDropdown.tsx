@@ -26,10 +26,10 @@ export function PresetDropdown<PresetType extends PresetSectionType>({ type }: P
             const { data: eqSettings, setAll } = useEQData();
             if (!eqSettings || !setAll) return null;
             presetTable = eqPresetTable;
-            selected = reverseLookupSectionPreset(presetTable, eqSettings);
+            selected = reverseLookupSectionPreset(eqPresetTable, eqSettings);
 
             onSelect = (option: SingleDropdownOption) => {
-                setAll(Object.fromEntries((presetTable.presets[option.data] as number[]).map((value, index) => [presetTable.paramMap[index], value])) as DSPEQParameters);
+                setAll(Object.fromEntries((eqPresetTable.presets[option.data as keyof typeof eqPresetTable.presets]).map((value, index) => [eqPresetTable.paramMap[index], value])) as DSPEQParameters);
             };
             break;
 
@@ -37,13 +37,13 @@ export function PresetDropdown<PresetType extends PresetSectionType>({ type }: P
             const { data: settings, setData: setSettings, setError } = useDspSettings();
             if (!settings || !setSettings || !setError) return null;
             presetTable = reverbPresetTable;
-            selected = reverseLookupSectionPreset(presetTable, settings);
+            selected = reverseLookupSectionPreset(reverbPresetTable, settings);
             onSelect = (option: SingleDropdownOption) => {
                 const sendParams: [DSPRangeParameter, number][] = [];
                 const newSettings = { ...settings };
                 setReady(false);
-                (presetTable.presets[option.data] as number[]).forEach((value, index) => {
-                    const parameter = presetTable.paramMap[index] as DSPRangeParameter;
+                (reverbPresetTable.presets[option.data as keyof typeof reverbPresetTable.presets]).forEach((value, index) => {
+                    const parameter = reverbPresetTable.paramMap[index] as DSPRangeParameter;
                     sendParams.push([parameter, value]);
                     newSettings[parameter] = value;
                 });

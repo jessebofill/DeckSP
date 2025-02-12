@@ -18,8 +18,9 @@ export function addClasses(...strings: any[]) {
 }
 
 export function reverseLookupSectionPreset<PresetType extends PresetSectionType>(presetTable: PresetTable<PresetType>, compareObject: { [key: string]: any }) {
-    return Object.keys(presetTable.presets).find(preset => (presetTable.presets[preset] as number[]).every((value, index) => {
+    return Object.keys(presetTable.presets).find(preset => (presetTable.presets[preset as keyof typeof presetTable.presets]).every((value, index) => {
         const parameter = presetTable.paramMap[index];
+        //@ts-ignore
         return value === (typeof compareObject[parameter] === 'number' ? parseFloat(compareObject[parameter].toFixed(dspParamDefines[parameter]?.step === 0.01 ? 2 : 1)) : compareObject[parameter]);
     }));
 }

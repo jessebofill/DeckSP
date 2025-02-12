@@ -1,4 +1,4 @@
-const EQPresetTableParamMap = {};
+const EQPresetTableParamMap: { [key: string | number]: number | string } = {};
 
 (function (EQPresetTableParamMap) {
     EQPresetTableParamMap[EQPresetTableParamMap['25'] = 0] = '25',

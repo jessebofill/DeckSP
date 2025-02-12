@@ -34,7 +34,10 @@ export const NewProfileModal: FC<NewProfileModalProps> = ({ onConfirm, closeModa
         >
             <div className='DialogHeader'>New Custom Profile</div>
             <div className='DialogLabel'>Profile Name</div>
-            <TextField value={name} placeholder="Enter a name for the profile" onChange={e => setName(e.target.value)} />
+            <TextField value={name} onChange={e => setName(e.target.value)}
+                //@ts-ignore
+                placeholder="Enter a name for the profile"
+            />
             <Focusable style={{ display: 'flex', flexDirection: 'row', marginTop: '5px', alignItems: 'flex-end', gap: '20px' }}>
                 <DialogButton
                     style={{ maxHeight: '40px' }}

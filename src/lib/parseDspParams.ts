@@ -42,7 +42,7 @@ export function parseJDSPParam<Param extends DSPParameter>(parameterName: Param,
         case 'stereowide_level':
         case 'tube_pregain':
             const parsed = parseFloat(value);
-            return dspScaledParams[parameterName as any] !== undefined ? (dspScaledParams[parameterName as DSPScaledParameter] * parsed) as DSPParameterType<Param> : parsed as DSPParameterType<Param>;
+            return dspScaledParams[parameterName as DSPScaledParameter] !== undefined ? (dspScaledParams[parameterName as DSPScaledParameter] * parsed) as DSPParameterType<Param> : parsed as DSPParameterType<Param>;
         case 'compander_response':
             return parseJDSPCompanderParams(value) as DSPParameterType<Param>;
         case 'tone_eq':
@@ -56,7 +56,7 @@ function parseJDSPCompanderParams(parameters: string): DSPCompanderParameters {
     const tokens = parameters.split(/[;"]/).filter(string => string);
     const out = {} as DSPCompanderParameters;
     for (let i = 0; i < 7; i++) {
-        out[parseInt(tokens[i]).toString()] = parseFloat(tokens[i + 7]);
+        out[parseInt(tokens[i]).toString() as keyof DSPCompanderParameters] = parseFloat(tokens[i + 7]);
     }
     return out;
 }
@@ -65,7 +65,7 @@ function parseJDSPEQParams(parameters: string): DSPEQParameters {
     const tokens = parameters.split(/[;"]/).filter(string => string);
     const out = {} as DSPEQParameters;
     for (let i = 0; i < 15; i++) {
-        out[parseInt(tokens[i]).toString()] = parseFloat(tokens[i + 15]);
+        out[parseInt(tokens[i]).toString() as keyof DSPEQParameters] = parseFloat(tokens[i + 15]);
     }
     return out;
 }
@@ -75,7 +75,7 @@ export function parseJDSPMultiParams<Param extends DSPParameter>(parameters: {
 }) {
     const params = {} as Pick<Required<DictParams>, Param>;
     for (const parameter in parameters) {
-        params[parameter as DSPParameter] = parseJDSPParam(parameter as DSPParameter, parameters[parameter] ?? '');
+        params[parameter as Param] = parseJDSPParam(parameter as DSPParameter, parameters[parameter] ?? '') as Required<DictParams>[Param];
     }
     return params;
 }
