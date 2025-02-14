@@ -1,23 +1,23 @@
-import { definePlugin } from "@decky/api"
+import { definePlugin, routerHook } from "@decky/api"
 import { RiEqualizerLine } from "react-icons/ri";
 import { PluginManager } from './controllers/PluginManager';
 import { PagerLinker, QAMPager } from './components/qam/QAMPager';
 import { QAMTitleView } from './components/qam/QAMTitleView';
-import { PLUGIN_NAME } from './defines/pluginName';
+import { infoRoute, PLUGIN_NAME } from './defines/constants';
 import { QAMDspCompanderPage, QAMDspEQPage, QAMDspMainPage, QAMDspOtherPage, QAMDspReverbPage, QAMDspStereoPage } from './components/qam/QAMDspPages';
 import { QAMPluginSettingsPage } from './components/qam/QAMPluginSettingsPage';
 import { QAMDataProvider } from './components/qam/QAMDataProvider';
 import { profileManager } from './controllers/ProfileManager';
+import { InfoPage } from './components/routePages/InfoPage';
+import { QAMStyles } from './components/qam/QAMStyles';
 
 export default definePlugin(() => {
-    // serverApi.routerHook.addRoute("/decky-plugin-test", DeckyPluginRouterTest, {
-    //     exact: true,
-    // });
+    routerHook.addRoute(infoRoute, () => <InfoPage/>);
     PluginManager.start();
     const pagerLinker = new PagerLinker();
 
     return {
-        name: 'DeckSP',
+        name: PLUGIN_NAME,
         titleView: <QAMTitleView title={PLUGIN_NAME} pagerLinker={pagerLinker} />,
         title: <></>,
         content: (
@@ -31,13 +31,14 @@ export default definePlugin(() => {
                     <QAMDspReverbPage />
                     <QAMDspOtherPage />
                 </QAMPager>
+                <QAMStyles/>
             </QAMDataProvider>
         ),
         alwaysRender: true,
         icon: <RiEqualizerLine />,
         onDismount() {
             profileManager.activeGameReactionDisposer?.();
-            // serverApi.routerHook.removeRoute("/decky-plugin-test");
+            routerHook.removeRoute(infoRoute);
         },
     };
 });

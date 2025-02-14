@@ -1,7 +1,7 @@
 import { FC } from 'react';
 import { FaGlobeAsia } from 'react-icons/fa';
 import { ProfileManager } from '../../controllers/ProfileManager';
-import { globalAppId } from '../../defines/profileConstants';
+import { globalAppId } from '../../defines/constants';
 import { AppImage, AppArtworkAssetType } from '../native/AppImage';
 
 export interface ProfileIconProps {

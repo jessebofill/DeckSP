@@ -1,4 +1,4 @@
-import { PLUGIN_NAME } from '../defines/pluginName';
+import { PLUGIN_NAME } from '../defines/constants';
 
 const background1 = '#139140'
 const background2 = '#6ec98e'

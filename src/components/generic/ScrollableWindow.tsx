@@ -66,7 +66,11 @@ export const ScrollableWindow: FC17<ScrollableWindowProps> = ({ height, fadeAmou
 		  }
 		  .modal-position-container .${scrollPanelClasses.ScrollPanel}::-webkit-scrollbar-thumb {
 			border: 0;
-		  }`}
+		  }
+		  .modal-position-container .${scrollPanelClasses.ScrollPanel}.gpfocuswithin::-webkit-scrollbar-thumb {
+			background-color: currentColor;
+		  }
+          `}
             </style>
             <div
                 className='modal-position-container'

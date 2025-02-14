@@ -1,6 +1,6 @@
 import { useState, FC17 } from 'react';
 import { FlatpakFixContext } from '../../contexts/contexts';
-import { PLUGIN_NAME } from '../../defines/pluginName';
+import { PLUGIN_NAME } from '../../defines/constants';
 import { FlatpakFixState } from '../../types/types';
 
 export const FixFlatpakDescriptions = {

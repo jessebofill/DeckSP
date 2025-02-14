@@ -1,5 +1,5 @@
 import { FC } from 'react';
-import { PLUGIN_NAME } from '../../defines/pluginName';
+import { PLUGIN_NAME } from '../../defines/constants';
 import { ProfileIcon } from './ProfileIcon';
 import { Profile, ProfileType } from '../../types/types';
 import { ProfileManager } from '../../controllers/ProfileManager';

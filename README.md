@@ -40,8 +40,8 @@ The plugin is organized into multiple pages:
 
 - **Main Page**: Manage profiles.
   - When running a game, toggle "Use per-game profile" to create a new profile for the current game, which will be automatically applied whenever the game is running.
-  - Use "Manually apply profile" to apply a specific profile (either auto-generated or custom-named profile), overriding the per-game profile option.  
-    <sub><i>When enabled an index finger icon will appear next to the profile to indicate that it is manually applied.</i></sub>  
+  - Use "Manually apply profile" to apply a specific profile (either auto-generated or custom-named), overriding the per-game profile option.  
+    <sub><i>When enabled, an index finger icon will appear next to the profile to indicate that it is manually applied.</i></sub>  
     <br/>
 - **Effect Pages**: Each page is dedicated to a specific effect or group of similar effects.
   - Adjust effect parameters as desired.

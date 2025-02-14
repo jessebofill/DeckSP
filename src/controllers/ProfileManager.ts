@@ -6,8 +6,8 @@ import { Dispatch, SetStateAction } from 'react';
 import { DataProviderSetData } from '../contexts/contexts';
 import { PluginData, ProfileType, Profile } from '../types/types';
 import { ToastApplyingProfile } from '../components/profile/ApplyProfileToast';
-import { globalAppId } from '../defines/profileConstants';
-import { globalProfileName } from '../defines/profileConstants';
+import { globalAppId } from '../defines/constants';
+import { globalProfileName } from '../defines/constants';
 
 const jdspPresetPrefix = 'decksp.';
 const jdspGamePresetIdentifier = 'game:';
