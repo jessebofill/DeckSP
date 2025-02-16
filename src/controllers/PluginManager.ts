@@ -13,15 +13,14 @@ export class PluginManager {
     static async start() {
         initSystemPerfStore();
 
-        Log.log('Trying to start James DSP...')
+        Log.log('Starting James DSP...')
         this.state.jdspLoaded = Backend.startJDSP().then(res => {
-            if (res) Log.log('James DSP was started');
-            else useError(`James DSP couldn't be started because a problem was detected with it's installation`);
+            if (!res) useError(`James DSP couldn't be started because a problem was detected with it's installation`);
 
             return res;
         }).catch(e => useError('Encountered an error when trying to start James DSP', e));
 
-        await this.state.jdspLoaded;
+        if (!((await this.state.jdspLoaded) === true)) return;
 
         const profileManagerInit = profileManager.init();
         profileManager.setLock(profileManagerInit);

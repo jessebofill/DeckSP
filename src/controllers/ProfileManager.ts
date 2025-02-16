@@ -28,6 +28,7 @@ export class ProfileManager {
     profiles: { [id: string]: Profile<ProfileType> } = {};
     lock?: { promise: Promise<DSPParamSettings | Error>, status: PromiseStatus };
     activeGameReactionDisposer?: IReactionDisposer;
+    unknownProfile: boolean = true;
 
     constructor() {
         makeObservable(this, { activeProfileId: observable, manuallyApply: observable });
@@ -207,8 +208,10 @@ export class ProfileManager {
 
             if (isManuallyApplied) this.manualProfileId = profileId;
             this.activeProfileId = profileId;
+            this.unknownProfile = false;
             return res;
         } catch (e) {
+            this.unknownProfile = true;
             return useError(`Problem applying profile id: ${profileId}`, e);
         }
     }

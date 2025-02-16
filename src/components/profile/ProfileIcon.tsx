@@ -3,6 +3,7 @@ import { FaGlobeAsia } from 'react-icons/fa';
 import { ProfileManager } from '../../controllers/ProfileManager';
 import { globalAppId } from '../../defines/constants';
 import { AppImage, AppArtworkAssetType } from '../native/AppImage';
+import { FaCircleExclamation } from 'react-icons/fa6';
 
 export interface ProfileIconProps {
     profileId: string;
@@ -18,13 +19,15 @@ export const ProfileIcon: FC<ProfileIconProps> = ({ profileId, profileManager, s
 
     return (
         <>
-            {profileId === globalAppId ? (
+            {profileId === globalAppId || profileManager.unknownProfile ? (
                 <div style={{ height: size ?? defaultSize, width: size ?? defaultSize, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <FaGlobeAsia size='90%' fill='#999696' />
+                    {profileManager.unknownProfile ?
+                        <FaCircleExclamation size='70%' fill='#aa2222'/> :
+                        <FaGlobeAsia size='90%' fill='#999696' />}
                 </div>
             ) : appOverview && (
                 <AppImage
-                    style={{ width: size ?? defaultSize}}
+                    style={{ width: size ?? defaultSize }}
                     app={appOverview}
                     eAssetType={AppArtworkAssetType.Icon}
                     className={'perf_Icon_1op4w'}

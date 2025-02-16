@@ -11,7 +11,7 @@ export const CurrentProfile: FC<CurrentProfileTextProps> = observer(({ useMarque
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', minHeight: '22px' }}>
             <ProfileIcon profileId={profileManager.activeProfileId} profileManager={profileManager} size='22px' />
             <CurrentProfileText useMarquee={useMarquee} />
-            {profileManager.manuallyApply && (
+            {!profileManager.unknownProfile && profileManager.manuallyApply && (
                 <div style={{ display: 'flex', marginLeft: 'auto' }}>
                     <BsFillHandIndexThumbFill size='16px' fill='#999696' />
                 </div>
@@ -26,7 +26,7 @@ interface CurrentProfileTextProps {
 
 export const CurrentProfileText: FC<CurrentProfileTextProps> = ({ useMarquee }) => {
     const containerClass = 'profile-name-container';
-    const text = `Using ${profileManager.activeProfile?.name} profile`;
+    const text = profileManager.unknownProfile ? 'Profile status unknown' : `Using ${profileManager.activeProfile?.name} profile`;
 
     return (
         <div

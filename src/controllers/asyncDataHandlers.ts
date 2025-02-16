@@ -35,7 +35,7 @@ async function handleGetPluginStateOnMount() {
     if (loaded instanceof Error) return loaded;
 
     if (loaded) {
-        const profileManloaded = await PluginManager.state.profileManagerLoaded!;
+        const profileManloaded = await PluginManager.state.profileManagerLoaded;
         if (profileManloaded instanceof Error) return profileManloaded;
     }
     
