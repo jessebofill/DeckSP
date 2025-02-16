@@ -14,10 +14,10 @@ const ApplyProfileToastTitle: FC<ApplyProfileToastTitleProps> = ({ profile, prof
 
     return (
         <div style={{ gap: '4px', display: 'flex', alignItems: 'center' }}>
-            Applying Profile: {profile.name}
+            Applied Profile: {profile.name}
             <ProfileIcon profileId={profile.id} profileManager={profileManager} size='14px' />
         </div>
     );
 };
 
-export const ToastApplyingProfile = (profile: Profile<ProfileType>, profileManager: ProfileManager, isManuallyApplied?: boolean) => toast(<ApplyProfileToastTitle profile={profile} profileManager={profileManager} />, `${isManuallyApplied ? 'Manually' : 'Automatically'} applying ${PLUGIN_NAME} profile`);
+export const ToastAppliedProfile = (profile: Profile<ProfileType>, profileManager: ProfileManager, isManuallyApplied?: boolean) => toast(<ApplyProfileToastTitle profile={profile} profileManager={profileManager} />, `${isManuallyApplied ? 'Manually' : 'Automatically'} Applied ${PLUGIN_NAME} profile`);

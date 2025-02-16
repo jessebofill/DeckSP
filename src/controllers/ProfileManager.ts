@@ -5,7 +5,7 @@ import { DSPParamSettings } from '../types/dspTypes';
 import { Dispatch, SetStateAction } from 'react';
 import { DataProviderSetData } from '../contexts/contexts';
 import { PluginData, ProfileType, Profile } from '../types/types';
-import { ToastApplyingProfile } from '../components/profile/ApplyProfileToast';
+import { ToastAppliedProfile } from '../components/profile/ApplyProfileToast';
 import { globalAppId } from '../defines/constants';
 import { globalProfileName } from '../defines/constants';
 
@@ -201,9 +201,9 @@ export class ProfileManager {
             const profile = this.profiles[profileId];
             if (!profile) return useError(`Problem applying profile id: ${profileId}`, 'Profile does not exist');
 
-            ToastApplyingProfile(profile, this, isManuallyApplied);
             const presetName = ProfileManager.makePresetName(profileId, profile.type);
             const res = await Backend.setProfile(presetName, isManuallyApplied);
+            ToastAppliedProfile(profile, this, isManuallyApplied);
 
             if (isManuallyApplied) this.manualProfileId = profileId;
             this.activeProfileId = profileId;
