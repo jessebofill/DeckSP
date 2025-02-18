@@ -13,9 +13,6 @@ from utils import flatpak_CMD, get_xauthority
 import decky
 
 APPLICATION_ID = "me.timschneeberger.jdsp4linux"
-DBUS_PATH = "/jdsp4linux/service"
-DBUS_INTERFACE = "me.timschneeberger.jdsp4linux.Service"
-FLATPAK_PATH = 'defaults/jdsp4linux-headless.flatpak'
 JDSP_LOG_DIR =  os.path.join(decky.DECKY_PLUGIN_LOG_DIR, 'jdsp')
 JDSP_LOG = os.path.join(JDSP_LOG_DIR, 'jdsp.log')
 JDSP_REQ_VER = '2.6.1'
