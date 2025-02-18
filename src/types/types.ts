@@ -5,10 +5,17 @@ declare global {
     var SystemPerfStore: SystemPerfStore;
     var appStore: AppStore;
     var SteamUIStore: SteamUiStore;
+    var SteamClient: SteamClient;
 }
+
+export type OtherPluginSettings = {
+    enableInDesktop: boolean;
+};
 
 export type PluginStateData = {
     jdspInstall: boolean;
+    enableInDesktop: boolean;
+    isDesktopMode: boolean;
 };
 
 export type PluginData = {
@@ -20,7 +27,7 @@ export type PluginData = {
 export enum ProfileType {
     Game,
     User
-}
+};
 
 export type Profile<Type extends ProfileType> = {
     id: string;
@@ -33,4 +40,10 @@ export enum FlatpakFixState {
     Busy,
     Done,
     Error
+};
+
+export enum EUIMode {
+    Unknown = -1,
+    GamePad = 4,
+    Desktop = 7,
 };

@@ -13,7 +13,7 @@ import { QAMStyles } from './components/qam/QAMStyles';
 
 export default definePlugin(() => {
     routerHook.addRoute(infoRoute, () => <InfoPage/>);
-    PluginManager.start();
+    PluginManager.init();
     const pagerLinker = new PagerLinker();
 
     return {

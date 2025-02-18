@@ -4,7 +4,7 @@ from settings import SettingsManager
 
 from env import env
 from jdspproxy import JdspProxy
-from utils import flatpak_CMD
+from utils import flatpak_CMD, get_xauthority
 
 # The decky plugin module is located at decky-loader/plugin
 # For easy intellisense checkout the decky-loader code one directory up
@@ -27,6 +27,10 @@ jdspPresetUserPrefix = jdspPresetPrefix + 'user:'
 log = decky.logger
 
 settings_manager = SettingsManager(name="settings", settings_directory=os.environ["DECKY_PLUGIN_SETTINGS_DIR"])
+
+default_plugin_settings = {
+    'enableInDesktop': False
+}
 
 class Plugin:
     jdsp: JdspProxy = None
@@ -130,11 +134,31 @@ class Plugin:
     async def start_jdsp(self):
         if not Plugin.jdsp_install_state:
             return False
-
+        
+        xauth = get_xauthority()
+        new_env = env.copy()
+        # run without gui
+        # new_env['QT_QPA_PLATFORM'] = 'offscreen'
+        if xauth: new_env['XAUTHORITY'] = xauth
         flatpak_CMD(['kill', APPLICATION_ID], noCheck=True)
         with open(JDSP_LOG, "w") as jdsp_log:
-            subprocess.Popen(f'flatpak --user run {APPLICATION_ID} --tray', stdout=jdsp_log, stderr=jdsp_log, shell=True, env=env, universal_newlines=True)
+            subprocess.Popen(f'flatpak --user run {APPLICATION_ID} --tray', stdout=jdsp_log, stderr=jdsp_log, shell=True, env=new_env, universal_newlines=True)
         return True # assume process has started ignoring errors so that the frontend doesn't hang. the jdsp process errors will be logged in its own file
+
+    # general-frontend-call
+    async def kill_jdsp(self):
+        flatpak_CMD(['kill', APPLICATION_ID], noCheck=True)
+
+    # general-frontend-call
+    async def get_settings(self):
+        settings = {}
+        for setting in default_plugin_settings:
+            settings[setting] = settings_manager.getSetting(setting, default_plugin_settings[setting])
+        return settings
+    
+    # general-frontend-call
+    async def set_setting(self, setting, value):
+        settings_manager.setSetting(setting, value)
 
     # general-frontend-call
     async def flatpak_repair(self):
@@ -153,7 +177,7 @@ class Plugin:
     async def init_profiles(self, globalPreset):
         if Plugin.profiles['manualPreset'] == '':               # manual preset should be set from first loading settings file, if not then file doesn't exist yet
             Plugin.profiles['manualPreset'] = globalPreset
-            log.info('No settings file detected. Creating a new one.')
+            log.info('No settings file detected. Creating one.')
             Plugin.save_profile_settings()
 
         presets = Plugin.jdsp.get_presets()

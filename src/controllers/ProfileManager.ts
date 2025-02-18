@@ -29,6 +29,7 @@ export class ProfileManager {
     lock?: { promise: Promise<DSPParamSettings | Error>, status: PromiseStatus };
     activeGameReactionDisposer?: IReactionDisposer;
     unknownProfile: boolean = true;
+    active: boolean = false;
 
     constructor() {
         makeObservable(this, { activeProfileId: observable, manuallyApply: observable });
@@ -92,7 +93,7 @@ export class ProfileManager {
 
     private async onActiveGameChange(activeAppIdString: number = 769) {
         const activeAppId = activeAppIdString.toString();
-        if (!this.manuallyApply && this.watchedGames[activeAppId] && this.activeProfileId !== activeAppId) {
+        if (this.active && !this.manuallyApply && this.watchedGames[activeAppId] && this.activeProfileId !== activeAppId) {
             const handle = async () => {
                 this.setReady(false);
                 const applyProfile = this.applyProfile(activeAppId);
@@ -115,7 +116,7 @@ export class ProfileManager {
             };
 
             if (this.lock && this.lock.status === PromiseStatus.Pending) this.queudGameChangeHandler = handle;
-            else handle();            
+            else handle();
         }
     }
 
@@ -204,7 +205,7 @@ export class ProfileManager {
 
             const presetName = ProfileManager.makePresetName(profileId, profile.type);
             const res = await Backend.setProfile(presetName, isManuallyApplied);
-            ToastAppliedProfile(profile, this, isManuallyApplied);
+            if (this.active) ToastAppliedProfile(profile, this, isManuallyApplied);
 
             if (isManuallyApplied) this.manualProfileId = profileId;
             this.activeProfileId = profileId;

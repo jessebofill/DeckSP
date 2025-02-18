@@ -30,16 +30,19 @@ export async function handleWaitSettings(setData: DataProviderSetData<PluginData
     });
 }
 
-async function handleGetPluginStateOnMount() {
-    const loaded = await PluginManager.state.jdspLoaded!;
-    if (loaded instanceof Error) return loaded;
+async function handleGetPluginStateOnMount(): Promise<PluginStateData | Error> {
+    const desktop = await PluginManager.state.desktopMode!
+    if (desktop instanceof Error) return desktop;
 
-    if (loaded) {
+    const jdspInstall = await PluginManager.state.jdspLoaded!;
+    if (jdspInstall instanceof Error) return jdspInstall;
+
+    if (jdspInstall) {
         const profileManloaded = await PluginManager.state.profileManagerLoaded;
         if (profileManloaded instanceof Error) return profileManloaded;
     }
-    
-    return { jdspInstall: loaded };
+
+    return { jdspInstall, isDesktopMode: desktop.isCurrentUI, enableInDesktop: desktop.enable };
 }
 
 async function handleGetDspSettingsOnMount() {
