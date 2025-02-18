@@ -6,5 +6,5 @@ import { useToggleDesktop } from '../../hooks/useToggleDesktop';
 export const EnableInDesktopToggle: FC<{}> = () => {
     const { data } = usePluginState();
     if (!data) return;
-    return <WaitToggle label='Enable in Desktop Mode' checked={data.enableInDesktop} onChange={useToggleDesktop()} bottomSeparator={'none'} />;
+    return <WaitToggle label='Enable in Desktop Mode' checked={data.enableInDesktop} onChange={useToggleDesktop()} />;
 }

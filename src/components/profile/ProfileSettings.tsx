@@ -17,29 +17,27 @@ export const ProfileSettings: FC<{}> = observer(({ }) => {
     if (!onChangePerGame || !onChangeUseManual || !onChangeManualProfile) return null;
 
     return (
-        <div className='profile-settings'>
-            <PanelSection title='Profiles'>
-                <QAMUnderTitleHider />
-                <div style={{ padding: '5px 0' }}>
-                    <CurrentProfile />
-                </div>
-                {getActiveAppId() !== globalAppId && !useManual &&
-                    <PanelSectionRow>
-                        <WaitToggle label='Use per-game profile' checked={perGameGecked} onChange={onChangePerGame} bottomSeparator='none' />
-                    </PanelSectionRow>
-                }
+        <PanelSection title='Profiles'>
+            <QAMUnderTitleHider />
+            <div style={{ padding: '5px 0' }}>
+                <CurrentProfile />
+            </div>
+            {getActiveAppId() !== globalAppId && !useManual &&
                 <PanelSectionRow>
-                    <WaitToggle label='Manually apply profile' checked={useManual} onChange={onChangeUseManual} bottomSeparator={'none'} />
+                    <WaitToggle label='Use per-game profile' checked={perGameGecked} onChange={onChangePerGame} bottomSeparator='none' />
                 </PanelSectionRow>
-                {useManual && (
-                    <PanelSectionRow>
-                        <ManualProfilesDropdown selectedOption={manualProfileId} onSelectProfile={onChangeManualProfile} />
-                    </PanelSectionRow>
-                )}
+            }
+            <PanelSectionRow>
+                <WaitToggle label='Manually apply profile' checked={useManual} onChange={onChangeUseManual} bottomSeparator={'none'} />
+            </PanelSectionRow>
+            {useManual && (
                 <PanelSectionRow>
-                    <SetDefaultsButton />
+                    <ManualProfilesDropdown selectedOption={manualProfileId} onSelectProfile={onChangeManualProfile} />
                 </PanelSectionRow>
-            </PanelSection>
-        </div>
+            )}
+            <PanelSectionRow>
+                <SetDefaultsButton />
+            </PanelSectionRow>
+        </PanelSection>
     );
 });

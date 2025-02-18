@@ -4,7 +4,7 @@ import { FixFlatpak } from '../other/FixFlatpak';
 import { QAMPage } from './QAMPage';
 import { usePluginState } from '../../hooks/contextHooks';
 import { Focusable, Navigation, PanelSection, PanelSectionRow } from '@decky/ui';
-import { QAMPlainField } from './QAMPlainField';
+import { QAMHiglightable } from './QAMHiglightable';
 import { FaCircleInfo } from 'react-icons/fa6';
 import { infoRoute } from '../../defines/constants';
 import { EnableInDesktopToggle } from './EnableInDesktopToggle';
@@ -17,12 +17,11 @@ export const QAMPluginSettingsPage: FC<{}> = ({ }) => {
             {!data ? null :
                 data.jdspInstall ? <ProfileSettings /> :
                     <FixFlatpak />}
-            <PanelSection>
+            <PanelSection title='Plugin'>
                 <PanelSectionRow>
                     <EnableInDesktopToggle />
                 </PanelSectionRow>
-            </PanelSection>
-            <QAMPlainField bottomSeparator='none'>
+            <QAMHiglightable bottomSeparator='none'>
                 <Focusable
                     onActivate={() => Navigation.Navigate(infoRoute)}
                     onOKActionDescription='View Info'
@@ -31,7 +30,8 @@ export const QAMPluginSettingsPage: FC<{}> = ({ }) => {
                     Plugin Info
                     <FaCircleInfo />
                 </Focusable>
-            </QAMPlainField>
+            </QAMHiglightable>
+            </PanelSection>
         </QAMPage>
     );
 };
