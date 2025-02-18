@@ -13,10 +13,11 @@ export const NewProfileModal: FC<NewProfileModalProps> = ({ onConfirm, closeModa
     const [name, setName] = useState('');
 
     const defaultOption = { label: 'Default', data: 'default' };
+    const currentOption = { label: 'Current', data: undefined };
     const [copyFrom, setCopyFrom] = useState(defaultOption.data);
 
     const options: DropdownOption[] = useProfileMultiDropdownOptions();
-    options.unshift(defaultOption);
+    options.unshift(defaultOption, currentOption);
 
     const onSubmit = async () => {
         if (!Object.keys(profileManager.profiles).includes(name)) {

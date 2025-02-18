@@ -150,7 +150,8 @@ export class ProfileManager {
             const presetName = ProfileManager.makePresetName(profileName, ProfileType.User);
 
             const fromProfile = fromProfileId ? this.profiles[fromProfileId] : undefined;
-            const fromPresetName = fromProfile ? ProfileManager.makePresetName(fromProfile.id, fromProfile.type) : undefined;
+            const fromPresetName = fromProfileId === 'default' ? defaultPresetName :
+                fromProfile ? ProfileManager.makePresetName(fromProfile.id, fromProfile.type) : undefined;
             const res = await Backend.newPreset(presetName, fromPresetName);
 
             this.profiles[profileName] = profile;

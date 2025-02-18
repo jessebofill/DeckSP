@@ -17,10 +17,6 @@ JDSP_LOG_DIR =  os.path.join(decky.DECKY_PLUGIN_LOG_DIR, 'jdsp')
 JDSP_LOG = os.path.join(JDSP_LOG_DIR, 'jdsp.log')
 JDSP_REQ_VER = '2.6.1'
 
-jdspPresetPrefix = 'decksp.'
-jdspPresetGamePrefix = jdspPresetPrefix + 'game:'
-jdspPresetUserPrefix = jdspPresetPrefix + 'user:'
-
 log = decky.logger
 
 settings_manager = SettingsManager(name="settings", settings_directory=os.environ["DECKY_PLUGIN_SETTINGS_DIR"])
