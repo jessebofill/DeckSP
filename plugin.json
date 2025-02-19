@@ -15,6 +15,6 @@
       "reverb",
       "compressor"],
     "description": "Full audio effects DSP. EQ, Reverb and much more. Per-game settings possible.",
-    "image": "https://opengraph.githubassets.com/1/SteamDeckHomebrew/PluginLoader"
+    "image": "https://raw.githubusercontent.com/jessebofill/DeckSP/master/assets/main.png"
   }
 }

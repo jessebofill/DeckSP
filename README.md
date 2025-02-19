@@ -2,6 +2,8 @@
 
 DeckSP is a DSP plugin for Steam Deck. It provides a suite of audio effects that are easily manageable in game mode. The plugin is built on top of [JamesDSP for Linux](https://github.com/Audio4Linux/JDSP4Linux)*, offering access to most of its effects and features, along with some additional features specifically for the Steam Deck.
 
+![Main](./assets/main.png)
+
 <sub><i>*DeckSP uses the flatpak version of JamesDSP. V2.6.1 is required. Installation/uninstallation is automatically handled by the plugin.</i></sub>
 
 ## Features
@@ -43,17 +45,30 @@ The plugin is organized into multiple pages:
   - Use "Manually apply profile" to apply a specific profile (either auto-generated or custom-named), overriding the per-game profile option.  
     <sub><i>When enabled, an index finger icon will appear next to the profile to indicate that it is manually applied.</i></sub>  
     <br/>
+
+  ![Profiles](./assets/profiles.jpg)
+  
+  <br/>
 - **Effect Pages**: Each page is dedicated to a specific effect or group of similar effects.
   - Adjust effect parameters as desired.
   - Each effect can be toggled on/off individually.
   
-  <sub><i>All changes affect the currently applied profile.</i></sub>
+  <sub><i>All changes affect the currently applied profile.</i></sub>  
+    <br/>
+
+  ![Effect](./assets/effect.jpg)
 
 ## Credits
 
 DeckSP relies on [JamesDSP for Linux](https://github.com/Audio4Linux/JDSP4Linux), developed by Tim Schneeberger ([@thepbone](https://github.com/thepbone)), as the backend for audio processing. JamesDSP for Linux is based on the original [JamesDSP](https://github.com/james34602/JamesDSPManager) project for Android, initially published by James Fung ([@james34602](https://github.com/james34602)).
 
-Special thanks to the developers of both projects for their excellent work and contributions to the open-source community.
+Special thanks to the developers of both projects for their excellent work.
+
+## Donate
+
+If you enjoy my work please consider supporting me. It is greatly appreciated!
+
+[![ko-fi](https://www.ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/jessebofill)
 
 ## License
 
