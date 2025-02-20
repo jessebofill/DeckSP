@@ -32,7 +32,7 @@ export class ProfileManager {
     active: boolean = false;
 
     constructor() {
-        makeObservable(this, { activeProfileId: observable, manuallyApply: observable });
+        makeObservable(this, { activeProfileId: observable, manuallyApply: observable, unknownProfile: observable });
         if (!ProfileManager.instance) ProfileManager.instance = this;
         return ProfileManager.instance;
     }

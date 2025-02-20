@@ -4,26 +4,30 @@ import { profileManager } from './ProfileManager';
 import { initSystemPerfStore, useError } from '../lib/utils';
 import { DSPParamSettings } from '../types/dspTypes';
 import { EUIMode } from '../types/types';
+import { sleep } from '@decky/ui';
 
-
+type PromiseKey = keyof typeof PluginManager.promises;
 
 interface DesktopModeData { enable: boolean, isCurrentUI: boolean }
 export class PluginManager {
-    static state: {
+    static promises: {
         jdspLoaded?: Promise<boolean | Error>
         profileManagerLoaded?: Promise<DSPParamSettings | Error>
         desktopMode?: Promise<DesktopModeData | Error>
     } = {};
+    private static uiMode?: EUIMode
 
     static async init() {
         initSystemPerfStore();
-        this.state.desktopMode = Backend.getPluginSettings().then(settings => ({ isCurrentUI: false, enable: settings.enableInDesktop })).catch((e) => useError('Problem getting plugin settings', e));
+        this.promises.desktopMode = Backend.getPluginSettings().then(settings => ({ isCurrentUI: false, enable: settings.enableInDesktop })).catch((e) => useError('Problem getting plugin settings', e));
 
         SteamClient.UI.RegisterForUIModeChanged(async uiMode => {
+            if (this.uiMode === uiMode) return; 
+            else this.uiMode = uiMode;
             const isDesktopMode = uiMode === EUIMode.Desktop;
             this.queueNewDesktopData({ isCurrentUI: isDesktopMode });
 
-            const desktop = await this.state.desktopMode!
+            const desktop = await this.promises.desktopMode!
             if (desktop instanceof Error) return
             if (isDesktopMode) {
                 if (desktop.enable) this.start();
@@ -38,7 +42,7 @@ export class PluginManager {
         profileManager.active = true;
         if (!await this.isJDSPReady()) {
             Log.log('Starting James DSP...')
-            this.state.jdspLoaded = Backend.startJDSP()
+            this.promises.jdspLoaded = Backend.startJDSP()
                 .then(res => res ? res : useError(`James DSP couldn't be started because a problem was detected with it's installation`))
                 .catch(e => useError('Encountered an error when trying to start James DSP', e));
         }
@@ -47,21 +51,21 @@ export class PluginManager {
 
         const profileManagerInit = profileManager.init();
         profileManager.setLock(profileManagerInit);
-        this.state.profileManagerLoaded = profileManagerInit.then((res) => res instanceof Error ? useError('Problem during ProfileManager init process', res) : res);
+        this.promises.profileManagerLoaded = profileManagerInit.then((res) => res instanceof Error ? useError('Problem during ProfileManager init process', res) : res);
     }
 
     private static async isJDSPReady() {
-        return (await this.state.jdspLoaded) === true;
+        return (await this.promises.jdspLoaded) === true;
     }
 
-    private static async isStatePromiseStatusOk(promise: keyof typeof PluginManager.state) {
-        const res = (await (this.state[promise] ?? new Error()));
+    private static async isStatePromiseStatusOk(promise: keyof typeof PluginManager.promises) {
+        const res = (await (this.promises[promise] ?? new Error()));
         return !(res instanceof Error);
     }
 
     private static queueNewDesktopData(newDesktopData: Partial<DesktopModeData>, waitForErrorCheck?: Promise<any>) {
-        const prev = this.state.desktopMode
-        this.state.desktopMode = (async () => {
+        const prev = this.promises.desktopMode
+        this.promises.desktopMode = (async () => {
             const res = await prev!
             if (waitForErrorCheck) {
                 const res2 = await waitForErrorCheck
@@ -74,16 +78,27 @@ export class PluginManager {
 
     static async setEnableInDestop(enable: boolean) {
         this.queueNewDesktopData({ enable }, Backend.setPluginSetting('enableInDesktop', enable).catch(e => useError('Problem setting enable in desktop mode', e)));
-        return await this.state.desktopMode!;
+        return await this.promises.desktopMode!;
     }
 
     static async killJDSP() {
         profileManager.active = false;
         Log.log('Killing JamesDSP')
-        this.state.jdspLoaded = (async () => {
+        this.promises.jdspLoaded = (async () => {
             await Backend.killJDSP().catch((e) => useError('Problem trying to kill JamesDSP', e));
             return false;
         })();
+    }
+
+    static arePromisesCreated(...promises: PromiseKey[]) {
+        const proms: PromiseKey[]  = promises.length === 0 ? ['desktopMode', 'jdspLoaded', 'profileManagerLoaded'] : promises;
+        return proms.every(promiseKey => this.promises[promiseKey] instanceof Promise);
+    }
+
+    static async waitForPromiseCreation(...promises: PromiseKey[]) {
+        while (!PluginManager.arePromisesCreated(...promises)){
+            await sleep(100);
+        }
     }
 }
 

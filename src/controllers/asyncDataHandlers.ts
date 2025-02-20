@@ -31,14 +31,17 @@ export async function handleWaitSettings(setData: DataProviderSetData<PluginData
 }
 
 async function handleGetPluginStateOnMount(): Promise<PluginStateData | Error> {
-    const desktop = await PluginManager.state.desktopMode!
+    await PluginManager.waitForPromiseCreation('desktopMode');
+    const desktop = await PluginManager.promises.desktopMode!
     if (desktop instanceof Error) return desktop;
-
-    const jdspInstall = await PluginManager.state.jdspLoaded!;
+    
+    await PluginManager.waitForPromiseCreation('jdspLoaded');
+    const jdspInstall = await PluginManager.promises.jdspLoaded!;
     if (jdspInstall instanceof Error) return jdspInstall;
-
+    
     if (jdspInstall) {
-        const profileManloaded = await PluginManager.state.profileManagerLoaded;
+        await PluginManager.waitForPromiseCreation('profileManagerLoaded');
+        const profileManloaded = await PluginManager.promises.profileManagerLoaded;
         if (profileManloaded instanceof Error) return profileManloaded;
     }
 
@@ -46,7 +49,8 @@ async function handleGetPluginStateOnMount(): Promise<PluginStateData | Error> {
 }
 
 async function handleGetDspSettingsOnMount() {
-    const loaded = await PluginManager.state.jdspLoaded!;
+    await PluginManager.waitForPromiseCreation('jdspLoaded');
+    const loaded = await PluginManager.promises.jdspLoaded!;
     if (loaded instanceof Error) return loaded;
 
     return await handleGetDspSettingsAfterProfileLoad();
