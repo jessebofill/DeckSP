@@ -48,7 +48,7 @@ class Plugin:
             Plugin.jdsp_install_state = True
             log.info('Plugin ready')
         else:
-            log.error('Problem with James DSP installation')
+            log.error('Problem with JamesDSP installation')
 
 
     async def _uninstall(self):
@@ -56,12 +56,12 @@ class Plugin:
 
         flatpak_CMD(['kill', APPLICATION_ID], noCheck=True)
         try: 
-            log.info('Uninstalling James DSP...')
+            log.info('Uninstalling JamesDSP...')
             flatpak_CMD(['--user', '-y', 'uninstall', APPLICATION_ID])
-            log.info("James DSP uninstalled sucessfully")
+            log.info("JamesDSP uninstalled sucessfully")
 
         except subprocess.CalledProcessError as e:
-            log.error('Problem uninstalling James DSP')
+            log.error('Problem uninstalling JamesDSP')
             log.error(e.stderr)
 
     async def _unload(self):
@@ -77,7 +77,7 @@ class Plugin:
         settings_manager.setSetting('profiles', {setting: Plugin.profiles[setting] for setting in Plugin.profiles.keys() - { 'currentPreset' }})
 
     def handle_jdsp_install():
-        log.info('Checking for James DSP installation...')
+        log.info('Checking for JamesDSP installation...')
         try:
             flatpakListRes = flatpak_CMD(['list', '--user', '--app', '--columns=application,version'])
             installed_version = ''
@@ -87,21 +87,21 @@ class Plugin:
                     installed_version = line.split()[1]
 
             if installed_version != '':
-                log.info(f'James DSP version {installed_version} is installed')
+                log.info(f'JamesDSP version {installed_version} is installed')
                 
                 if compare_versions(installed_version, JDSP_MIN_VER) >= 0: return True
                 else: log.info(f'Minimum version is {JDSP_MIN_VER}')
             
             else:
-                log.info('No James DSP installation was found')
-                log.info('Installing James DSP flatpak...')
+                log.info('No JamesDSP installation was found')
+                log.info('Installing JamesDSP flatpak...')
                 installRes = flatpak_CMD(['--user', '-y', 'install', 'flathub', APPLICATION_ID])
                 log.info(installRes.stdout)
             
-            log.info(f'Updating James DSP..')
+            log.info(f'Updating JamesDSP..')
             updateRes = flatpak_CMD(['--user', '-y', 'update', APPLICATION_ID])
             log.info(updateRes.stdout)
-            log.info(f'James DSP updated')
+            log.info(f'JamesDSP updated')
 
             return True
 
@@ -128,6 +128,8 @@ class Plugin:
         if not Plugin.jdsp_install_state:
             return False
         
+        log.info(f'Starting JamesDSP... See process logs at {JDSP_LOG}')
+        
         xauth = get_xauthority()
         new_env = env.copy()
         # run without gui
@@ -140,6 +142,7 @@ class Plugin:
 
     # general-frontend-call
     async def kill_jdsp(self):
+        log.info('Killing JamesDSP')
         flatpak_CMD(['kill', APPLICATION_ID], noCheck=True)
 
     # general-frontend-call
@@ -159,6 +162,7 @@ class Plugin:
             flatpak_CMD(['repair', '--user'])
             return
         except subprocess.CalledProcessError as e:
+            log.error(e.stderr)
             return { 'error': e.stderr }
 
     # general-frontend-call
@@ -192,7 +196,7 @@ class Plugin:
     ------------------------------------------
     JDSP specific methods
     ------------------------------------------
-    return a James DSP cli result in a dictionary in the format of either...
+    return a JamesDSP cli result in a dictionary in the format of either...
     { 'jdsp_result': str } or { 'jdsp_error': str }
 
     Annotation: 'jdsp-frontend-call'
@@ -245,11 +249,47 @@ class Plugin:
     async def set_profile(self, presetName, isManual):
         if isManual:
             Plugin.profiles['manualPreset'] = presetName
-        Plugin.jdsp.load_preset(presetName)
-        # check errors
+        res = Plugin.jdsp.load_preset(presetName)
+        if JdspProxy.has_error(res): return res
+        
         Plugin.profiles['currentPreset'] = presetName
         Plugin.save_profile_settings()
         return Plugin.jdsp.get_all()
+    
+    async def create_default_jdsp_preset(self, defaultName):
+        config_dir = os.path.expanduser(f'~/.var/app/{APPLICATION_ID}/config/jamesdsp/')
+
+        if not os.path.exists(config_dir):
+            log.info('Creating default preset: audio.conf directory was dot detected')
+            return Plugin.jdsp.save_preset(defaultName)
+
+        conf_file = os.path.join(config_dir, 'audio.conf')
+        temp_conf = os.path.join(config_dir, 'audio_old.conf')
+
+        if os.path.exists(conf_file):
+            try:
+                os.rename(conf_file, temp_conf)
+                await Plugin.start_jdsp(self)
+
+                log.info('Creating default preset: Existing audio.conf detected')
+                Plugin.jdsp.save_preset(defaultName)
+
+                if os.path.exists(conf_file):
+                    os.remove(conf_file)
+                os.rename(temp_conf, conf_file)
+                await Plugin.start_jdsp(self)
+
+                return { 'jdsp_result': ''}
+            
+            except Exception as e:    
+                log.error('Error trying to create default preset when audio.conf already existed')
+                if isinstance(e, subprocess.CalledProcessError):
+                    log.error(e.stderr)
+                raise e
+        
+        else:
+            log.info('Creating default preset: No existing audio.conf was detected')
+            return Plugin.jdsp.save_preset(defaultName)
 
     """
     ===================================================================================================================================

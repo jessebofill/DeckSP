@@ -180,7 +180,7 @@ export class ProfileManager {
 
     private async createDefaults() {
         try {
-            return await Backend.newPreset(defaultPresetName);
+            return await Backend.createDefaultPreset(defaultPresetName);
         } catch (e) {
             return useError(`Problem creating default preset`, e);
         }

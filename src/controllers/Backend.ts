@@ -49,6 +49,7 @@ export type JDSPSetMethod = 'set_jdsp_param';
 export type JDSPSetMultipleMethod = 'set_jdsp_params';
 export type JDSPGetAllMethod = 'get_all_jdsp_param';
 export type JDSPSetDefaultsMethod = 'set_jdsp_defaults';
+export type JDSPCreateDefaultPresetMethod = 'create_default_jdsp_preset';
 export type JDSPNewPresetMethod = 'new_jdsp_preset';
 export type JDSPDeletePresetMethod = 'delete_jdsp_preset';
 export type JDSPSetProfileMethod = 'set_profile';
@@ -58,6 +59,7 @@ export type JDSPMethod =
     JDSPSetMultipleMethod |
     JDSPGetAllMethod |
     JDSPSetDefaultsMethod |
+    JDSPCreateDefaultPresetMethod |
     JDSPNewPresetMethod |
     JDSPDeletePresetMethod |
     JDSPSetProfileMethod;
@@ -71,7 +73,7 @@ export type JDSPMethodArgs<Method extends JDSPMethod, Param extends DSPParameter
     Method extends JDSPSetMethod ? [parameter: Param, value: ParamSendValueType<Param>] :
     Method extends JDSPSetMultipleMethod ? [[DSPParameter, ParamSendValueType<DSPParameter>][]] :
     Method extends JDSPGetAllMethod ? [] :
-    Method extends JDSPSetDefaultsMethod ? [defaultPreset: string] :
+    Method extends JDSPCreateDefaultPresetMethod | JDSPSetDefaultsMethod ? [defaultPreset: string] :
     Method extends JDSPNewPresetMethod ? [presetName: string, fromPresetName?: string] :
     Method extends JDSPDeletePresetMethod ? [presetName: string] :
     Method extends JDSPSetProfileMethod ? [presetName: string, isManual: boolean] :
@@ -108,6 +110,9 @@ export class Backend {
     }
     static async setDspDefaults(defaultPreset: string) {
         return parseJDSPAll(await this.callJDSP('set_jdsp_defaults', defaultPreset));
+    }
+    static async createDefaultPreset(defaultName: string) {
+        return await this.callJDSP('create_default_jdsp_preset', defaultName);
     }
     static async newPreset(presetName: string, fromPresetName?: string) {
         return await this.callJDSP('new_jdsp_preset', presetName, fromPresetName);
