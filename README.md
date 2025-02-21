@@ -4,7 +4,7 @@ DeckSP is a DSP plugin for Steam Deck. It provides a suite of audio effects that
 
 ![Main](./assets/main.png)
 
-<sub><i>*DeckSP uses the flatpak version of JamesDSP. V2.6.1 is required. Installation/uninstallation is automatically handled by the plugin.</i></sub>
+<sub><i>*DeckSP uses the flatpak version of JamesDSP. Installation/ uninstallation is automatically handled by the plugin.</i></sub>
 
 ## Features
 ### Effects

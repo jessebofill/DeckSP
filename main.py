@@ -4,7 +4,7 @@ from settings import SettingsManager
 
 from env import env
 from jdspproxy import JdspProxy
-from utils import flatpak_CMD, get_xauthority
+from utils import compare_versions, flatpak_CMD, get_xauthority
 
 # The decky plugin module is located at decky-loader/plugin
 # For easy intellisense checkout the decky-loader code one directory up
@@ -15,7 +15,7 @@ import decky
 APPLICATION_ID = "me.timschneeberger.jdsp4linux"
 JDSP_LOG_DIR =  os.path.join(decky.DECKY_PLUGIN_LOG_DIR, 'jdsp')
 JDSP_LOG = os.path.join(JDSP_LOG_DIR, 'jdsp.log')
-JDSP_REQ_VER = '2.6.1'
+JDSP_MIN_VER = '2.7.0'
 
 log = decky.logger
 
@@ -79,7 +79,7 @@ class Plugin:
     def handle_jdsp_install():
         log.info('Checking for James DSP installation...')
         try:
-            flatpakListRes = flatpak_CMD(['list', '--app', '--columns=application,version'])
+            flatpakListRes = flatpak_CMD(['list', '--user', '--app', '--columns=application,version'])
             installed_version = ''
 
             for line in flatpakListRes.stdout.split('\n'):
@@ -89,8 +89,8 @@ class Plugin:
             if installed_version != '':
                 log.info(f'James DSP version {installed_version} is installed')
                 
-                if installed_version == JDSP_REQ_VER: return True
-                else: log.info(f'Required version is {JDSP_REQ_VER}')
+                if compare_versions(installed_version, JDSP_MIN_VER) >= 0: return True
+                else: log.info(f'Minimum version is {JDSP_MIN_VER}')
             
             else:
                 log.info('No James DSP installation was found')
@@ -98,10 +98,10 @@ class Plugin:
                 installRes = flatpak_CMD(['--user', '-y', 'install', 'flathub', APPLICATION_ID])
                 log.info(installRes.stdout)
             
-            log.info(f'Installing required version {JDSP_REQ_VER}...')
-            updateRes = flatpak_CMD(['--user', '-y', 'update', '--commit=892695e011c19fc04de20973cb1c6b639753ed76084a170a966c61a64037ab9c', APPLICATION_ID])
+            log.info(f'Updating James DSP..')
+            updateRes = flatpak_CMD(['--user', '-y', 'update', APPLICATION_ID])
             log.info(updateRes.stdout)
-            log.info(f'Installed James DSP version {JDSP_REQ_VER}')
+            log.info(f'James DSP updated')
 
             return True
 

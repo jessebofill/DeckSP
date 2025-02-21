@@ -34,3 +34,20 @@ def get_xauthority():
                 return line.split("=", 1)[1]
     except subprocess.CalledProcessError as e:
         return
+    
+def compare_versions(version1, version2):
+    def normalize(v):
+        return [int(x) for x in v.split(".")]
+    
+    v1 = normalize(version1)
+    v2 = normalize(version2)
+    
+    for i in range(max(len(v1), len(v2))):
+        part_v1 = v1[i] if i < len(v1) else 0
+        part_v2 = v2[i] if i < len(v2) else 0
+        
+        if part_v1 < part_v2:
+            return -1
+        elif part_v1 > part_v2:
+            return 1
+    return 0
