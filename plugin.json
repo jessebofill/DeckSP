@@ -1,7 +1,7 @@
 {
   "name": "DeckSP",
   "author": "Jesse Bofill",
-  "flags": ["debug"],
+  "flags": [],
   "api_version": 1,
   "publish": {
     "tags": [    
