@@ -1,7 +1,7 @@
 import { Field, quickAccessControlsClasses } from '@decky/ui';
 import { FC17 } from 'react';
 
-interface QAMHiglightableProps {
+export interface QAMHiglightableProps {
     bottomSeparator?: 'standard' | 'thick' | 'none';
 }
 

@@ -6,7 +6,11 @@ declare global {
     var appStore: AppStore;
     var SteamUIStore: SteamUiStore;
     var SteamClient: SteamClient;
+    var WebBrowserPlugin: WebBrowserAPi | undefined;
 }
+interface WebBrowserAPi {
+    openInBrowser?: (url: string) => void;
+};
 
 export type OtherPluginSettings = {
     enableInDesktop: boolean;

@@ -1,4 +1,4 @@
-import { Navigation } from '@decky/ui';
+import { navigateUrl } from '../../lib/utils';
 import { AnchorHTMLAttributes, FC } from 'react';
 
 const ExternalLink: FC<AnchorHTMLAttributes<HTMLAnchorElement>> = (props) => {
@@ -7,7 +7,7 @@ const ExternalLink: FC<AnchorHTMLAttributes<HTMLAnchorElement>> = (props) => {
       {...props}
       onClick={(e) => {
         e.preventDefault();
-        props.onClick ? props.onClick(e) : props.href && Navigation.NavigateToExternalWeb(props.href);
+        props.onClick ? props.onClick(e) : props.href && navigateUrl(props.href);
       }}
     />
   );
