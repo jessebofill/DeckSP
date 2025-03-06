@@ -77,6 +77,11 @@ class Plugin:
         settings_manager.setSetting('profiles', {setting: Plugin.profiles[setting] for setting in Plugin.profiles.keys() - { 'currentPreset' }})
 
     def handle_jdsp_install():
+        try:
+            flatpak_CMD(['--user', 'remote-add', '--if-not-exists', 'flathub', 'https://dl.flathub.org/repo/flathub.flatpakrepo'])
+        except subprocess.CalledProcessError as e:
+            log.info(f'Flatpak remote add {e.stderr.strip()}') #url always fails to resolve and throws an error when booting (doesn't matter). just print all errors, if its an error that matters it will affect the following cmds
+        
         log.info('Checking for JamesDSP installation...')
         try:
             flatpakListRes = flatpak_CMD(['list', '--user', '--app', '--columns=application,version'])
