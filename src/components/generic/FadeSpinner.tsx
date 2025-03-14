@@ -1,13 +1,20 @@
-import { CSSProperties, FC17 } from 'react'
+import { CSSProperties, FC17, useLayoutEffect, useState } from 'react'
 
 export interface FadeSpinnerProps {
     isLoading: boolean;
     className?: string;
     style?: CSSProperties;
-    showChildrenLoading?: boolean
+    showChildrenLoading?: boolean;
+    fadeTime?: number;
 }
 
-export const FadeSpinner: FC17<FadeSpinnerProps> = ({ isLoading, className, style, showChildrenLoading, children }) => {
+export const FadeSpinner: FC17<FadeSpinnerProps> = ({ isLoading, className, style, showChildrenLoading, fadeTime, children }) => {
+        const [fadeDone, setFadeDone] = useState(false);
+        const fade = fadeTime ?? 250;
+        useLayoutEffect(() => {
+            if (!isLoading) setTimeout(() => setFadeDone(true), fadeTime);
+            else setFadeDone(false);
+        }, [isLoading]);
     return (
         <>
             <div
@@ -15,10 +22,11 @@ export const FadeSpinner: FC17<FadeSpinnerProps> = ({ isLoading, className, styl
                 style={Object.assign({
                     justifyContent: 'center',
                     alignItems: 'center',
-                    transition: 'opacity ease-out 250ms',
+                    transition: `opacity ease-out ${fade}ms`,
                 },
-                    isLoading ? {} : { opacity: 0 },
-                    style ?? {}
+                style ?? {},
+                isLoading ? {} : { opacity: 0 },
+                !fadeDone ? {} : { zIndex: '-100' }
                 )}>
                 <img alt="Loading..." src="/images/steam_spinner.png" style={{ width: '50%' }} />
             </div>
