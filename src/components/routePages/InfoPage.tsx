@@ -16,7 +16,7 @@ export const InfoPage: FC<{}> = () => {
                     <div style={{ marginBottom: '20px' }}>
                         <h3>JamesDSP Info</h3>
                         <div style={{ paddingLeft: '30px', fontSize: '.9em' }}>
-                            {PLUGIN_NAME} uses <ExternalLink href="https://github.com/Audio4Linux/JDSP4Linux" target='_blank'>JamesDSP for Linux</ExternalLink> for the signal processing. All effects are built into JamesDSP, and {PLUGIN_NAME} provides an interface to control them. {PLUGIN_NAME} uses the flatpak version of JamesDSP. The plugin handles installation, uninstallation and updates automatically. Please be aware of this if you normally use JamesDSP on its own in desktop mode.
+                            {PLUGIN_NAME} uses <ExternalLink href="https://github.com/Audio4Linux/JDSP4Linux">JamesDSP for Linux</ExternalLink> for the signal processing. All effects are built into JamesDSP, and {PLUGIN_NAME} provides an interface to control them. {PLUGIN_NAME} uses the flatpak version of JamesDSP. The plugin handles installation, uninstallation and updates automatically. Please be aware of this if you normally use JamesDSP on its own in desktop mode.
                         </div>
                     </div>
                     <div style={{ marginBottom: '20px' }}>

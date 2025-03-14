@@ -77,7 +77,8 @@ export const ScrollableWindow: FC17<ScrollableWindowProps> = ({ height, fadeAmou
                 style={{
                     position: 'relative',
                     height: height,
-                    WebkitMask: `linear-gradient(to right , transparent, transparent calc(100% - ${barWidth}), white calc(100% - ${barWidth})), linear-gradient(to bottom, transparent, black ${fade}, black calc(100% - ${fade}), transparent 100%)`
+                    WebkitMask: isOverflowing ? `linear-gradient(to right , transparent, transparent calc(100% - ${barWidth}), white calc(100% - ${barWidth})), linear-gradient(to bottom, transparent, black ${fade}, black calc(100% - ${fade}), transparent 100%)` :
+                        undefined
                 }}>
                 {isOverflowing ? (
                     <ModalPosition key={'scrollable-window-modal-position'}>
