@@ -1,4 +1,4 @@
-import { useState, FC17, useEffect } from 'react';
+import { useState, FC17, useLayoutEffect } from 'react';
 import { usePluginContext } from '../../hooks/contextHooks';
 import { PluginStateContext } from '../../contexts/contexts';
 import { DspSettingsContext } from '../../contexts/contexts';
@@ -13,7 +13,7 @@ export const PluginDataProvider: FC17<{}> = ({ children }) => {
     const [pluginError, setPluginError] = useState<Error | undefined>(data.errors.plugin);
     const [dspError, setDspError] = useState<Error | undefined>(data.errors.dsp);
 
-    useEffect(() => {
+    useLayoutEffect(() => {
         setPlugin(data.plugin);
         setDsp(data.dsp);
         setPluginError(data.errors.plugin);

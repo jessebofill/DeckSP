@@ -25,6 +25,8 @@ default_plugin_settings = {
     'enableInDesktop': False
 }
 
+ingore_as_setting = ['profiles']
+
 class Plugin:
     jdsp: JdspProxy = None
     jdsp_install_state = False
@@ -153,13 +155,16 @@ class Plugin:
     # general-frontend-call
     async def get_settings(self):
         settings = {}
-        for setting in default_plugin_settings:
-            settings[setting] = settings_manager.getSetting(setting, default_plugin_settings[setting])
+        for setting in settings_manager.settings:
+            if setting in ingore_as_setting:
+                continue
+            settings[setting] = settings_manager.getSetting(setting, default_plugin_settings.get(setting))
         return settings
     
     # general-frontend-call
-    async def set_setting(self, setting, value):
-        settings_manager.setSetting(setting, value)
+    async def set_settings(self, settings):
+        for setting, value in settings.items():
+            settings_manager.setSetting(setting, value)
 
     # general-frontend-call
     async def flatpak_repair(self):

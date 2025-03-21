@@ -4,17 +4,41 @@ import { PluginManager } from './controllers/PluginManager';
 import { PagerLinker, QAMPager } from './components/qam/QAMPager';
 import { QAMTitleView } from './components/qam/QAMTitleView';
 import { infoRoute, PLUGIN_NAME } from './defines/constants';
-import { QAMDspCompanderPage, QAMDspEQPage, QAMDspMainPage, QAMDspOtherPage, QAMDspReverbPage, QAMDspStereoPage } from './components/qam/QAMDspPages';
 import { QAMPluginSettingsPage } from './components/qam/QAMPluginSettingsPage';
 import { QAMDataProvider } from './components/qam/QAMDataProvider';
 import { profileManager } from './controllers/ProfileManager';
 import { InfoPage } from './components/routePages/InfoPage';
 import { QAMStyles } from './components/qam/QAMStyles';
+import { FC, useEffect } from 'react';
+import { usePluginState } from './hooks/contextHooks';
+import { DSPPageTypes, getDSPPages, defineDefaultDspPageOrder, validateDSPPageOrder } from './defines/dspPageTypeDictionary';
 
 export default definePlugin(() => {
-    routerHook.addRoute(infoRoute, () => <InfoPage/>);
+    routerHook.addRoute(infoRoute, () => <InfoPage />);
     PluginManager.init();
     const pagerLinker = new PagerLinker();
+
+    const defaultDspPageOrder = defineDefaultDspPageOrder([
+        DSPPageTypes.MAIN,
+        DSPPageTypes.EQ,
+        DSPPageTypes.COMPANDER,
+        DSPPageTypes.STEREO,
+        DSPPageTypes.REVERB,
+        DSPPageTypes.OTHER,
+    ]);
+
+    const PagerWrapper: FC<{}> = ({ }) => {
+        const { data, setData } = usePluginState();
+        const pageOrder = validateDSPPageOrder(data?.settings.dspPageOrder);
+        const dynamicPages = getDSPPages(pageOrder ?? defaultDspPageOrder);
+        useEffect(() => { !pageOrder && setData?.((data) => !data ? data : ({ ...data, settings: { ...data.settings, dspPageOrder: defaultDspPageOrder } })) }, []);
+        return (
+            <QAMPager pagerLinker={pagerLinker}>
+                <QAMPluginSettingsPage />
+                {dynamicPages}
+            </QAMPager>
+        );
+    };
 
     return {
         name: PLUGIN_NAME,
@@ -22,16 +46,8 @@ export default definePlugin(() => {
         title: <></>,
         content: (
             <QAMDataProvider>
-                <QAMPager pagerLinker={pagerLinker}>
-                    <QAMPluginSettingsPage />
-                    <QAMDspMainPage />
-                    <QAMDspEQPage />
-                    <QAMDspCompanderPage />
-                    <QAMDspStereoPage />
-                    <QAMDspReverbPage />
-                    <QAMDspOtherPage />
-                </QAMPager>
-                <QAMStyles/>
+                <PagerWrapper />
+                <QAMStyles />
             </QAMDataProvider>
         ),
         alwaysRender: true,

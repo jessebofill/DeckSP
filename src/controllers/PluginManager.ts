@@ -3,34 +3,30 @@ import { Log } from '../lib/log';
 import { profileManager } from './ProfileManager';
 import { initSystemPerfStore, useError } from '../lib/utils';
 import { DSPParamSettings } from '../types/dspTypes';
-import { EUIMode } from '../types/types';
+import { EUIMode, PluginSettings } from '../types/types';
 import { sleep } from '@decky/ui';
 
 type PromiseKey = keyof typeof PluginManager.promises;
 
-interface DesktopModeData { enable: boolean, isCurrentUI: boolean }
 export class PluginManager {
     static promises: {
         jdspLoaded?: Promise<boolean | Error>
         profileManagerLoaded?: Promise<DSPParamSettings | Error>
-        desktopMode?: Promise<DesktopModeData | Error>
+        pluginSettings?: Promise<PluginSettings | Error>
     } = {};
     private static uiMode?: EUIMode
 
     static async init() {
         initSystemPerfStore();
-        this.promises.desktopMode = Backend.getPluginSettings().then(settings => ({ isCurrentUI: false, enable: settings.enableInDesktop })).catch((e) => useError('Problem getting plugin settings', e));
+        this.promises.pluginSettings = Backend.getPluginSettings().catch((e) => useError('Problem getting plugin settings', e));
 
         SteamClient.UI.RegisterForUIModeChanged(async uiMode => {
             if (this.uiMode === uiMode) return;
             else this.uiMode = uiMode;
-            const isDesktopMode = uiMode === EUIMode.Desktop;
-            this.queueNewDesktopData({ isCurrentUI: isDesktopMode });
 
-            const desktop = await this.promises.desktopMode!
-            if (desktop instanceof Error) return
-            if (isDesktopMode) {
-                if (desktop.enable) this.start();
+            const settings = await this.promises.pluginSettings!;
+            if (uiMode === EUIMode.Desktop) {
+                if (!(settings instanceof Error) && settings.enableInDesktop) this.start();
                 else this.killJDSP();
             } else {
                 this.start();
@@ -66,22 +62,19 @@ export class PluginManager {
         return !(res instanceof Error);
     }
 
-    private static queueNewDesktopData(newDesktopData: Partial<DesktopModeData>, waitForErrorCheck?: Promise<any>) {
-        const prev = this.promises.desktopMode
-        this.promises.desktopMode = (async () => {
-            const res = await prev!
+    static updateSettings(newSettings: Partial<PluginSettings>, waitForErrorCheck?: boolean) {
+        const setPromise = Backend.setPluginSettings(newSettings).catch(e => useError(`Problem setting settings with data: ${JSON.stringify(newSettings)}`, e));
+        const prev = this.promises.pluginSettings;
+        this.promises.pluginSettings = (async () => {
+            const prevSettings = await prev!;
             if (waitForErrorCheck) {
-                const res2 = await waitForErrorCheck
-                if (res2 instanceof Error) return res2;
+                const setRes = await setPromise
+                if (setRes instanceof Error) return setRes;
             }
-            if (res instanceof Error) return res;
-            return { ...res, ...newDesktopData };
+            if (prevSettings instanceof Error) return prevSettings;
+            return { ...prevSettings, ...newSettings };
         })();
-    }
-
-    static async setEnableInDestop(enable: boolean) {
-        this.queueNewDesktopData({ enable }, Backend.setPluginSetting('enableInDesktop', enable).catch(e => useError('Problem setting enable in desktop mode', e)));
-        return await this.promises.desktopMode!;
+        return this.promises.pluginSettings;
     }
 
     static async killJDSP() {
@@ -94,7 +87,7 @@ export class PluginManager {
     }
 
     static arePromisesCreated(...promises: PromiseKey[]) {
-        const proms: PromiseKey[] = promises.length === 0 ? ['desktopMode', 'jdspLoaded', 'profileManagerLoaded'] : promises;
+        const proms: PromiseKey[] = promises.length === 0 ? Object.keys(PluginManager.promises) as PromiseKey[] : promises;
         return proms.every(promiseKey => this.promises[promiseKey] instanceof Promise);
     }
 
@@ -102,6 +95,10 @@ export class PluginManager {
         while (!PluginManager.arePromisesCreated(...promises)) {
             await sleep(100);
         }
+    }
+
+    static isDesktopUI() {
+        return this.uiMode === EUIMode.Desktop;
     }
 }
 

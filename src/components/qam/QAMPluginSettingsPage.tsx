@@ -10,6 +10,8 @@ import { infoRoute } from '../../defines/constants';
 import { EnableInDesktopToggle } from './EnableInDesktopToggle';
 import { SocialButton } from '../other/SocialButton';
 import { SiGithub, SiKofi } from "react-icons/si";
+import { ReorderDspPagesButton } from '../other/ReorderDspPages';
+import { useUpdateSetting } from '../../hooks/useUpdateSetting';
 
 export const QAMPluginSettingsPage: FC<{}> = ({ }) => {
     const { data } = usePluginState();
@@ -20,25 +22,29 @@ export const QAMPluginSettingsPage: FC<{}> = ({ }) => {
                 data.jdspInstall ? <ProfileSettings /> :
                     <FixFlatpak />}
             <PanelSection title='Plugin'>
+                {data?.settings.dspPageOrder &&
+                    <QAMHiglightable>
+                        <ReorderDspPagesButton currentOrder={data.settings.dspPageOrder} onConfirm={useUpdateSetting('dspPageOrder')} />
+                    </QAMHiglightable>}
                 <PanelSectionRow>
-                    <EnableInDesktopToggle/>
+                    <EnableInDesktopToggle />
                 </PanelSectionRow>
-            <QAMHiglightable bottomSeparator='standard'>
-                <Focusable
-                    onActivate={() => Navigation.Navigate(infoRoute)}
-                    onOKActionDescription='View Info'
-                    style={{ fontSize: '12px', display: 'flex', justifyContent: 'center', gap: '10px' }}
-                >
-                    Plugin Info
-                    <FaCircleInfo />
-                </Focusable>
-            </QAMHiglightable>
-            <SocialButton icon={<SiGithub/>} url='https://github.com/jessebofill/DeckSP' fontSize='12px' bottomSeparator='none'>
-                Plugin GitHub
-            </SocialButton>
-            <SocialButton icon={<SiKofi/>} url='https://ko-fi.com/jessebofill' fontSize='12px' bottomSeparator='none'>
-                Kofi
-            </SocialButton>
+                <QAMHiglightable>
+                    <Focusable
+                        onActivate={() => Navigation.Navigate(infoRoute)}
+                        onOKActionDescription='View Info'
+                        style={{ fontSize: '12px', display: 'flex', justifyContent: 'center', gap: '10px' }}
+                    >
+                        Plugin Info
+                        <FaCircleInfo />
+                    </Focusable>
+                </QAMHiglightable>
+                <SocialButton icon={<SiGithub />} url='https://github.com/jessebofill/DeckSP' fontSize='12px' bottomSeparator='none'>
+                    Plugin GitHub
+                </SocialButton>
+                <SocialButton icon={<SiKofi />} url='https://ko-fi.com/jessebofill' fontSize='12px' bottomSeparator='none'>
+                    Kofi
+                </SocialButton>
             </PanelSection>
         </QAMPage>
     );

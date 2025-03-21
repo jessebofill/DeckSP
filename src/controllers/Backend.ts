@@ -2,12 +2,12 @@ import { call } from '@decky/api';
 import { parseJDSPAll } from '../lib/parseDspParams';
 import { DSPParameter, DSPParameterCompResponse, DSPParameterEQParameters, DSPParameterType } from '../types/dspTypes';
 import { formatDspValue } from '../lib/utils';
-import { OtherPluginSettings } from '../types/types';
+import { PluginSettings } from '../types/types';
 
 export type BackendMethod = PluginMethod | JDSPMethod;
 
 export type PluginGetSettingsMethod = 'get_settings';
-export type PluginSetSettingMethod = 'set_setting';
+export type PluginSetSettingMethod = 'set_settings';
 export type PluginStartJDSPMethod = 'start_jdsp';
 export type PluginKillJDSPMethod = 'kill_jdsp';
 export type PluginSetAppWatchMethod = 'set_app_watch';
@@ -26,16 +26,16 @@ export type PluginMethod =
     PluginSetManuallyApplyProfilesMethod |
     PluginFlatpakRepairMethod;
 
-export type PluginMethodArgs<Method extends PluginMethod, Setting extends keyof OtherPluginSettings = never> =
+export type PluginMethodArgs<Method extends PluginMethod> =
     Method extends PluginGetSettingsMethod | PluginStartJDSPMethod | PluginKillJDSPMethod | PluginFlatpakRepairMethod ? [] :
-    Method extends PluginSetSettingMethod ? [setting: Setting, value: OtherPluginSettings[Setting]] :
+    Method extends PluginSetSettingMethod ? [settings: Partial<PluginSettings>] :
     Method extends PluginSetAppWatchMethod ? [appId: string, watch: boolean] :
     Method extends PluginInitProfilesMethod ? [globalPreset: string] :
     Method extends PluginSetManuallyApplyProfilesMethod ? [useManual: boolean] :
     never;
 
 export type PluginMethodResponse<Method extends PluginMethod> =
-    Method extends PluginGetSettingsMethod ? OtherPluginSettings :
+    Method extends PluginGetSettingsMethod ? PluginSettings :
     Method extends PluginStartJDSPMethod ? boolean :
     Method extends PluginKillJDSPMethod | PluginSetSettingMethod | PluginSetAppWatchMethod | PluginSetManuallyApplyProfilesMethod | PluginFlatpakRepairMethod ? undefined :
     Method extends PluginInitProfilesMethod ? { manualPreset: string, allPresets: string, watchedGames: { [appId: string]: boolean }, manuallyApply: boolean } :
@@ -85,8 +85,8 @@ export interface JDSPResponse {
 }
 
 export class Backend {
-    private static async callPlugin<Method extends PluginMethod, Setting extends keyof OtherPluginSettings>(method: Method, ...args: PluginMethodArgs<Method, Setting>) {
-        const response = await call<PluginMethodArgs<Method, Setting>, PluginMethodResponse<Method> | PluginMethodError>(method, ...args);
+    private static async callPlugin<Method extends PluginMethod>(method: Method, ...args: PluginMethodArgs<Method>) {
+        const response = await call<PluginMethodArgs<Method>, PluginMethodResponse<Method> | PluginMethodError>(method, ...args);
         if ((response as PluginMethodError)?.error !== undefined) throw new Error(`Backend error: ${(response as PluginMethodError).error}`);
         return response as PluginMethodResponse<Method>;
     }
@@ -135,8 +135,8 @@ export class Backend {
     static async getPluginSettings() {
         return await this.callPlugin('get_settings');
     }
-    static async setPluginSetting<Setting extends keyof OtherPluginSettings>(setting: Setting, value: OtherPluginSettings[Setting]) {
-        return await this.callPlugin('set_setting', setting, value);
+    static async setPluginSettings(settings: Partial<PluginSettings>) {
+        return await this.callPlugin('set_settings', settings);
     }
     static async flatpakRepair() {
         return await this.callPlugin('flatpak_repair');

@@ -1,3 +1,4 @@
+import { DSPPageOrder } from '../defines/dspPageTypeDictionary';
 import { DSPParamSettings } from './dspTypes';
 import { AppStore } from './steam/AppStore';
 
@@ -12,14 +13,15 @@ interface WebBrowserAPi {
     openInBrowser?: (url: string) => void;
 };
 
-export type OtherPluginSettings = {
+export type PluginSettings = {
     enableInDesktop: boolean;
+    dspPageOrder: DSPPageOrder;
 };
 
 export type PluginStateData = {
     jdspInstall: boolean;
-    enableInDesktop: boolean;
     isDesktopMode: boolean;
+    settings: PluginSettings;
 };
 
 export type PluginData = {
