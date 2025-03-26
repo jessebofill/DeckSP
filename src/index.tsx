@@ -1,11 +1,11 @@
 import { definePlugin, routerHook } from "@decky/api"
 import { RiEqualizerLine } from "react-icons/ri";
 import { PluginManager } from './controllers/PluginManager';
-import { PagerLinker, QAMPager } from './components/qam/QAMPager';
+import { PagerLinker, QAMPager } from './components/qam/pager/QAMPager';
 import { QAMTitleView } from './components/qam/QAMTitleView';
 import { infoRoute, PLUGIN_NAME } from './defines/constants';
-import { QAMPluginSettingsPage } from './components/qam/QAMPluginSettingsPage';
-import { QAMDataProvider } from './components/qam/QAMDataProvider';
+import { QAMPluginSettingsPage } from './components/qam/pager/QAMPluginSettingsPage';
+import { QAMDataProvider } from './components/dataProviders/QAMDataProvider';
 import { profileManager } from './controllers/ProfileManager';
 import { InfoPage } from './components/routePages/InfoPage';
 import { QAMStyles } from './components/qam/QAMStyles';

@@ -1,9 +1,9 @@
 import { Children, FC, ReactElement, ReactNode, useEffect, useState } from 'react';
 import { Focusable, GamepadButton, GamepadEvent, scrollPanelClasses } from '@decky/ui';
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
-import { CustomButton } from '../generic/CustomButton';
-import { playUISound } from '../../lib/utils';
-import { deckyQamTabClass } from '../../defines/cssClasses';
+import { CustomButton } from '../../generic/CustomButton';
+import { playUISound } from '../../../lib/utils';
+import { deckyQamTabClass } from '../../../defines/cssClasses';
 
 
 export class PagerLinker {

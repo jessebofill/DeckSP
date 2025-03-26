@@ -1,17 +1,17 @@
 import { FC } from 'react';
-import { ProfileSettings } from '../profile/ProfileSettings';
-import { FixFlatpak } from '../other/FixFlatpak';
+import { ProfileSettings } from '../../profile/ProfileSettings';
+import { FixFlatpak } from '../../other/FixFlatpak';
 import { QAMPage } from './QAMPage';
-import { usePluginState } from '../../hooks/contextHooks';
+import { usePluginState } from '../../../hooks/contextHooks';
 import { Focusable, Navigation, PanelSection, PanelSectionRow } from '@decky/ui';
-import { QAMHiglightable } from './QAMHiglightable';
+import { QAMHiglightable } from '../QAMHiglightable';
 import { FaCircleInfo } from 'react-icons/fa6';
-import { infoRoute } from '../../defines/constants';
-import { EnableInDesktopToggle } from './EnableInDesktopToggle';
-import { SocialButton } from '../other/SocialButton';
+import { infoRoute } from '../../../defines/constants';
+import { EnableInDesktopToggle } from '../EnableInDesktopToggle';
+import { SocialButton } from '../../generic/SocialButton';
 import { SiGithub, SiKofi } from "react-icons/si";
-import { ReorderDspPagesButton } from '../other/ReorderDspPages';
-import { useUpdateSetting } from '../../hooks/useUpdateSetting';
+import { ReorderDspPagesButton } from '../../other/ReorderDspPages';
+import { useUpdateSetting } from '../../../hooks/useUpdateSetting';
 
 export const QAMPluginSettingsPage: FC<{}> = ({ }) => {
     const { data } = usePluginState();

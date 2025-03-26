@@ -1,7 +1,7 @@
 import { Dispatch, SetStateAction, createContext } from 'react';
 import { DSPCompanderParameters, DSPEQParameters, DSPParamSettings } from '../types/dspTypes';
 import { PluginData, PluginStateData } from '../types/types';
-import { AsyncDataContext } from '../components/generic/AsyncDataProvider';
+import { AsyncDataContext } from '../components/dataProviders/AsyncDataProvider';
 import { FlatpakFixState } from '../types/types';
 
 export type DataProviderSetData<DataType> = Dispatch<SetStateAction<DataType | undefined>>;

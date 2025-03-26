@@ -1,4 +1,4 @@
-import { QAMDspMainPage, QAMDspEQPage, QAMDspCompanderPage, QAMDspStereoPage, QAMDspReverbPage, QAMDspOtherPage } from '../components/qam/QAMDspPages';
+import { QAMDspMainPage, QAMDspEQPage, QAMDspCompanderPage, QAMDspStereoPage, QAMDspReverbPage, QAMDspOtherPage } from '../components/qam/pager/QAMDspPages';
 
 export const dspPageDict = {
     MAIN: {

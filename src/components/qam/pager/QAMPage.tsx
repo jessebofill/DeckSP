@@ -1,6 +1,6 @@
 import { FC17 } from 'react';
-import { useDspSettings, usePluginState } from '../../hooks/contextHooks';
-import { QAMErrorWrapper } from '../generic/QAMErrorWrapper';
+import { useDspSettings, usePluginState } from '../../../hooks/contextHooks';
+import { QAMErrorWrapper } from '../../generic/QAMErrorWrapper';
 import { Focusable } from '@decky/ui';
 
 

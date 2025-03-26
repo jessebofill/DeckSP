@@ -3,7 +3,7 @@ import { FC17 } from 'react';
 import { addClasses } from '../../lib/utils';
 import { CurrentProfile } from '../profile/CurrentProfile';
 import { deckyQamTabClass, titleViewClasses } from '../../defines/cssClasses';
-import { PagerLinker, QAMPageSwitcher } from './QAMPager';
+import { PagerLinker, QAMPageSwitcher } from './pager/QAMPager';
 
 interface QAMTitleViewProps {
     title: string;

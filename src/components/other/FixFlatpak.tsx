@@ -3,7 +3,7 @@ import { FC } from 'react';
 import { Backend } from '../../controllers/Backend';
 import { useError } from '../../lib/utils';
 import { useFlatpakFix } from '../../hooks/contextHooks';
-import { FixFlatpakDescriptions } from './FlatpakFixContextProvider';
+import { FixFlatpakDescriptions } from '../dataProviders/FlatpakFixContextProvider';
 import { FlatpakFixState } from '../../types/types';
 
 export const FixFlatpak: FC<{}> = ({ }) => {
