@@ -9,6 +9,7 @@ import { ReverbControls } from '../../dspParamControls/groups/ReverbControls';
 import { EQControls } from '../../dspParamControls/groups/EQControls';
 import { MasterControls } from '../../dspParamControls/groups/MasterControls';
 import { QAMPage } from './QAMPage';
+import { EELControls } from '../../dspParamControls/groups/EELControls';
 
 const QAMDspPage: FC17<{}> = ({ children }) => {
     return (
@@ -69,4 +70,11 @@ export const QAMDspOtherPage: FC<{}> = ({ }) => {
     );
 };
 
+export const QAMDspEELPage: FC<{}> = ({ }) => {
+    return (
+        <QAMDspPage>
+            <EELControls />
+        </QAMDspPage>
+    );
+};
 

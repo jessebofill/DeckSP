@@ -4,13 +4,16 @@ import { handleWaitSettings } from '../../controllers/asyncDataHandlers';
 import { QAMSpinner } from '../qam/QAMSpinner';
 import { FC17 } from 'react';
 import { PluginDataProvider } from './PluginDataProvider';
+import { EELDataProvider } from './EELDataProvider';
 
 export const QAMDataProvider: FC17<{}> = ({ children }) => {
     return (
         <AsyncDataProvider Context={PluginContext} handler={handleWaitSettings}>
             <QAMSpinner>
                 <PluginDataProvider>
-                    {children}
+                    <EELDataProvider>
+                        {children}
+                    </EELDataProvider>
                 </PluginDataProvider>
             </QAMSpinner>
         </AsyncDataProvider>

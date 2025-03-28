@@ -59,6 +59,10 @@ export type DSPParameterReverbWidth = 'reverb_width';
 export type DSPParameterEQEnable = 'tone_enable';
 export type DSPParameterEQParameters = 'tone_eq';
 
+//EEL
+export type DSPParameterEELScriptEnable = 'liveprog_enable';
+export type DSPParameterEELScriptPath = 'liveprog_file';
+
 export type DSPEQParameters = {
     '25': number;
     '40': number;
@@ -97,7 +101,8 @@ export type DSPBooleanParameter =
     DSPParameterCrossfeedEnable |
     DSPParameterWideEnable |
     DSPParameterReverbEnable |
-    DSPParameterEQEnable;
+    DSPParameterEQEnable |
+    DSPParameterEELScriptEnable;
 
 export type DSPRangeParameter =
     DSPParameterMasterPostGain |
@@ -128,6 +133,8 @@ export type DSPRangeParameter =
     DSPParameterReverbWet |
     DSPParameterReverbWidth;
 
+export type DSPPathParameter =  DSPParameterEELScriptPath;
+
 export type DSPMappedParameter = DSPParameterCrossfeedMode;
 
 export type DSPScaledParameter = DSPParameterTubePreGain | DSPParameterCrossfeedFeed | DSPParameterReverbERAmount | DSPParameterReverbWidth;
@@ -137,6 +144,7 @@ export type DSPParameterType<T extends DSPParameter> =
     T extends DSPRangeParameter | DSPMappedParameter ? number :
     T extends DSPParameterCompResponse ? DSPCompanderParameters :
     T extends DSPParameterEQParameters ? DSPEQParameters :
+    T extends DSPPathParameter ? string :
     never;
 
 export type DictParams = {

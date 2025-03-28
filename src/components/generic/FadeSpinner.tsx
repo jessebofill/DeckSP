@@ -6,9 +6,10 @@ export interface FadeSpinnerProps {
     style?: CSSProperties;
     showChildrenLoading?: boolean;
     fadeTime?: number;
+    spinnerSize?: string;
 }
 
-export const FadeSpinner: FC17<FadeSpinnerProps> = ({ isLoading, className, style, showChildrenLoading, fadeTime, children }) => {
+export const FadeSpinner: FC17<FadeSpinnerProps> = ({ isLoading, className, style, showChildrenLoading, fadeTime, spinnerSize, children }) => {
         const [fadeDone, setFadeDone] = useState(false);
         const fade = fadeTime ?? 250;
         useLayoutEffect(() => {
@@ -28,7 +29,7 @@ export const FadeSpinner: FC17<FadeSpinnerProps> = ({ isLoading, className, styl
                 isLoading ? {} : { opacity: 0 },
                 !fadeDone ? {} : { zIndex: '-100' }
                 )}>
-                <img alt="Loading..." src="/images/steam_spinner.png" style={{ width: '50%' }} />
+                <img alt="Loading..." src="/images/steam_spinner.png" style={{ width: spinnerSize ?? '50%' }} />
             </div>
             {(!isLoading || showChildrenLoading) && children}
         </>

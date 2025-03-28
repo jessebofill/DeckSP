@@ -1,6 +1,6 @@
 import { Dispatch, SetStateAction, createContext } from 'react';
 import { DSPCompanderParameters, DSPEQParameters, DSPParamSettings } from '../types/dspTypes';
-import { PluginData, PluginStateData } from '../types/types';
+import { EELParameter, EELParameterType, PluginData, PluginStateData } from '../types/types';
 import { AsyncDataContext } from '../components/dataProviders/AsyncDataProvider';
 import { FlatpakFixState } from '../types/types';
 
@@ -21,10 +21,10 @@ export type FlatpakFixStateContext = {
     setDescription?: (description: string) => void;
 };
 
-export const PluginContext = createContext<AsyncDataContext<PluginData>>({});
-export const DspSettingsContext = createContext<DataContext<DSPParamSettings>>({});
-export const PluginStateContext = createContext<DataContext<PluginStateData>>({});
+export const PluginContext = createContext<AsyncDataContext<PluginData>>({}); //Top level plugin data
+export const DspSettingsContext = createContext<DataContext<DSPParamSettings>>({}); //dsp settings
+export const PluginStateContext = createContext<DataContext<PluginStateData>>({}); // plugin specfic settings
 export const FlatpakFixContext = createContext<FlatpakFixStateContext>({});
 export const EQDataContext = createContext<{ data?: DSPEQParameters; setParameter?: (parameter: keyof DSPEQParameters, value: number) => void; setAll?: (eqSettings: DSPEQParameters) => void; }>({});
 export const CompanderDataContext = createContext<{ data?: DSPCompanderParameters; setParameter?: (parameter: keyof DSPCompanderParameters, value: number) => void; }>({});
-
+export const EELParametersContext = createContext<AsyncDataContext<EELParameter<EELParameterType>[]>>({});

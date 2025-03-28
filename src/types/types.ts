@@ -7,9 +7,9 @@ declare global {
     var appStore: AppStore;
     var SteamUIStore: SteamUiStore;
     var SteamClient: SteamClient;
-    var WebBrowserPlugin: WebBrowserAPi | undefined;
+    var WebBrowserPlugin: WebBrowserAPI | undefined;
 }
-interface WebBrowserAPi {
+interface WebBrowserAPI {
     openInBrowser?: (url: string) => void;
 };
 
@@ -53,3 +53,19 @@ export enum EUIMode {
     GamePad = 4,
     Desktop = 7,
 };
+
+export enum EELParameterType {
+    SLIDER = 'range',
+    LIST = 'list'
+};
+
+export type EELParameter<T extends EELParameterType> = {
+    type: T;
+    variable_name: string;
+    default_value: number;
+    min: number;
+    max: number;
+    step: number;
+    description: string;
+    current_value: number;
+} & (T extends EELParameterType.LIST ? { options: string[] } : {});

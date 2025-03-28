@@ -1,4 +1,4 @@
-import { QAMDspMainPage, QAMDspEQPage, QAMDspCompanderPage, QAMDspStereoPage, QAMDspReverbPage, QAMDspOtherPage } from '../components/qam/pager/QAMDspPages';
+import { QAMDspMainPage, QAMDspEQPage, QAMDspCompanderPage, QAMDspStereoPage, QAMDspReverbPage, QAMDspOtherPage, QAMDspEELPage } from '../components/qam/pager/QAMDspPages';
 
 export const dspPageDict = {
     MAIN: {
@@ -25,6 +25,10 @@ export const dspPageDict = {
         element: <QAMDspOtherPage />,
         displayName: 'Bass Boost/ Tube Modeling'
     },
+    EEL: {
+        element: <QAMDspEELPage/>,
+        displayName: 'EEL Script'
+    }
 } as const;
 
 export const DSPPageTypes = Object.fromEntries(
@@ -45,14 +49,14 @@ export function getDSPPages(pages: DSPPageOrder){
     return pages.map(p => dspPageDict[p].element);
 }
 let defaultOrder = Object.keys(dspPageDict) as DSPPageOrder;
-export function defineDefaultDspPageOrder(order: DSPPageOrder) {
+export function defineDefaultDspPageOrder(order: DSPPageOrder): DSPPageOrder {
     defaultOrder = [...order];
     return order;
 }
 export function getDefaultDSPPageOrder(): DSPPageOrder {
     return defaultOrder;
 }
-export function validateDSPPageOrder(order?: DSPPageOrder) {
+export function validateDSPPageOrder(order?: DSPPageOrder): DSPPageOrder | undefined {
     if (!order) return;
     if ((Object.keys(DSPPageTypes) as DSPPageOrder).every(pageType => order.includes(pageType)) && 
     order.every(pageType => Object.keys(DSPPageTypes).includes(pageType))) {

@@ -1,5 +1,6 @@
 import { dspParameters, dspScaledParams } from '../defines/dspParameterDefines';
 import { DSPParameter, DSPParameterType, DSPCompanderParameters, DSPEQParameters, DictParams, DSPParamSettings, DSPScaledParameter } from '../types/dspTypes';
+import { Log } from './log';
 
 
 export function parseJDSPParam<Param extends DSPParameter>(parameterName: Param, value: string): DSPParameterType<Param> {
@@ -12,6 +13,7 @@ export function parseJDSPParam<Param extends DSPParameter>(parameterName: Param,
         case 'stereowide_enable':
         case 'tone_enable':
         case 'tube_enable':
+        case 'liveprog_enable':
             return (value.toLowerCase() === 'true') as DSPParameterType<Param>;
         case 'master_postgain':
         case 'master_limrelease':
@@ -47,6 +49,8 @@ export function parseJDSPParam<Param extends DSPParameter>(parameterName: Param,
             return parseJDSPCompanderParams(value) as DSPParameterType<Param>;
         case 'tone_eq':
             return parseJDSPEQParams(value) as DSPParameterType<Param>;
+        case 'liveprog_file':
+            return value as DSPParameterType<Param>;
         default:
             throw new Error(`Unexpected parameter: ${parameterName}`);
     }
@@ -81,13 +85,23 @@ export function parseJDSPMultiParams<Param extends DSPParameter>(parameters: {
 }
 
 export function parseJDSPAll(string: string) {
-    return string.split(/\n/).reduce<DictParams>((out, current) => {
+    const a = string.split(/\n/).reduce<DictParams>((out, current) => {
         if (!current || current === '') return out;
         const [parameter, value] = current.split('=');
         if (!dspParameters.includes(parameter as any)) return out;
         return Object.assign({ [parameter]: parseJDSPParam(parameter as DSPParameter, value) }, out);
     }, {}) as DSPParamSettings;
+    Log.log('Got params', a)
+    return a;
 }
+// export function parseJDSPAll(string: string) {
+//     return string.split(/\n/).reduce<DictParams>((out, current) => {
+//         if (!current || current === '') return out;
+//         const [parameter, value] = current.split('=');
+//         if (!dspParameters.includes(parameter as any)) return out;
+//         return Object.assign({ [parameter]: parseJDSPParam(parameter as DSPParameter, value) }, out);
+//     }, {}) as DSPParamSettings;
+// }
 
 export function stringifyNestedParams<Params extends DSPCompanderParameters | DSPEQParameters>(paramsObject: Params) {
     const pairs = Object.entries(paramsObject);

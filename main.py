@@ -1,5 +1,7 @@
+import json
 import os
 import subprocess
+from EelParser import EELParser
 from settings import SettingsManager
 
 from env import env
@@ -201,7 +203,22 @@ class Plugin:
     # general-frontend-call
     async def set_manually_apply_profiles(self, useManual):
         Plugin.profiles['useManual'] = useManual
-
+        
+    # general-frontend-call
+    async def get_eel_params(self, path):
+        self.eel_parser = EELParser(path)
+        if hasattr(self.eel_parser, "error"):
+            return { 'error': str(self.eel_parser.error) }
+        log.info(f'get eel params called: {json.dumps(self.eel_parser.parameters)}')
+        return self.eel_parser.parameters
+    
+    # general-frontend-call
+    async def set_eel_param(self, paramName, value):
+        self.eel_parser.set_and_commit(paramName, value)
+        self.jdsp.set_and_commit('liveprog_file', "")
+        self.jdsp.set_and_commit('liveprog_file', self.eel_parser.path)
+        #reload file in jdsp
+    
     """
     ------------------------------------------
     JDSP specific methods
@@ -217,6 +234,8 @@ class Plugin:
         res = Plugin.jdsp.set_and_commit(parameter, value)
         if not JdspProxy.has_error(res):
             Plugin.jdsp.save_preset(Plugin.profiles['currentPreset'])
+            # if parameter == 'liveprog_file':
+            #     self.load_eel_script(value)
         return res
     
     async def set_jdsp_params(self, values):
@@ -230,7 +249,12 @@ class Plugin:
 
     # jdsp-frontend-call
     async def get_all_jdsp_param(self):
-        return Plugin.jdsp.get_all()
+        settings = Plugin.jdsp.get_all()
+        log.info(settings)
+        eel_script = self.jdsp.get('liveprog_file').get('jdsp_result', '').strip()
+        log.info('get_dsp_ called')
+        # self.load_eel_script(eel_script)
+        return settings
 
     # jdsp-frontend-call
     async def set_jdsp_defaults(self, defaultPreset):
