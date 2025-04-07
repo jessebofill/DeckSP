@@ -6,6 +6,11 @@ interface SteamClientUI {
     RegisterForUIModeChanged(callback: (mode: EUIMode) => void): Unregisterable;
 }
 
+interface SteamClientInput {
+    ControllerKeyboardSendText(textToWrite: string): void;
+    ControllerKeyboardSetKeyState(keyIndex: EHIDKeyboardKey, state: boolean): void;
+}
+
 interface SteamClient {
     Apps: Apps;
     Browser: any;
@@ -18,7 +23,7 @@ interface SteamClient {
     FriendSettings: any;
     Friends: any;
     GameSessions: any;
-    Input: any;
+    Input: SteamClientInput;
     InstallFolder: any;
     Installs: any;
     MachineStorage: any;
@@ -44,5 +49,3 @@ interface SteamClient {
     WebChat: any;
     Window: Window;
 }
-
-

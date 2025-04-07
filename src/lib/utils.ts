@@ -1,7 +1,7 @@
 import { SFXPath, GamepadUIAudio } from './GamepadUIAudio';
 import { DSPParameter, DSPParameterCompResponse, DSPParameterEQParameters, DSPParameterType, PresetSectionType, PresetTable } from '../types/dspTypes';
 import { Log } from './log';
-import { findModuleChild, Module, Navigation } from '@decky/ui';
+import { findModuleChild, getFocusNavController, Module, Navigation } from '@decky/ui';
 import { dspParamDefines, dspScaledParams } from '../defines/dspParameterDefines';
 import { toaster } from '@decky/api';
 import { ReactNode } from 'react';
@@ -114,4 +114,8 @@ export function toast(title: ReactNode, message: string, durationMs: number = 40
 
 export function navigateUrl(url: string) {
     window.WebBrowserPlugin?.openInBrowser ? window.WebBrowserPlugin.openInBrowser(url) : Navigation.NavigateToExternalWeb(url);
+}
+
+export function getFocusNav() {
+    return getFocusNavController() as FocusNavController | undefined;
 }

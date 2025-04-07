@@ -1,6 +1,5 @@
 import { DSPPageOrder } from '../defines/dspPageTypeDictionary';
 import { DSPParamSettings } from './dspTypes';
-import { AppStore } from './steam/AppStore';
 
 declare global {
     var SystemPerfStore: SystemPerfStore;
@@ -9,6 +8,7 @@ declare global {
     var SteamClient: SteamClient;
     var WebBrowserPlugin: WebBrowserAPI | undefined;
 }
+
 interface WebBrowserAPI {
     openInBrowser?: (url: string) => void;
 };
@@ -46,12 +46,6 @@ export enum FlatpakFixState {
     Busy,
     Done,
     Error
-};
-
-export enum EUIMode {
-    Unknown = -1,
-    GamePad = 4,
-    Desktop = 7,
 };
 
 export enum EELParameterType {
