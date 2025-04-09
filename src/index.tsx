@@ -10,7 +10,7 @@ import { profileManager } from './controllers/ProfileManager';
 import { InfoPage } from './components/routePages/InfoPage';
 import { QAMStyles } from './components/qam/QAMStyles';
 import { FC, useEffect } from 'react';
-import { usePluginState } from './hooks/contextHooks';
+import { usePluginStateContext } from './hooks/contextHooks';
 import { DSPPageTypes, getDSPPages, defineDefaultDspPageOrder, validateDSPPageOrder, DSPPageOrder } from './defines/dspPageTypeDictionary';
 
 export default definePlugin(() => {
@@ -29,7 +29,7 @@ export default definePlugin(() => {
     ]);
 
     const PagerWrapper: FC<{}> = ({ }) => {
-        const { data, setData } = usePluginState();
+        const { data, setData } = usePluginStateContext();
         const pageOrder = validateDSPPageOrder(data?.settings.dspPageOrder);
         //@ts-ignore
         const dynamicPages = getDSPPages(pageOrder ?? defaultDspPageOrder);

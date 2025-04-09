@@ -1,12 +1,12 @@
 import { SingleDropdownOption } from '@decky/ui';
 import { FC, useMemo } from 'react';
 import { dspParamDefines } from '../../../defines/dspParameterDefines';
-import { useDspSettings } from '../../../hooks/contextHooks';
+import { useDspSettingsContext } from '../../../hooks/contextHooks';
 import { Backend } from '../../../controllers/Backend';
 import { WaitDropdown } from '../../waitable/WaitDropdown';
 
 export const CrossfeedModeDropdown: FC<{}> = ({ }) => {
-    const { data: settings, setData: setSettings } = useDspSettings();
+    const { data: settings, setData: setSettings } = useDspSettingsContext();
     if (!settings || !setSettings) return null;
 
     const options = useMemo(() => Object.entries(dspParamDefines.crossfeed_mode.map).map(([label, id]) => {

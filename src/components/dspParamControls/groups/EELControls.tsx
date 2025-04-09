@@ -3,7 +3,7 @@ import { FC, useCallback, useEffect } from 'react';
 import { EffectInfo } from '../../other/EffectInfo';
 import { ParameterPathSelector } from '../base/ParameterPathSelector';
 import { ParameterToggle } from '../base/ParameterToggle';
-import { useDspSettings, useEELParameters } from '../../../hooks/contextHooks';
+import { useDspSettingsContext, useEELParametersContext } from '../../../hooks/contextHooks';
 import { useError } from '../../../lib/utils';
 import { QAMErrorWrapper } from '../../generic/QAMErrorWrapper';
 import { FadeSpinner } from '../../generic/FadeSpinner';
@@ -36,8 +36,8 @@ export const EELControls: FC<{}> = ({ }) => {
 };
 
 const EELParameterSection: FC<{}> = ({ }) => {
-    const { ready } = useEELParameters();
-    const { data } = useDspSettings();
+    const { ready } = useEELParametersContext();
+    const { data } = useDspSettingsContext();
     if (data?.liveprog_file === "") return <div style={{ marginTop: '10px' }}>No EEL script selected</div>
     const fadeTime = 250;
     return (
@@ -67,7 +67,7 @@ const EELParameterSection: FC<{}> = ({ }) => {
 }
 
 const EELParameterSectionInner: FC<{}> = ({ }) => {
-    const { data: parameters, setData: setParameters, error, ready } = useEELParameters();
+    const { data: parameters, setData: setParameters, error, ready } = useEELParametersContext();
     if (!ready) return;
 
     if (error) {
@@ -164,7 +164,7 @@ interface SetEELDefaultsButtonProps {
 
 const SetEELDefaultsButton: FC<SetEELDefaultsButtonProps> = ({ bottomSeparator }) => {
     const setDefaults = useSetEelDefaults();
-    const { data } = useDspSettings();
+    const { data } = useDspSettingsContext();
     const scriptName = data?.liveprog_file.split('/').at(-1) ?? '';
     return (
         <QAMHiglightable bottomSeparator={bottomSeparator} >

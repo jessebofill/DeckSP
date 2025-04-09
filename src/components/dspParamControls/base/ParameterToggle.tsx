@@ -1,7 +1,7 @@
 import { FC, useEffect, useState } from 'react';
 import { Backend } from '../../../controllers/Backend';
 import { DSPBooleanParameter } from '../../../types/dspTypes';
-import { useDspSettings } from '../../../hooks/contextHooks';
+import { useDspSettingsContext } from '../../../hooks/contextHooks';
 import { WaitToggle } from '../../waitable/WaitToggle';
 
 export interface ParameterToggleProps {
@@ -11,7 +11,7 @@ export interface ParameterToggleProps {
 }
 
 export const ParameterToggle: FC<ParameterToggleProps> = ({ parameter, invert, customLabel }) => {
-    const { data: settings, setData: setSettings } = useDspSettings();
+    const { data: settings, setData: setSettings } = useDspSettingsContext();
     if (!settings) return null;
 
     const [value, setValue] = useState(settings[parameter]);

@@ -2,12 +2,12 @@ import { PanelSection, PanelSectionRow } from '@decky/ui';
 import { FC } from 'react';
 import { ParameterSlider } from '../base/ParameterSlider';
 import { ParameterToggle } from '../base/ParameterToggle';
-import { useDspSettings } from '../../../hooks/contextHooks';
+import { useDspSettingsContext } from '../../../hooks/contextHooks';
 import { CrossfeedModeDropdown } from '../base/CrossfeedModeDropdown';
 import { EffectInfo } from '../../other/EffectInfo';
 
 export const CrossfeedControls: FC<{}> = ({ }) => {
-    const { data: settings } = useDspSettings();
+    const { data: settings } = useDspSettingsContext();
     if (!settings) return null;
 
     const disableSliders = settings.crossfeed_mode < 2

@@ -2,10 +2,10 @@ import { ReactElement, useMemo } from 'react';
 import { DSPEQParameters, DSPRangeParameter, PresetSectionType } from '../../../types/dspTypes';
 import { SingleDropdownOption } from '@decky/ui';
 import { reverseLookupSectionPreset, useError } from '../../../lib/utils';
-import { useDspSettings, usePluginContext } from '../../../hooks/contextHooks';
+import { useDspSettingsContext, usePluginContext } from '../../../hooks/contextHooks';
 import { reverbPresetTable } from '../../../defines/reverbPresetTable';
 import { Backend } from '../../../controllers/Backend';
-import { useEQData } from '../../../hooks/contextHooks';
+import { useEQDataContext } from '../../../hooks/contextHooks';
 import { eqPresetTable } from '../../../defines/eqPresetTable';
 import { WaitDropdown } from '../../waitable/WaitDropdown';
 
@@ -23,7 +23,7 @@ export function PresetDropdown<PresetType extends PresetSectionType>({ type }: P
 
     switch (type) {
         case 'eq':
-            const { data: eqSettings, setAll } = useEQData();
+            const { data: eqSettings, setAll } = useEQDataContext();
             if (!eqSettings || !setAll) return null;
             presetTable = eqPresetTable;
             selected = reverseLookupSectionPreset(eqPresetTable, eqSettings);
@@ -34,7 +34,7 @@ export function PresetDropdown<PresetType extends PresetSectionType>({ type }: P
             break;
 
         case 'reverb':
-            const { data: settings, setData: setSettings, setError } = useDspSettings();
+            const { data: settings, setData: setSettings, setError } = useDspSettingsContext();
             if (!settings || !setSettings || !setError) return null;
             presetTable = reverbPresetTable;
             selected = reverseLookupSectionPreset(reverbPresetTable, settings);

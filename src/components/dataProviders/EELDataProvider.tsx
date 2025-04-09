@@ -2,7 +2,7 @@ import { FC17, useEffect, useState } from 'react';
 import { EELParametersContext, EELTriggerContext } from '../../contexts/contexts';
 import { EELParameter, EELParameterType } from '../../types/types';
 import { Backend } from '../../controllers/Backend';
-import { useDspSettings } from '../../hooks/contextHooks';
+import { useDspSettingsContext } from '../../hooks/contextHooks';
 import { Log } from '../../lib/log';
 import { profileManager } from '../../controllers/ProfileManager';
 
@@ -11,7 +11,7 @@ export const EELDataProvider: FC17<{}> = ({ children }) => {
     const [ready, setReady] = useState(false);
     const [error, setError] = useState<Error>();
     const [trigger, setTrigger] = useState<{}>();
-    const { data: settings } = useDspSettings();
+    const { data: settings } = useDspSettingsContext();
     Log.log('rendering eel prov')
 
     useEffect(() => {

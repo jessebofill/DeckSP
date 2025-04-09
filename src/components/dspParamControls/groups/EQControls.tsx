@@ -2,7 +2,7 @@ import { PanelSection, PanelSectionRow } from '@decky/ui';
 import { FC17, FC, useEffect, useState } from 'react';
 import { ParameterToggle } from '../base/ParameterToggle';
 import { Backend } from '../../../controllers/Backend';
-import { useDspSettings } from '../../../hooks/contextHooks';
+import { useDspSettingsContext } from '../../../hooks/contextHooks';
 import { DSPEQParameters } from '../../../types/dspTypes';
 import { PresetDropdown } from '../base/PresetDropdown';
 import { EQParameterSlider } from '../base/ParameterSlider';
@@ -10,7 +10,7 @@ import { EQDataContext } from '../../../contexts/contexts';
 import { EffectInfo } from '../../other/EffectInfo';
 
 export const EQDataProvider: FC17<{}> = ({ children }) => {
-    const { data: settings, setData: setSettings } = useDspSettings();
+    const { data: settings, setData: setSettings } = useDspSettingsContext();
     if (!settings || !setSettings) return null;
 
     const [values, setValues] = useState(settings['tone_eq']);

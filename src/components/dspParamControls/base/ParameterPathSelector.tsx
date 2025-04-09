@@ -1,13 +1,12 @@
-import { FC, useState } from 'react';
+import { FC } from 'react';
 import { DSPPathParameter } from '../../../types/dspTypes';
-import { FilePickerRes, FileSelectionType, openFilePicker } from '@decky/api';
+import { FileSelectionType, openFilePicker } from '@decky/api';
 import { CustomButton, CustomButtonProps } from '../../generic/CustomButton';
 import { Field, FieldProps } from '@decky/ui';
 import { dspParamDefines } from '../../../defines/dspParameterDefines';
 import { Backend } from '../../../controllers/Backend';
-import { useDspSettings } from '../../../hooks/contextHooks';
+import { useDspSettingsContext } from '../../../hooks/contextHooks';
 import { Log } from '../../../lib/log';
-import { PluginManager } from '../../../controllers/PluginManager';
 
 export interface ParameterPathSelectorProps extends Pick<CustomButtonProps, 'transparent' | 'audioSFX' | 'noAudio' | 'containerClassName'> {
     parameter: DSPPathParameter;
@@ -19,7 +18,7 @@ export interface ParameterPathSelectorProps extends Pick<CustomButtonProps, 'tra
 }
 
 export const ParameterPathSelector: FC<ParameterPathSelectorProps> = ({ parameter, startPath, labelCenter, disabled, focusable, bottomSeparator }) => {
-    const { data: settings, setData: setSettings } = useDspSettings();
+    const { data: settings, setData: setSettings } = useDspSettingsContext();
     if (!settings) return null;
 
     const path = settings[parameter]

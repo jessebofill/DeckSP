@@ -4,13 +4,13 @@ import { ParameterSlider } from '../base/ParameterSlider';
 import { ParameterToggle } from '../base/ParameterToggle';
 import { DSPCompanderParameters } from '../../../types/dspTypes';
 import { Backend } from '../../../controllers/Backend';
-import { useDspSettings } from '../../../hooks/contextHooks';
+import { useDspSettingsContext } from '../../../hooks/contextHooks';
 import { CompanderParameterSlider } from '../base/ParameterSlider';
 import { CompanderDataContext } from '../../../contexts/contexts';
 import { EffectInfo } from '../../other/EffectInfo';
 
 export const CompanderDataProvider: FC17<{}> = ({ children }) => {
-    const { data: settings, setData: setSettings } = useDspSettings();
+    const { data: settings, setData: setSettings } = useDspSettingsContext();
     if (!settings || !setSettings) return null;
 
     const [values, setValues] = useState(settings['compander_response']);

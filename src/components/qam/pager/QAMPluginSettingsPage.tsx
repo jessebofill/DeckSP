@@ -2,7 +2,7 @@ import { FC } from 'react';
 import { ProfileSettings } from '../../profile/ProfileSettings';
 import { FixFlatpak } from '../../other/FixFlatpak';
 import { QAMPage } from './QAMPage';
-import { usePluginState } from '../../../hooks/contextHooks';
+import { usePluginStateContext } from '../../../hooks/contextHooks';
 import { Focusable, Navigation, PanelSection, PanelSectionRow } from '@decky/ui';
 import { QAMHiglightable } from '../QAMHiglightable';
 import { FaCircleInfo } from 'react-icons/fa6';
@@ -14,7 +14,7 @@ import { ReorderDspPagesButton } from '../../other/ReorderDspPages';
 import { useUpdateSetting } from '../../../hooks/useUpdateSetting';
 
 export const QAMPluginSettingsPage: FC<{}> = ({ }) => {
-    const { data } = usePluginState();
+    const { data } = usePluginStateContext();
 
     return (
         <QAMPage dataProvider='plugin' className='main-page'>
