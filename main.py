@@ -1,7 +1,8 @@
 import json
 import os
 import subprocess
-from EelParser import EELParser
+from typing import Dict
+from EelParser import EELCache, EELParser
 from settings import SettingsManager
 
 from env import env
@@ -27,7 +28,7 @@ default_plugin_settings = {
     'enableInDesktop': False
 }
 
-ingore_as_setting = ['profiles']
+ingore_as_setting = ['profiles', 'eel_param_cache']
 
 class Plugin:
     jdsp: JdspProxy = None
@@ -38,6 +39,7 @@ class Plugin:
         'useManual': False,
         'watchedApps': {}
     }
+    eel_cache: Dict[str, EELCache.ScriptCache] = {}
 
     # Asyncio-compatible long-running code, executed in a task when the plugin is loaded
     async def _main(self):
@@ -76,6 +78,7 @@ class Plugin:
         default_profiles_settings = {setting: Plugin.profiles[setting] for setting in Plugin.profiles.keys() - { 'currentPreset' }}
         profiles = settings_manager.getSetting('profiles', default_profiles_settings)
         Plugin.profiles.update(profiles)
+        Plugin.load_eel_cache(Plugin)
 
     def save_profile_settings():
         settings_manager.setSetting('profiles', {setting: Plugin.profiles[setting] for setting in Plugin.profiles.keys() - { 'currentPreset' }})
@@ -117,6 +120,18 @@ class Plugin:
         except subprocess.CalledProcessError as e:
             log.error(e.stderr)
             return False
+
+    def load_eel_cache(self):
+        cache = settings_manager.getSetting('eel_param_cache', {})
+        update_settings = False
+        for path in cache.keys():
+            if os.path.exists(path): self.eel_cache[path] = cache[path]
+            else: update_settings = True
+        if update_settings: settings_manager.setSetting('eel_param_cache', self.eel_cache)
+
+    def update_eel_cache(self):
+        self.eel_cache[self.eel_parser.path] = self.eel_parser.cache
+        settings_manager.setSetting('eel_param_cache', self.eel_cache)
 
     """
     ===================================================================================================================================
@@ -203,18 +218,21 @@ class Plugin:
     # general-frontend-call
     async def set_manually_apply_profiles(self, useManual):
         Plugin.profiles['useManual'] = useManual
-        
+    
     # general-frontend-call
-    async def get_eel_params(self, path):
-        self.eel_parser = EELParser(path)
+    async def get_eel_params(self, path, profileId):
+        if path == '': 
+            return []
+        self.eel_parser = EELParser(path, self.eel_cache.get(path, {}), profileId)
         if hasattr(self.eel_parser, "error"):
             return { 'error': str(self.eel_parser.error) }
-        log.info(f'get eel params called: {json.dumps(self.eel_parser.parameters)}')
+        self.update_eel_cache()
         return self.eel_parser.parameters
     
     # general-frontend-call
     async def set_eel_param(self, paramName, value):
         self.eel_parser.set_and_commit(paramName, value)
+        self.update_eel_cache()
         self.jdsp.set_and_commit('liveprog_file', "")
         self.jdsp.set_and_commit('liveprog_file', self.eel_parser.path)
         #reload file in jdsp

@@ -36,7 +36,7 @@ export type PluginMethodArgs<Method extends PluginMethod> =
     Method extends PluginSetAppWatchMethod ? [appId: string, watch: boolean] :
     Method extends PluginInitProfilesMethod ? [globalPreset: string] :
     Method extends PluginSetManuallyApplyProfilesMethod ? [useManual: boolean] :
-    Method extends PluginGetEELParamsMethod ? [path: string] :
+    Method extends PluginGetEELParamsMethod ? [path: string, profileId: string] :
     Method extends PluginSetEELParamMethod ? [paramName: string, value: number] :
     never;
 
@@ -157,8 +157,8 @@ export class Backend {
     static async setManuallyApplyProfiles(useManual: boolean) {
         return await this.callPlugin('set_manually_apply_profiles', useManual);
     }
-    static async getEELParams(path: string) {
-        return await this.callPlugin('get_eel_params', path);
+    static async getEELParams(path: string, profileId: string) {
+        return await this.callPlugin('get_eel_params', path, profileId);
     }
     static async setEELParam(paramName: string, value: number) {
         return await this.callPlugin('set_eel_param', paramName, value);

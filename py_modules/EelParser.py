@@ -1,6 +1,6 @@
 import json
 import re
-from typing import List, TypedDict
+from typing import Dict, List, TypedDict, cast
 import decky
 
 class Parameter(TypedDict):
@@ -13,15 +13,26 @@ class Parameter(TypedDict):
     init_line: int
     current_value: float
 
+# Cache values per profile
+class EELCache:
+    # Represents a mapping of profile ids (dynamic keys) to numeric values
+    # Example: { "profile1": 5.0, "profile2": 10.0 }
+    ParameterCache = Dict[str, float]
+
+    # Represents a mapping of parameter names (dynamic keys) to ParameterCache
+    # Example: { "paramA": { "profile1": 5.0 }, "paramB": { "profile1": 3.0 } }
+    ScriptCache = Dict[str, ParameterCache]
+
 class EELParser:
-    def __init__(self, path):
+    def __init__(self, path, cache: EELCache.ScriptCache, profile_id):
         self.path = path
         try:
             self._lines = self._read().splitlines()
         except Exception as e:
             self.error = e
             return
-        
+        self.cache = cache
+        self.profile = profile_id
         self.parameters: List[Parameter] = []
         self.description = None
         self._parse()
@@ -64,10 +75,10 @@ class EELParser:
                     
             match = pattern.search(line)
             if match:
-                decky.logger.info(f'found param match {match.group("var")}')
+                # decky.logger.info(f'found param match {match.group("var")}')
                 init = self._find_init_line_and_value(match.group("var"), i + 1)
                 if init:
-                    decky.logger.info(f'found param init line')
+                    # decky.logger.info(f'found param init line')
                     
                     init_line, init_value = init
                     parameter: Parameter = {
@@ -105,8 +116,13 @@ class EELParser:
 
                     if parameter["current_value"] is None or parameter["current_value"] > parameter["max"] or parameter["current_value"] < parameter["min"]:
                         parameter["current_value"] = parameter["default_value"]
-                        
-        decky.logger.info(json.dumps(self.parameters))
+                    self._use_cached_param(parameter)
+        self._clean_cache()
+        log = {}
+        for param in self.parameters:
+            log[param['variable_name']] = param['current_value']
+        decky.logger.info(f'profile {self.profile}')
+        decky.logger.info(json.dumps(log, indent=1))
 
     def _find_init_line_and_value(self, param, start_index):
         pattern = re.compile(rf"{param}\s*=\s*(?P<val>-?\d+\.?\d*)\s*;")
@@ -115,6 +131,22 @@ class EELParser:
             if match:
                 return [i, match.group("val")]
 
+    def _clean_cache(self):
+        for param in self.cache:
+            if not next((parameter for parameter in self.parameters if parameter["variable_name"] == param), None):
+                del self.cache[param]
+                
+    def _cache_param(self, parameter: Parameter):
+        parameter_cache: EELCache.ParameterCache = {}
+        if self.cache.get(parameter['variable_name']): parameter_cache = self.cache[parameter['variable_name']]
+        else: self.cache[parameter['variable_name']] = parameter_cache
+        parameter_cache[self.profile] = parameter['current_value']
+
+    def _use_cached_param(self, parameter: Parameter):
+        parameter_cache = self.cache.get(parameter['variable_name'], None) or {}
+        value = parameter_cache.get(self.profile)
+        self.edit_value(parameter['variable_name'], parameter['default_value'] if value is None else value)
+            
     def edit_value(self, param, value):
         for parameter in self.parameters:
             if parameter["variable_name"] == param:
@@ -126,6 +158,7 @@ class EELParser:
                     start, end = match.span("val")
                     self._lines[line_number] = line[:start] + str(value) + line[end:]
                     parameter["current_value"] = value
+                    self._cache_param(parameter)
 
     def update_script(self):
         self._write("\n".join(self._lines))
