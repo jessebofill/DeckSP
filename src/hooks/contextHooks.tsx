@@ -1,5 +1,5 @@
 import { useContext } from 'react';
-import { CompanderDataContext, DspSettingsContext, EELParametersContext, EQDataContext, FlatpakFixContext, PluginContext, PluginStateContext } from '../contexts/contexts';
+import { CompanderDataContext, DspSettingsContext, EELParametersContext, EELTriggerContext, EQDataContext, FlatpakFixContext, PluginContext, PluginStateContext } from '../contexts/contexts';
 
 
 export const useDspSettings = () => useContext(DspSettingsContext);
@@ -9,4 +9,5 @@ export const useFlatpakFix = () => useContext(FlatpakFixContext);
 export const useEQData = () => useContext(EQDataContext);
 export const useCompanderData = () => useContext(CompanderDataContext);
 export const useEELParameters = () => useContext(EELParametersContext);
+export const useEELTriggerContext = () => useContext(EELTriggerContext);
 

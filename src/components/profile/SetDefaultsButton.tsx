@@ -10,18 +10,20 @@ export interface SetDefaultsButtonProps {
     bottomSeparator?: FieldProps['bottomSeparator'];
 }
 
-export const SetDefaultsButton: FC<SetDefaultsButtonProps> = ({ }) => {
+export const SetDefaultsButton: FC<SetDefaultsButtonProps> = ({ bottomSeparator }) => {
     const setDefaults = useSetDefaults();
 
     return (
         <Field
+            bottomSeparator={bottomSeparator}
             label={
                 <WaitButton
                     onClick={() => showModal(<ConfirmSetDefaultModal onConfirm={setDefaults} />)}
                 >
                     Reset to defaults
                 </WaitButton>
-            } />
+            }
+        />
     );
 };
 

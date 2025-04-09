@@ -118,6 +118,7 @@ class EELParser:
                         parameter["current_value"] = parameter["default_value"]
                     self._use_cached_param(parameter)
         self._clean_cache()
+        self._write("\n".join(self._lines))
         log = {}
         for param in self.parameters:
             log[param['variable_name']] = param['current_value']
@@ -145,11 +146,11 @@ class EELParser:
     def _use_cached_param(self, parameter: Parameter):
         parameter_cache = self.cache.get(parameter['variable_name'], None) or {}
         value = parameter_cache.get(self.profile)
-        self.edit_value(parameter['variable_name'], parameter['default_value'] if value is None else value)
+        self._edit_value(parameter['variable_name'], parameter['default_value'] if value == None else value)
             
-    def edit_value(self, param, value):
+    def _edit_value(self, param, value):
         for parameter in self.parameters:
-            if parameter["variable_name"] == param:
+            if parameter["variable_name"] == param:    
                 line_number = parameter["init_line"]
                 pattern = re.compile(rf"{param}\s*=\s*(?P<val>-?\d+\.?\d*)\s*;")
                 line = self._lines[line_number]
@@ -160,15 +161,13 @@ class EELParser:
                     parameter["current_value"] = value
                     self._cache_param(parameter)
 
-    def update_script(self):
-        self._write("\n".join(self._lines))
-        
     def set_and_commit(self, param, value):
-        self.edit_value(param, value)
-        self.update_script()
+        self._edit_value(param, value)
+        self._write("\n".join(self._lines))
 
     def reset_to_defaults(self):
         for slider in self.parameters:
             if "default_value" in slider:
-                self.edit_value(slider["variable_name"], slider["default_value"])
+                self._edit_value(slider["variable_name"], slider["default_value"])
+        self._write("\n".join(self._lines))
 

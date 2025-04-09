@@ -129,9 +129,11 @@ class Plugin:
             else: update_settings = True
         if update_settings: settings_manager.setSetting('eel_param_cache', self.eel_cache)
 
-    def update_eel_cache(self):
+    def update_eel_cache_and_reload_jdsp(self):
         self.eel_cache[self.eel_parser.path] = self.eel_parser.cache
         settings_manager.setSetting('eel_param_cache', self.eel_cache)
+        self.jdsp.set_and_commit('liveprog_file', "")
+        self.jdsp.set_and_commit('liveprog_file', self.eel_parser.path)
 
     """
     ===================================================================================================================================
@@ -226,16 +228,17 @@ class Plugin:
         self.eel_parser = EELParser(path, self.eel_cache.get(path, {}), profileId)
         if hasattr(self.eel_parser, "error"):
             return { 'error': str(self.eel_parser.error) }
-        self.update_eel_cache()
+        self.update_eel_cache_and_reload_jdsp()
         return self.eel_parser.parameters
     
     # general-frontend-call
     async def set_eel_param(self, paramName, value):
         self.eel_parser.set_and_commit(paramName, value)
-        self.update_eel_cache()
-        self.jdsp.set_and_commit('liveprog_file', "")
-        self.jdsp.set_and_commit('liveprog_file', self.eel_parser.path)
-        #reload file in jdsp
+        self.update_eel_cache_and_reload_jdsp()
+
+    async def reset_eel_params(self):
+        self.eel_parser.reset_to_defaults()
+        self.update_eel_cache_and_reload_jdsp()
     
     """
     ------------------------------------------

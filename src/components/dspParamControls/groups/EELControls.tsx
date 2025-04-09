@@ -1,5 +1,5 @@
-import { Dropdown, PanelSection, PanelSectionRow, quickAccessMenuClasses } from '@decky/ui';
-import { FC, useCallback } from 'react';
+import { FieldProps, PanelSection, PanelSectionRow, quickAccessMenuClasses, showModal } from '@decky/ui';
+import { FC, useCallback, useEffect } from 'react';
 import { EffectInfo } from '../../other/EffectInfo';
 import { ParameterPathSelector } from '../base/ParameterPathSelector';
 import { ParameterToggle } from '../base/ParameterToggle';
@@ -12,6 +12,12 @@ import { EELParameter, EELParameterType } from '../../../types/types';
 import { Backend } from '../../../controllers/Backend';
 import { Log } from '../../../lib/log';
 import { WaitDropdown } from '../../waitable/WaitDropdown';
+import { WaitButton } from '../../waitable/WaitButton';
+import { useSetEelDefaults } from '../../../hooks/useSetEelDefaults';
+import { reaction } from 'mobx';
+import { profileManager } from '../../../controllers/ProfileManager';
+import { DestructiveModal } from '../../generic/DestructiveModal';
+import { QAMHiglightable } from '../../qam/QAMHiglightable';
 
 export const EELControls: FC<{}> = ({ }) => {
     return (
@@ -33,7 +39,6 @@ const EELParameterSection: FC<{}> = ({ }) => {
     const { ready } = useEELParameters();
     const { data } = useDspSettings();
     if (data?.liveprog_file === "") return <div style={{ marginTop: '10px' }}>No EEL script selected</div>
-    // const ready = false
     const fadeTime = 250;
     return (
         <>
@@ -104,6 +109,7 @@ const EELParameterSectionInner: FC<{}> = ({ }) => {
                         return <div>Unexpected Parameter Type</div>
                 }
             })}
+            <SetEELDefaultsButton bottomSeparator='none' />
         </>
     )
 }
@@ -148,6 +154,43 @@ export const EELParameterDropdown: FC<EELParameterDropdownProps> = ({ parameter,
             selectedOption={value}
             onChange={opt => update(opt.data)}
             bottomSeparator='none'
+        />
+    );
+};
+
+interface SetEELDefaultsButtonProps {
+    bottomSeparator?: FieldProps['bottomSeparator'];
+}
+
+const SetEELDefaultsButton: FC<SetEELDefaultsButtonProps> = ({ bottomSeparator }) => {
+    const setDefaults = useSetEelDefaults();
+    const { data } = useDspSettings();
+    const scriptName = data?.liveprog_file.split('/').at(-1) ?? '';
+    return (
+        <QAMHiglightable bottomSeparator={bottomSeparator} >
+            <WaitButton onClick={() => showModal(<ConfirmSetDefaultModal onConfirm={setDefaults} scriptName={scriptName} />)}>
+                Reset script parameters
+            </WaitButton>
+        </ QAMHiglightable>
+    );
+};
+
+interface ConfirmSetDefaultModalProps {
+    scriptName: string;
+    onConfirm?: () => void;
+    closeModal?: () => void;
+}
+
+const ConfirmSetDefaultModal: FC<ConfirmSetDefaultModalProps> = ({ scriptName, onConfirm, closeModal }) => {
+    const profileName = profileManager.activeProfile?.name ?? '';
+    useEffect(() => reaction(() => profileManager.activeProfileId, () => closeModal?.()), []);
+
+    return (
+        <DestructiveModal
+            closeModal={closeModal}
+            onOK={() => { onConfirm?.() }}
+            strTitle={`Reset ${scriptName} parameters for ${profileName} profile`}
+            strDescription={'Are you sure you want to reset the parameters for this script and profile to defaults?'}
         />
     );
 };

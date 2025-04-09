@@ -28,3 +28,4 @@ export const FlatpakFixContext = createContext<FlatpakFixStateContext>({});
 export const EQDataContext = createContext<{ data?: DSPEQParameters; setParameter?: (parameter: keyof DSPEQParameters, value: number) => void; setAll?: (eqSettings: DSPEQParameters) => void; }>({});
 export const CompanderDataContext = createContext<{ data?: DSPCompanderParameters; setParameter?: (parameter: keyof DSPCompanderParameters, value: number) => void; }>({});
 export const EELParametersContext = createContext<AsyncDataContext<EELParameter<EELParameterType>[]>>({});
+export const EELTriggerContext = createContext<DataContext<{}>>({});

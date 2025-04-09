@@ -16,6 +16,7 @@ export type PluginSetManuallyApplyProfilesMethod = 'set_manually_apply_profiles'
 export type PluginFlatpakRepairMethod = 'flatpak_repair';
 export type PluginGetEELParamsMethod = 'get_eel_params';
 export type PluginSetEELParamMethod = 'set_eel_param';
+export type PluginResetEELParamsMethod = 'reset_eel_params';
 
 
 export type PluginMethod =
@@ -28,10 +29,11 @@ export type PluginMethod =
     PluginSetManuallyApplyProfilesMethod |
     PluginFlatpakRepairMethod |
     PluginGetEELParamsMethod |
-    PluginSetEELParamMethod;
+    PluginSetEELParamMethod |
+    PluginResetEELParamsMethod;
 
 export type PluginMethodArgs<Method extends PluginMethod> =
-    Method extends PluginGetSettingsMethod | PluginStartJDSPMethod | PluginKillJDSPMethod | PluginFlatpakRepairMethod ? [] :
+    Method extends PluginGetSettingsMethod | PluginStartJDSPMethod | PluginKillJDSPMethod | PluginFlatpakRepairMethod | PluginResetEELParamsMethod ? [] :
     Method extends PluginSetSettingMethod ? [settings: Partial<PluginSettings>] :
     Method extends PluginSetAppWatchMethod ? [appId: string, watch: boolean] :
     Method extends PluginInitProfilesMethod ? [globalPreset: string] :
@@ -43,7 +45,7 @@ export type PluginMethodArgs<Method extends PluginMethod> =
 export type PluginMethodResponse<Method extends PluginMethod> =
     Method extends PluginGetSettingsMethod ? PluginSettings :
     Method extends PluginStartJDSPMethod ? boolean :
-    Method extends PluginKillJDSPMethod | PluginSetSettingMethod | PluginSetAppWatchMethod | PluginSetManuallyApplyProfilesMethod | PluginFlatpakRepairMethod | PluginSetEELParamMethod ? undefined :
+    Method extends PluginKillJDSPMethod | PluginSetSettingMethod | PluginSetAppWatchMethod | PluginSetManuallyApplyProfilesMethod | PluginFlatpakRepairMethod | PluginSetEELParamMethod | PluginResetEELParamsMethod ? undefined :
     Method extends PluginInitProfilesMethod ? { manualPreset: string, allPresets: string, watchedGames: { [appId: string]: boolean }, manuallyApply: boolean } :
     Method extends PluginGetEELParamsMethod ? EELParameter<EELParameterType>[] :
     never;
@@ -162,5 +164,8 @@ export class Backend {
     }
     static async setEELParam(paramName: string, value: number) {
         return await this.callPlugin('set_eel_param', paramName, value);
+    }
+    static async resetEELParams() {
+        return await this.callPlugin('reset_eel_params');
     }
 }
