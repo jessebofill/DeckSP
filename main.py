@@ -46,11 +46,11 @@ class Plugin:
         if not os.path.exists(JDSP_LOG_DIR):
             os.makedirs(JDSP_LOG_DIR)
 
-        Plugin.load_settings()
-        Plugin.jdsp = JdspProxy(APPLICATION_ID, log)
+        self.load_settings()
+        self.jdsp = JdspProxy(APPLICATION_ID, log)
 
-        if(Plugin.handle_jdsp_install()):
-            Plugin.jdsp_install_state = True
+        if(self.handle_jdsp_install()):
+            self.jdsp_install_state = True
             log.info('Plugin ready')
         else:
             log.error('Problem with JamesDSP installation')
@@ -73,16 +73,16 @@ class Plugin:
         log.info('Unloading plugin...')
         flatpak_CMD(['kill', APPLICATION_ID], noCheck=True)
 
-    def load_settings():
-        default_profiles_settings = {setting: Plugin.profiles[setting] for setting in Plugin.profiles.keys() - { 'currentPreset' }}
+    def load_settings(self):
+        default_profiles_settings = {setting: self.profiles[setting] for setting in self.profiles.keys() - { 'currentPreset' }}
         profiles = settings_manager.getSetting('profiles', default_profiles_settings)
-        Plugin.profiles.update(profiles)
-        Plugin.load_eel_cache(Plugin)
+        self.profiles.update(profiles)
+        self.load_eel_cache()
 
-    def save_profile_settings():
-        settings_manager.setSetting('profiles', {setting: Plugin.profiles[setting] for setting in Plugin.profiles.keys() - { 'currentPreset' }})
+    def save_profile_settings(self):
+        settings_manager.setSetting('profiles', {setting: self.profiles[setting] for setting in self.profiles.keys() - { 'currentPreset' }})
 
-    def handle_jdsp_install():
+    def handle_jdsp_install(self):
         try:
             flatpak_CMD(['--user', 'remote-add', '--if-not-exists', 'flathub', 'https://dl.flathub.org/repo/flathub.flatpakrepo'])
         except subprocess.CalledProcessError as e:
@@ -150,7 +150,7 @@ class Plugin:
 
     # general-frontend-call
     async def start_jdsp(self):
-        if not Plugin.jdsp_install_state:
+        if not self.jdsp_install_state:
             return False
         
         log.info(f'Starting JamesDSP... See process logs at {JDSP_LOG}')
@@ -195,30 +195,30 @@ class Plugin:
 
     # general-frontend-call
     async def set_app_watch(self, appId, watch):
-        Plugin.profiles['watchedApps'][appId] = watch
-        Plugin.save_profile_settings()
+        self.profiles['watchedApps'][appId] = watch
+        self.save_profile_settings()
 
     # general-frontend-call
     async def init_profiles(self, globalPreset):
-        if Plugin.profiles['manualPreset'] == '':               # manual preset should be set from first loading settings file, if not then file doesn't exist yet
-            Plugin.profiles['manualPreset'] = globalPreset
+        if self.profiles['manualPreset'] == '':               # manual preset should be set from first loading settings file, if not then file doesn't exist yet
+            self.profiles['manualPreset'] = globalPreset
             log.info('No settings file detected. Creating one.')
-            Plugin.save_profile_settings()
+            self.save_profile_settings()
 
-        presets = Plugin.jdsp.get_presets()
+        presets = self.jdsp.get_presets()
         if JdspProxy.has_error(presets):
             return { 'error': str(presets) }
 
         return { 
-            'manualPreset': Plugin.profiles['manualPreset'], 
+            'manualPreset': self.profiles['manualPreset'], 
             'allPresets': presets['jdsp_result'], 
-            'watchedGames': Plugin.profiles['watchedApps'], 
-            'manuallyApply': Plugin.profiles['useManual'] 
+            'watchedGames': self.profiles['watchedApps'], 
+            'manuallyApply': self.profiles['useManual'] 
         }
 
     # general-frontend-call
     async def set_manually_apply_profiles(self, useManual):
-        Plugin.profiles['useManual'] = useManual
+        self.profiles['useManual'] = useManual
     
     # general-frontend-call
     async def get_eel_params(self, path, profileId):
@@ -251,64 +251,64 @@ class Plugin:
 
     # jdsp-frontend-call
     async def set_jdsp_param(self, parameter, value):
-        res = Plugin.jdsp.set_and_commit(parameter, value)
+        res = self.jdsp.set_and_commit(parameter, value)
         if not JdspProxy.has_error(res):
-            Plugin.jdsp.save_preset(Plugin.profiles['currentPreset'])
+            self.jdsp.save_preset(self.profiles['currentPreset'])
         return res
     
     async def set_jdsp_params(self, values):
         for parameter, value in values:
-            res = Plugin.jdsp.set_and_commit(parameter, value)
+            res = self.jdsp.set_and_commit(parameter, value)
             if JdspProxy.has_error(res):
                 return res
     
-        Plugin.jdsp.save_preset(Plugin.profiles['currentPreset'])
+        self.jdsp.save_preset(self.profiles['currentPreset'])
         return {'jdsp_result': ''}
 
     # jdsp-frontend-call
     async def get_all_jdsp_param(self):
-        return Plugin.jdsp.get_all()
+        return self.jdsp.get_all()
 
     # jdsp-frontend-call
     async def set_jdsp_defaults(self, defaultPreset):
-        loadres = Plugin.jdsp.load_preset(defaultPreset)                        # load the default preset settings
+        loadres = self.jdsp.load_preset(defaultPreset)                        # load the default preset settings
         if JdspProxy.has_error(loadres): return loadres
-        saveres = Plugin.jdsp.save_preset(Plugin.profiles['currentPreset'])     # save the current preset with current settings
+        saveres = self.jdsp.save_preset(self.profiles['currentPreset'])     # save the current preset with current settings
         if JdspProxy.has_error(saveres): return saveres
-        return Plugin.jdsp.get_all()
+        return self.jdsp.get_all()
 
     # jdsp-frontend-call
     async def new_jdsp_preset(self, presetName, fromPresetName = None):
         if fromPresetName is not None: 
-            loadres = Plugin.jdsp.load_preset(fromPresetName)                   # load preset settings to copy
+            loadres = self.jdsp.load_preset(fromPresetName)                   # load preset settings to copy
             if JdspProxy.has_error(loadres): return loadres
-            saveres = Plugin.jdsp.save_preset(presetName)                       # save the new preset with current settings
+            saveres = self.jdsp.save_preset(presetName)                       # save the new preset with current settings
             if JdspProxy.has_error(saveres): return saveres
-            return Plugin.jdsp.load_preset(Plugin.profiles['currentPreset'])    # reload the previous preset settings
+            return self.jdsp.load_preset(self.profiles['currentPreset'])    # reload the previous preset settings
         else: 
-            return Plugin.jdsp.save_preset(presetName)
+            return self.jdsp.save_preset(presetName)
 
     # jdsp-frontend-call
     async def delete_jdsp_preset(self, presetName):
-        return Plugin.jdsp.delete_preset(presetName)
+        return self.jdsp.delete_preset(presetName)
 
     # jdsp-frontend-call
     async def set_profile(self, presetName, isManual):
         if isManual:
-            Plugin.profiles['manualPreset'] = presetName
-        res = Plugin.jdsp.load_preset(presetName)
+            self.profiles['manualPreset'] = presetName
+        res = self.jdsp.load_preset(presetName)
         if JdspProxy.has_error(res): return res
         
-        Plugin.profiles['currentPreset'] = presetName
-        Plugin.save_profile_settings()
-        return Plugin.jdsp.get_all()
+        self.profiles['currentPreset'] = presetName
+        self.save_profile_settings()
+        return self.jdsp.get_all()
     
     async def create_default_jdsp_preset(self, defaultName):
         config_dir = os.path.expanduser(f'~/.var/app/{APPLICATION_ID}/config/jamesdsp/')
 
         if not os.path.exists(config_dir):
             log.info('Creating default preset: audio.conf directory was dot detected')
-            return Plugin.jdsp.save_preset(defaultName)
+            return self.jdsp.save_preset(defaultName)
 
         conf_file = os.path.join(config_dir, 'audio.conf')
         temp_conf = os.path.join(config_dir, 'audio_old.conf')
@@ -316,15 +316,15 @@ class Plugin:
         if os.path.exists(conf_file):
             try:
                 os.rename(conf_file, temp_conf)
-                await Plugin.start_jdsp(self)
+                await self.start_jdsp(self)
 
                 log.info('Creating default preset: Existing audio.conf detected')
-                Plugin.jdsp.save_preset(defaultName)
+                self.jdsp.save_preset(defaultName)
 
                 if os.path.exists(conf_file):
                     os.remove(conf_file)
                 os.rename(temp_conf, conf_file)
-                await Plugin.start_jdsp(self)
+                await self.start_jdsp(self)
 
                 return { 'jdsp_result': ''}
             
@@ -336,7 +336,7 @@ class Plugin:
         
         else:
             log.info('Creating default preset: No existing audio.conf was detected')
-            return Plugin.jdsp.save_preset(defaultName)
+            return self.jdsp.save_preset(defaultName)
 
     """
     ===================================================================================================================================
