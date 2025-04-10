@@ -1,4 +1,3 @@
-import json
 import re
 from typing import Dict, List, TypedDict, cast
 import decky
@@ -15,11 +14,11 @@ class Parameter(TypedDict):
 
 # Cache values per profile
 class EELCache:
-    # Represents a mapping of profile ids (dynamic keys) to numeric values
+    # Represents a mapping of profile ids to numeric values
     # Example: { "profile1": 5.0, "profile2": 10.0 }
     ParameterCache = Dict[str, float]
 
-    # Represents a mapping of parameter names (dynamic keys) to ParameterCache
+    # Represents a mapping of parameter names to ParameterCache
     # Example: { "paramA": { "profile1": 5.0 }, "paramB": { "profile1": 3.0 } }
     ScriptCache = Dict[str, ParameterCache]
 
@@ -53,7 +52,6 @@ class EELParser:
             decky.logger.error(f"Error writing file {self.path}: {e}")
 
     def _parse(self):
-        decky.logger.info(f'parsing {len(self._lines)} lines, script: {self.path}')
         pattern = re.compile(r"(?P<var>\w+):(?P<def>-?\d+\.?\d*)?<(?P<min>-?\d+\.?\d*),(?P<max>-?\d+\.?\d*),?(?P<step>-?\d+\.?\d*)?(?:\{(?P<opt>[^\}]*)\})?>(?P<desc>[^\n]*)$")
         def to_float(value):
             try:
@@ -75,11 +73,8 @@ class EELParser:
                     
             match = pattern.search(line)
             if match:
-                # decky.logger.info(f'found param match {match.group("var")}')
                 init = self._find_init_line_and_value(match.group("var"), i + 1)
                 if init:
-                    # decky.logger.info(f'found param init line')
-                    
                     init_line, init_value = init
                     parameter: Parameter = {
                         "variable_name": match.group("var"),
@@ -97,7 +92,6 @@ class EELParser:
                         parameter["default_value"] is None or 
                         parameter["min"] >= parameter["max"]
                     ):
-                        decky.logger.info(f'param did not meet expectations, skipping {match.group("var")}')
                         continue
                     else: self.parameters.append(parameter)
 
@@ -119,11 +113,6 @@ class EELParser:
                     self._use_cached_param(parameter)
         self._clean_cache()
         self._write("\n".join(self._lines))
-        log = {}
-        for param in self.parameters:
-            log[param['variable_name']] = param['current_value']
-        decky.logger.info(f'profile {self.profile}')
-        decky.logger.info(json.dumps(log, indent=1))
 
     def _find_init_line_and_value(self, param, start_index):
         pattern = re.compile(rf"{param}\s*=\s*(?P<val>-?\d+\.?\d*)\s*;")

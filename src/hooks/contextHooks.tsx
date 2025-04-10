@@ -10,4 +10,3 @@ export const useEQDataContext = () => useContext(EQDataContext);
 export const useCompanderDataContext = () => useContext(CompanderDataContext);
 export const useEELParametersContext = () => useContext(EELParametersContext);
 export const useEELTriggerContext = () => useContext(EELTriggerContext);
-

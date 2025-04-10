@@ -42,11 +42,6 @@ export default definePlugin(() => {
         );
     };
 
-    window.loadEel = async (path: string) => {
-        return await call<string[], string>('set_eel_script', path)
-    
-    }
-
     return {
         name: PLUGIN_NAME,
         titleView: <QAMTitleView title={PLUGIN_NAME} pagerLinker={pagerLinker} />,

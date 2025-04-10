@@ -10,7 +10,6 @@ import { FadeSpinner } from '../../generic/FadeSpinner';
 import { ThrottledWaitSlider } from '../../waitable/WaitSlider';
 import { EELParameter, EELParameterType } from '../../../types/types';
 import { Backend } from '../../../controllers/Backend';
-import { Log } from '../../../lib/log';
 import { WaitDropdown } from '../../waitable/WaitDropdown';
 import { WaitButton } from '../../waitable/WaitButton';
 import { useSetEelDefaults } from '../../../hooks/useSetEelDefaults';
@@ -85,7 +84,6 @@ const EELParameterSectionInner: FC<{}> = ({ }) => {
         const updatedParams = [...parameters];
         updatedParams[index].current_value = value;
         //todo make async and check error (it might mess up throttling)
-        Log.log('slider changed', value)
         Backend.setEELParam(paramName, value);
         setParameters?.(updatedParams);
     }, [parameters, setParameters]);

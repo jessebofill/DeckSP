@@ -1,6 +1,5 @@
 import { Context, Dispatch, ReactNode, SetStateAction, useEffect, useState } from 'react';
 import { DataContext, DataProviderSetData, DataProviderSetError } from '../../contexts/contexts';
-import { Log } from '../../lib/log';
 
 export type AsyncDataProviderSetReady = Dispatch<SetStateAction<boolean>>;
 

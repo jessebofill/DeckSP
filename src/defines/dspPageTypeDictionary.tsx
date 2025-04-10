@@ -26,7 +26,7 @@ export const dspPageDict = {
         displayName: 'Bass Boost/ Tube Modeling'
     },
     EEL: {
-        element: <QAMDspEELPage/>,
+        element: <QAMDspEELPage />,
         displayName: 'EEL Script'
     }
 } as const;
@@ -45,7 +45,7 @@ type Permutation<T, U = T> = [T] extends [never]
 
 export type DSPPageOrder = Permutation<DSPPageType>;
 
-export function getDSPPages(pages: DSPPageOrder){
+export function getDSPPages(pages: DSPPageOrder) {
     return pages.map(p => dspPageDict[p].element);
 }
 let defaultOrder = Object.keys(dspPageDict) as DSPPageOrder;
@@ -58,8 +58,8 @@ export function getDefaultDSPPageOrder(): DSPPageOrder {
 }
 export function validateDSPPageOrder(order?: DSPPageOrder): DSPPageOrder | undefined {
     if (!order) return;
-    if ((Object.keys(DSPPageTypes) as DSPPageOrder).every(pageType => order.includes(pageType)) && 
-    order.every(pageType => Object.keys(DSPPageTypes).includes(pageType))) {
+    if ((Object.keys(DSPPageTypes) as DSPPageOrder).every(pageType => order.includes(pageType)) &&
+        order.every(pageType => Object.keys(DSPPageTypes).includes(pageType))) {
         return order;
     } else {
         return;

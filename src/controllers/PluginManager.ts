@@ -13,7 +13,6 @@ export class PluginManager {
         jdspLoaded?: Promise<boolean | Error>
         profileManagerLoaded?: Promise<DSPParamSettings | Error>
         pluginSettings?: Promise<PluginSettings | Error>
-        waitForEELScriptChange?: Promise<undefined | Error>
     } = {};
     private static uiMode?: EUIMode
 

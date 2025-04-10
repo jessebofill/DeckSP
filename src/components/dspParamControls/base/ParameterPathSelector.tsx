@@ -6,7 +6,6 @@ import { Field, FieldProps } from '@decky/ui';
 import { dspParamDefines } from '../../../defines/dspParameterDefines';
 import { Backend } from '../../../controllers/Backend';
 import { useDspSettingsContext } from '../../../hooks/contextHooks';
-import { Log } from '../../../lib/log';
 
 export interface ParameterPathSelectorProps extends Pick<CustomButtonProps, 'transparent' | 'audioSFX' | 'noAudio' | 'containerClassName'> {
     parameter: DSPPathParameter;
@@ -25,7 +24,6 @@ export const ParameterPathSelector: FC<ParameterPathSelectorProps> = ({ paramete
     const { label, exts } = dspParamDefines[parameter];
     const file = path.split('/').at(-1)
     const onChange = (value: string) => {
-        Log.log('setting new file')
         Backend.setDsp(parameter, value);
         setSettings?.({ ...settings, [parameter]: value });
     };

@@ -133,7 +133,7 @@ export type DSPRangeParameter =
     DSPParameterReverbWet |
     DSPParameterReverbWidth;
 
-export type DSPPathParameter =  DSPParameterEELScriptPath;
+export type DSPPathParameter = DSPParameterEELScriptPath;
 
 export type DSPMappedParameter = DSPParameterCrossfeedMode;
 
@@ -157,7 +157,7 @@ export type PresetSectionTypeReverb = 'reverb';
 export type PresetSectionTypeEQ = 'eq';
 export type PresetSectionType = PresetSectionTypeReverb | PresetSectionTypeEQ;
 
-export type PresetTable<PresetType extends PresetSectionType> = 
+export type PresetTable<PresetType extends PresetSectionType> =
     PresetType extends PresetSectionTypeReverb ? typeof reverbPresetTable :
     PresetType extends PresetSectionTypeEQ ? typeof eqPresetTable :
     never;

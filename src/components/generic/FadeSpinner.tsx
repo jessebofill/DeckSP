@@ -10,12 +10,12 @@ export interface FadeSpinnerProps {
 }
 
 export const FadeSpinner: FC17<FadeSpinnerProps> = ({ isLoading, className, style, showChildrenLoading, fadeTime, spinnerSize, children }) => {
-        const [fadeDone, setFadeDone] = useState(false);
-        const fade = fadeTime ?? 250;
-        useLayoutEffect(() => {
-            if (!isLoading) setTimeout(() => setFadeDone(true), fadeTime);
-            else setFadeDone(false);
-        }, [isLoading]);
+    const [fadeDone, setFadeDone] = useState(false);
+    const fade = fadeTime ?? 250;
+    useLayoutEffect(() => {
+        if (!isLoading) setTimeout(() => setFadeDone(true), fadeTime);
+        else setFadeDone(false);
+    }, [isLoading]);
     return (
         <>
             <div
@@ -25,9 +25,9 @@ export const FadeSpinner: FC17<FadeSpinnerProps> = ({ isLoading, className, styl
                     alignItems: 'center',
                     transition: `opacity ease-out ${fade}ms`,
                 },
-                style ?? {},
-                isLoading ? {} : { opacity: 0 },
-                !fadeDone ? {} : { zIndex: '-100' }
+                    style ?? {},
+                    isLoading ? {} : { opacity: 0 },
+                    !fadeDone ? {} : { zIndex: '-100' }
                 )}>
                 <img alt="Loading..." src="/images/steam_spinner.png" style={{ width: spinnerSize ?? '50%' }} />
             </div>

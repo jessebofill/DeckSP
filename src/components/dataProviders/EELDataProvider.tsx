@@ -3,7 +3,6 @@ import { EELParametersContext, EELTriggerContext } from '../../contexts/contexts
 import { EELParameter, EELParameterType } from '../../types/types';
 import { Backend } from '../../controllers/Backend';
 import { useDspSettingsContext } from '../../hooks/contextHooks';
-import { Log } from '../../lib/log';
 import { profileManager } from '../../controllers/ProfileManager';
 
 export const EELDataProvider: FC17<{}> = ({ children }) => {
@@ -12,11 +11,9 @@ export const EELDataProvider: FC17<{}> = ({ children }) => {
     const [error, setError] = useState<Error>();
     const [trigger, setTrigger] = useState<{}>();
     const { data: settings } = useDspSettingsContext();
-    Log.log('rendering eel prov')
 
     useEffect(() => {
         (async () => {
-            Log.log('call eel prov use eff')
             if (settings) {
                 setReady(false);
                 const res = await Backend.getEELParams(settings.liveprog_file, profileManager.activeProfileId).catch(e => e instanceof Error ? e : new Error('Caught exception in EEL data handler'));
@@ -31,6 +28,7 @@ export const EELDataProvider: FC17<{}> = ({ children }) => {
             }
         })();
     }, [settings?.liveprog_file, profileManager.activeProfileId, trigger]);
+
     return (
         <EELParametersContext.Provider value={{ ready, data, error }}>
             <EELTriggerContext.Provider value={{ data: trigger, setData: setTrigger }}>

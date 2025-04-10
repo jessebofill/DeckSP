@@ -41,7 +41,6 @@ class Plugin:
     }
     eel_cache: Dict[str, EELCache.ScriptCache] = {}
 
-    # Asyncio-compatible long-running code, executed in a task when the plugin is loaded
     async def _main(self):
         log.info('Starting plugin backend...')
         if not os.path.exists(JDSP_LOG_DIR):
@@ -255,8 +254,6 @@ class Plugin:
         res = Plugin.jdsp.set_and_commit(parameter, value)
         if not JdspProxy.has_error(res):
             Plugin.jdsp.save_preset(Plugin.profiles['currentPreset'])
-            # if parameter == 'liveprog_file':
-            #     self.load_eel_script(value)
         return res
     
     async def set_jdsp_params(self, values):
@@ -270,12 +267,7 @@ class Plugin:
 
     # jdsp-frontend-call
     async def get_all_jdsp_param(self):
-        settings = Plugin.jdsp.get_all()
-        log.info(settings)
-        eel_script = self.jdsp.get('liveprog_file').get('jdsp_result', '').strip()
-        log.info('get_dsp_ called')
-        # self.load_eel_script(eel_script)
-        return settings
+        return Plugin.jdsp.get_all()
 
     # jdsp-frontend-call
     async def set_jdsp_defaults(self, defaultPreset):
