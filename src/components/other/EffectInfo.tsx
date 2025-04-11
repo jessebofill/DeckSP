@@ -38,7 +38,9 @@ export const EffectDescription: FC<EffectInfoModalProps> = ({ effect }) => {
             <div style={{ textDecoration: 'underline', marginBottom: '20px' }}>
                 <strong>{title}</strong>
             </div>
-            <div style={{ fontSize: '12px' }} dangerouslySetInnerHTML={{ __html: description }} />
+            <div style={{ fontSize: '12px' }}>
+                {description}
+            </div>
         </div>
     );
 };

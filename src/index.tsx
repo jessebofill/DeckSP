@@ -1,4 +1,4 @@
-import { call, definePlugin, routerHook } from "@decky/api"
+import { definePlugin, routerHook } from "@decky/api"
 import { RiEqualizerLine } from "react-icons/ri";
 import { PluginManager } from './controllers/PluginManager';
 import { PagerLinker, QAMPager } from './components/qam/pager/QAMPager';
@@ -31,8 +31,7 @@ export default definePlugin(() => {
     const PagerWrapper: FC<{}> = ({ }) => {
         const { data, setData } = usePluginStateContext();
         const pageOrder = validateDSPPageOrder(data?.settings.dspPageOrder);
-        //@ts-ignore
-        const dynamicPages = getDSPPages(pageOrder ?? defaultDspPageOrder);
+        const dynamicPages = getDSPPages((pageOrder) as DSPPageOrder ?? defaultDspPageOrder);
         useEffect(() => { !pageOrder && setData?.((data) => !data ? data : ({ ...data, settings: { ...data.settings, dspPageOrder: defaultDspPageOrder } })) }, []);
         return (
             <QAMPager pagerLinker={pagerLinker}>

@@ -21,7 +21,7 @@ import { QAMHiglightable } from '../../qam/QAMHiglightable';
 export const EELControls: FC<{}> = ({ }) => {
     return (
         <PanelSection title='EEL Effect Script'>
-            <EffectInfo effect='soundstageWideness'> {/*!!! need to change this */}
+            <EffectInfo effect='eel'>
                 <PanelSectionRow>
                     <ParameterToggle parameter='liveprog_enable' />
                 </PanelSectionRow>
