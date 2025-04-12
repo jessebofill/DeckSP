@@ -59,16 +59,21 @@ export const dspParameters = [
 
     //EEL Script
     'liveprog_enable',
-    'liveprog_file'
+    'liveprog_file',
+
+    //Convolver
+    'convolver_enable',
+    'convolver_file',
+    'convolver_optimization_mode'
 
 ] as const;
 
 type units = 'db' | 'hz' | 'ms' | 's' | 'x' | '%' | '' | string[];
-type FileTypes = 'eel';
+type FileExtensions = 'eel' | 'wav' | 'irs' | 'flac';
 
 type DefineTypeRange  = { label: string, limits: [number, number], units: units, step: number };
 type DefineTypeMapped = { label: string, map: { [name: string]: number } };
-type DefineTypePath = { label: string, exts: FileTypes[] };
+type DefineTypePath =   { label: string, exts: FileExtensions[], start: string };
 
 type ParameterControlDefines =
     { [Param in DSPRangeParameter]: DefineTypeRange } &
@@ -164,7 +169,15 @@ export const dspParamDefines: ParameterControlDefines = {
     },
 
     //EEL
-    'liveprog_file': { label: 'Script', exts: ['eel'] }
+    'liveprog_file':            { label: 'Script',                  exts: ['eel'],
+                                  start: '/home/deck/.var/app/me.timschneeberger.jdsp4linux/config/jamesdsp/liveprog/'              },
+
+    //Convolver
+    'convolver_file':           { label: 'Impulse Response',        exts: ['wav', 'flac', 'irs'],
+                                  start: '/home/deck/.var/app/me.timschneeberger.jdsp4linux/config/jamesdsp/irs/'                   },
+    'convolver_optimization_mode': 
+                                { label: 'Impulse Response Optimization Mode', 
+                                  map: { 'Original': 0, 'Shrink': 1, 'Minimum phase transform and shrink': 2 },                     }
 };
 
 export const dspScaledParams: { [Param in DSPScaledParameter]: number } = {

@@ -26,7 +26,7 @@ export const EELControls: FC<{}> = ({ }) => {
                     <ParameterToggle parameter='liveprog_enable' />
                 </PanelSectionRow>
                 <PanelSectionRow>
-                    <ParameterPathSelector parameter='liveprog_file' startPath='/home/deck/.var/app/me.timschneeberger.jdsp4linux/config/jamesdsp/liveprog/' />
+                    <ParameterPathSelector parameter='liveprog_file' />
                 </PanelSectionRow>
                 <EELParameterSection />
             </EffectInfo>

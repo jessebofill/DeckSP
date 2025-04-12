@@ -12,6 +12,7 @@ export function parseJDSPParam<Param extends DSPParameter>(parameterName: Param,
         case 'tone_enable':
         case 'tube_enable':
         case 'liveprog_enable':
+        case 'convolver_enable':
             return (value.toLowerCase() === 'true') as DSPParameterType<Param>;
         case 'master_postgain':
         case 'master_limrelease':
@@ -41,6 +42,7 @@ export function parseJDSPParam<Param extends DSPParameter>(parameterName: Param,
         case 'reverb_width':
         case 'stereowide_level':
         case 'tube_pregain':
+        case 'convolver_optimization_mode':
             const parsed = parseFloat(value);
             return dspScaledParams[parameterName as DSPScaledParameter] !== undefined ? (dspScaledParams[parameterName as DSPScaledParameter] * parsed) as DSPParameterType<Param> : parsed as DSPParameterType<Param>;
         case 'compander_response':
@@ -48,6 +50,7 @@ export function parseJDSPParam<Param extends DSPParameter>(parameterName: Param,
         case 'tone_eq':
             return parseJDSPEQParams(value) as DSPParameterType<Param>;
         case 'liveprog_file':
+        case 'convolver_file':
             return value as DSPParameterType<Param>;
         default:
             throw new Error(`Unexpected parameter: ${parameterName}`);

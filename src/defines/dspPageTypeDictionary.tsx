@@ -1,4 +1,4 @@
-import { QAMDspMainPage, QAMDspEQPage, QAMDspCompanderPage, QAMDspStereoPage, QAMDspReverbPage, QAMDspOtherPage, QAMDspEELPage } from '../components/qam/pager/QAMDspPages';
+import { QAMDspMainPage, QAMDspEQPage, QAMDspCompanderPage, QAMDspStereoPage, QAMDspReverbPage, QAMDspOtherPage, QAMDspEELPage, QAMDspConvolverPage } from '../components/qam/pager/QAMDspPages';
 
 export const dspPageDict = {
     MAIN: {
@@ -28,6 +28,10 @@ export const dspPageDict = {
     EEL: {
         element: <QAMDspEELPage />,
         displayName: 'EEL Script'
+    },
+    CONVOLVER: {
+        element: <QAMDspConvolverPage />,
+        displayName: 'Convolver'
     }
 } as const;
 

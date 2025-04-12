@@ -9,19 +9,18 @@ import { useDspSettingsContext } from '../../../hooks/contextHooks';
 
 export interface ParameterPathSelectorProps extends Pick<CustomButtonProps, 'transparent' | 'audioSFX' | 'noAudio' | 'containerClassName'> {
     parameter: DSPPathParameter;
-    startPath: string;
     labelCenter?: boolean;
     disabled?: boolean;
     focusable?: boolean;
     bottomSeparator?: FieldProps['bottomSeparator']
 }
 
-export const ParameterPathSelector: FC<ParameterPathSelectorProps> = ({ parameter, startPath, labelCenter, disabled, focusable, bottomSeparator }) => {
+export const ParameterPathSelector: FC<ParameterPathSelectorProps> = ({ parameter, labelCenter, disabled, focusable, bottomSeparator }) => {
     const { data: settings, setData: setSettings } = useDspSettingsContext();
     if (!settings) return null;
 
     const path = settings[parameter]
-    const { label, exts } = dspParamDefines[parameter];
+    const { label, exts, start } = dspParamDefines[parameter];
     const file = path.split('/').at(-1)
     const onChange = (value: string) => {
         Backend.setDsp(parameter, value);
@@ -29,7 +28,7 @@ export const ParameterPathSelector: FC<ParameterPathSelectorProps> = ({ paramete
     };
 
     const selectFile = async () => {
-        const file = await openFilePicker(FileSelectionType.FILE, startPath, true, true, undefined, [...exts], false, false);
+        const file = await openFilePicker(FileSelectionType.FILE, start, true, true, undefined, [...exts], false, false);
         onChange(file.realpath);
     };
 

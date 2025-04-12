@@ -63,6 +63,11 @@ export type DSPParameterEQParameters = 'tone_eq';
 export type DSPParameterEELScriptEnable = 'liveprog_enable';
 export type DSPParameterEELScriptPath = 'liveprog_file';
 
+//Convolver
+export type DSPParameterConvolverEnable = 'convolver_enable';
+export type DSPParameterConvolverPath = 'convolver_file';
+export type DSPParameterConvolverOptMode = 'convolver_optimization_mode';
+
 export type DSPEQParameters = {
     '25': number;
     '40': number;
@@ -102,7 +107,8 @@ export type DSPBooleanParameter =
     DSPParameterWideEnable |
     DSPParameterReverbEnable |
     DSPParameterEQEnable |
-    DSPParameterEELScriptEnable;
+    DSPParameterEELScriptEnable |
+    DSPParameterConvolverEnable;
 
 export type DSPRangeParameter =
     DSPParameterMasterPostGain |
@@ -133,9 +139,9 @@ export type DSPRangeParameter =
     DSPParameterReverbWet |
     DSPParameterReverbWidth;
 
-export type DSPPathParameter = DSPParameterEELScriptPath;
+export type DSPPathParameter = DSPParameterEELScriptPath | DSPParameterConvolverPath;
 
-export type DSPMappedParameter = DSPParameterCrossfeedMode;
+export type DSPMappedParameter = DSPParameterCrossfeedMode | DSPParameterConvolverOptMode;
 
 export type DSPScaledParameter = DSPParameterTubePreGain | DSPParameterCrossfeedFeed | DSPParameterReverbERAmount | DSPParameterReverbWidth;
 

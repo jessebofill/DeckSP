@@ -1,12 +1,6 @@
-import { ReactElement } from 'react';
 import ExternalLink from '../components/generic/ExternalLink';
 
-type EffectDescription = {
-    title: string;
-    description: ReactElement;
-};
-
-export const effectDescriptions: { [key: string]: EffectDescription } = {
+export const effectDescriptions = {
     master: {
         title: "Master",
         description: <>
@@ -89,8 +83,8 @@ export const effectDescriptions: { [key: string]: EffectDescription } = {
         title: "Convolver",
         description: <>
             Partitioned convolver (Auto segmenting convolution). Select your impulse response file to be convolved. It takes the signal characteristics of the impulse response and applies them to the incoming audio in real-time.<br />
-            Supports mono, stereo, full/true stereo (LL, LR, RL, RR) impulse responses.<br /><br />
+            Supports mono, stereo, full/true stereo (LL, LR, RL, RR) impulse responses. <i>(.wav, .flac, .irs)</i><br /><br />
             <strong>Impulse response optimization:</strong> This parameter attempts to reduce the length of the impulse response as much as possible; the whole point is to reduce latency as much as possible, possibly reducing power consumption.
         </>
     }
-};
+} as const;

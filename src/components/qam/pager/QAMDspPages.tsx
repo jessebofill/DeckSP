@@ -10,6 +10,7 @@ import { EQControls } from '../../dspParamControls/groups/EQControls';
 import { MasterControls } from '../../dspParamControls/groups/MasterControls';
 import { QAMPage } from './QAMPage';
 import { EELControls } from '../../dspParamControls/groups/EELControls';
+import { ConvolverControls } from '../../dspParamControls/groups/ConvolverControls';
 
 const QAMDspPage: FC17<{}> = ({ children }) => {
     return (
@@ -74,6 +75,14 @@ export const QAMDspEELPage: FC<{}> = ({ }) => {
     return (
         <QAMDspPage>
             <EELControls />
+        </QAMDspPage>
+    );
+};
+
+export const QAMDspConvolverPage: FC<{}> = ({ }) => {
+    return (
+        <QAMDspPage>
+            <ConvolverControls />
         </QAMDspPage>
     );
 };
