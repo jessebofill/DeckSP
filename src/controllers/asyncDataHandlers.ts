@@ -53,6 +53,7 @@ async function handleGetDspSettingsOnMount() {
     const loaded = await PluginManager.promises.jdspLoaded!;
     if (loaded instanceof Error) return loaded;
 
+    await PluginManager.waitForPromiseCreation('profileManagerLoaded');
     return await handleGetDspSettingsAfterProfileLoad();
 }
 
