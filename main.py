@@ -46,10 +46,10 @@ class Plugin:
         if not os.path.exists(JDSP_LOG_DIR):
             os.makedirs(JDSP_LOG_DIR)
 
-        self.load_settings()
+        self._load_settings()
         self.jdsp = JdspProxy(APPLICATION_ID, log)
 
-        if(self.handle_jdsp_install()):
+        if(self._handle_jdsp_install()):
             self.jdsp_install_state = True
             log.info('Plugin ready')
         else:
@@ -73,16 +73,16 @@ class Plugin:
         log.info('Unloading plugin...')
         flatpak_CMD(['kill', APPLICATION_ID], noCheck=True)
 
-    def load_settings(self):
+    def _load_settings(self):
         default_profiles_settings = {setting: self.profiles[setting] for setting in self.profiles.keys() - { 'currentPreset' }}
         profiles = settings_manager.getSetting('profiles', default_profiles_settings)
         self.profiles.update(profiles)
-        self.load_eel_cache()
+        self._load_eel_cache()
 
-    def save_profile_settings(self):
+    def _save_profile_settings(self):
         settings_manager.setSetting('profiles', {setting: self.profiles[setting] for setting in self.profiles.keys() - { 'currentPreset' }})
 
-    def handle_jdsp_install(self):
+    def _handle_jdsp_install(self):
         try:
             flatpak_CMD(['--user', 'remote-add', '--if-not-exists', 'flathub', 'https://dl.flathub.org/repo/flathub.flatpakrepo'])
         except subprocess.CalledProcessError as e:
@@ -120,7 +120,7 @@ class Plugin:
             log.error(e.stderr)
             return False
 
-    def load_eel_cache(self):
+    def _load_eel_cache(self):
         cache = settings_manager.getSetting('eel_param_cache', {})
         update_settings = False
         for path in cache.keys():
@@ -128,7 +128,7 @@ class Plugin:
             else: update_settings = True
         if update_settings: settings_manager.setSetting('eel_param_cache', self.eel_cache)
 
-    def update_eel_cache_and_reload_jdsp(self):
+    def _update_eel_cache_and_reload_jdsp(self):
         self.eel_cache[self.eel_parser.path] = self.eel_parser.cache
         settings_manager.setSetting('eel_param_cache', self.eel_cache)
         self.jdsp.set_and_commit('liveprog_file', "")
@@ -196,14 +196,14 @@ class Plugin:
     # general-frontend-call
     async def set_app_watch(self, appId, watch):
         self.profiles['watchedApps'][appId] = watch
-        self.save_profile_settings()
+        self._save_profile_settings()
 
     # general-frontend-call
     async def init_profiles(self, globalPreset):
         if self.profiles['manualPreset'] == '':               # manual preset should be set from first loading settings file, if not then file doesn't exist yet
             self.profiles['manualPreset'] = globalPreset
             log.info('No settings file detected. Creating one.')
-            self.save_profile_settings()
+            self._save_profile_settings()
 
         presets = self.jdsp.get_presets()
         if JdspProxy.has_error(presets):
@@ -227,17 +227,17 @@ class Plugin:
         self.eel_parser = EELParser(path, self.eel_cache.get(path, {}), profileId)
         if hasattr(self.eel_parser, "error"):
             return { 'error': str(self.eel_parser.error) }
-        self.update_eel_cache_and_reload_jdsp()
+        self._update_eel_cache_and_reload_jdsp()
         return self.eel_parser.parameters
     
     # general-frontend-call
     async def set_eel_param(self, paramName, value):
         self.eel_parser.set_and_commit(paramName, value)
-        self.update_eel_cache_and_reload_jdsp()
+        self._update_eel_cache_and_reload_jdsp()
 
     async def reset_eel_params(self):
         self.eel_parser.reset_to_defaults()
-        self.update_eel_cache_and_reload_jdsp()
+        self._update_eel_cache_and_reload_jdsp()
     
     """
     ------------------------------------------
@@ -300,7 +300,7 @@ class Plugin:
         if JdspProxy.has_error(res): return res
         
         self.profiles['currentPreset'] = presetName
-        self.save_profile_settings()
+        self._save_profile_settings()
         return self.jdsp.get_all()
     
     async def create_default_jdsp_preset(self, defaultName):
