@@ -39,13 +39,16 @@ async function handleGetPluginStateOnMount(): Promise<PluginStateData | Error> {
     const jdspInstall = await PluginManager.promises.jdspLoaded!;
     if (jdspInstall instanceof Error) return jdspInstall;
     
+    const vdcDbSelections = await Backend.getVdcDbSelections().catch(e => useError('Encountered error getting vdcDbSelections', e));
+    if (vdcDbSelections instanceof Error) return vdcDbSelections;
+    
     if (jdspInstall) {
         await PluginManager.waitForPromiseCreation('profileManagerLoaded');
         const profileManloaded = await PluginManager.promises.profileManagerLoaded;
         if (profileManloaded instanceof Error) return profileManloaded;
     }
 
-    return { jdspInstall, settings, isDesktopMode: PluginManager.isDesktopUI() };
+    return { jdspInstall, settings, isDesktopMode: PluginManager.isDesktopUI(), vdcDbSelections };
 }
 
 async function handleGetDspSettingsOnMount() {

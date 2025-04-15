@@ -3,7 +3,7 @@ import { Log } from '../lib/log';
 import { profileManager } from './ProfileManager';
 import { initSystemPerfStore, useError } from '../lib/utils';
 import { DSPParamSettings } from '../types/dspTypes';
-import { PluginSettings } from '../types/types';
+import { PluginSettings, StaticFromBackend } from '../types/types';
 import { sleep } from '@decky/ui';
 
 type PromiseKey = keyof typeof PluginManager.promises;
@@ -13,6 +13,7 @@ export class PluginManager {
         jdspLoaded?: Promise<boolean | Error>
         profileManagerLoaded?: Promise<DSPParamSettings | Error>
         pluginSettings?: Promise<PluginSettings | Error>
+        static?: Promise<StaticFromBackend | Error>
     } = {};
     private static uiMode?: EUIMode
 
@@ -51,6 +52,7 @@ export class PluginManager {
         const profileManagerInit = profileManager.init();
         profileManager.setLock(profileManagerInit);
         this.promises.profileManagerLoaded = profileManagerInit.then((res) => res instanceof Error ? useError('Problem during ProfileManager init process', res) : res);
+        this.promises.static = Backend.getStaticData().catch(e => useError('Error loading static data', e)); 
     }
 
     private static async isJDSPReady() {

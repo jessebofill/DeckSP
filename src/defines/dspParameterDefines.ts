@@ -60,16 +60,20 @@ export const dspParameters = [
     //EEL Script
     'liveprog_enable',
     'liveprog_file',
-
+    
     //Convolver
     'convolver_enable',
     'convolver_file',
-    'convolver_optimization_mode'
+    'convolver_optimization_mode',
+    
+    //EEL Script
+    'ddc_enable',
+    'ddc_file',
 
 ] as const;
 
 type units = 'db' | 'hz' | 'ms' | 's' | 'x' | '%' | '' | string[];
-type FileExtensions = 'eel' | 'wav' | 'irs' | 'flac';
+type FileExtensions = 'eel' | 'wav' | 'irs' | 'flac' | 'vdc';
 
 type DefineTypeRange  = { label: string, limits: [number, number], units: units, step: number };
 type DefineTypeMapped = { label: string, map: { [name: string]: number } };
@@ -177,7 +181,11 @@ export const dspParamDefines: ParameterControlDefines = {
                                   start: '/home/deck/.var/app/me.timschneeberger.jdsp4linux/config/jamesdsp/irs/'                   },
     'convolver_optimization_mode': 
                                 { label: 'Impulse Response Optimization Mode', 
-                                  map: { 'Original': 0, 'Shrink': 1, 'Minimum phase transform and shrink': 2 },                     }
+                                  map: { 'Original': 0, 'Shrink': 1, 'Minimum phase transform and shrink': 2 },                     },
+
+    //DDC
+    'ddc_file':                 { label: 'DDC Source',                        exts: ['vdc'],
+                                  start: '/home/deck/.var/app/me.timschneeberger.jdsp4linux/config/jamesdsp/vdc/'                   }
 };
 
 export const dspScaledParams: { [Param in DSPScaledParameter]: number } = {

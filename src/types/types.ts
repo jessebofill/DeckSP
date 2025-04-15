@@ -13,6 +13,10 @@ interface WebBrowserAPI {
     openInBrowser?: (url: string) => void;
 };
 
+export type StaticFromBackend = {
+    vdcDb: VdcDb;
+};
+
 export type PluginSettings = {
     enableInDesktop: boolean;
     dspPageOrder: DSPPageOrder;
@@ -22,6 +26,7 @@ export type PluginStateData = {
     jdspInstall: boolean;
     isDesktopMode: boolean;
     settings: PluginSettings;
+    vdcDbSelections: { [presetName: string]: string };
 };
 
 export type PluginData = {
@@ -63,3 +68,11 @@ export type EELParameter<T extends EELParameterType> = {
     description: string;
     current_value: number;
 } & (T extends EELParameterType.LIST ? { options: string[] } : {});
+
+export type VdcDbEntry = {
+    ID: string;
+    Model: string;
+    Company: string;
+};
+
+export type VdcDb = VdcDbEntry[];

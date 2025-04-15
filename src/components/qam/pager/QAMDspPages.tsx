@@ -11,6 +11,8 @@ import { MasterControls } from '../../dspParamControls/groups/MasterControls';
 import { QAMPage } from './QAMPage';
 import { EELControls } from '../../dspParamControls/groups/EELControls';
 import { ConvolverControls } from '../../dspParamControls/groups/ConvolverControls';
+import { ViperDDCControls } from '../../dspParamControls/groups/ViperDDCControls';
+import { EffectSeparator } from './EffectSeparator';
 
 const QAMDspPage: FC17<{}> = ({ children }) => {
     return (
@@ -24,6 +26,7 @@ export const QAMDspMainPage: FC<{}> = ({ }) => {
     return (
         <QAMDspPage>
             <MasterControls />
+            <EffectSeparator />
             <LimiterControls />
         </QAMDspPage>
     );
@@ -49,6 +52,7 @@ export const QAMDspStereoPage: FC<{}> = ({ }) => {
     return (
         <QAMDspPage>
             <WidenessControls />
+            <EffectSeparator />
             <CrossfeedControls />
         </QAMDspPage>
     );
@@ -62,10 +66,11 @@ export const QAMDspReverbPage: FC<{}> = ({ }) => {
     );
 };
 
-export const QAMDspOtherPage: FC<{}> = ({ }) => {
+export const QAMDspBassTubePage: FC<{}> = ({ }) => {
     return (
         <QAMDspPage>
             <DynamicBassControls />
+            <EffectSeparator />
             <TubeModelingControls />
         </QAMDspPage>
     );
@@ -79,11 +84,12 @@ export const QAMDspEELPage: FC<{}> = ({ }) => {
     );
 };
 
-export const QAMDspConvolverPage: FC<{}> = ({ }) => {
+export const QAMDspDDCConvolverPage: FC<{}> = ({ }) => {
     return (
         <QAMDspPage>
+            <ViperDDCControls />
+            <EffectSeparator />
             <ConvolverControls />
         </QAMDspPage>
     );
 };
-

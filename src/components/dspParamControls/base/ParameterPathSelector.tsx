@@ -33,7 +33,7 @@ export const ParameterPathSelector: FC<ParameterPathSelectorProps> = ({ paramete
     };
 
     return (
-        <Field label={label} childrenLayout='below' bottomSeparator={bottomSeparator}>
+        <Field label={label} childrenLayout='below' bottomSeparator={bottomSeparator ?? 'none'}>
             <CustomButton
                 style={{ padding: '10px 16px' }}
                 noAudio={true}

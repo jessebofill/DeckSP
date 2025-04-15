@@ -68,6 +68,10 @@ export type DSPParameterConvolverEnable = 'convolver_enable';
 export type DSPParameterConvolverPath = 'convolver_file';
 export type DSPParameterConvolverOptMode = 'convolver_optimization_mode';
 
+//EEL
+export type DSPParameterDDCEnable = 'ddc_enable';
+export type DSPParameterDDCPath = 'ddc_file';
+
 export type DSPEQParameters = {
     '25': number;
     '40': number;
@@ -108,7 +112,8 @@ export type DSPBooleanParameter =
     DSPParameterReverbEnable |
     DSPParameterEQEnable |
     DSPParameterEELScriptEnable |
-    DSPParameterConvolverEnable;
+    DSPParameterConvolverEnable |
+    DSPParameterDDCEnable;
 
 export type DSPRangeParameter =
     DSPParameterMasterPostGain |
@@ -139,7 +144,7 @@ export type DSPRangeParameter =
     DSPParameterReverbWet |
     DSPParameterReverbWidth;
 
-export type DSPPathParameter = DSPParameterEELScriptPath | DSPParameterConvolverPath;
+export type DSPPathParameter = DSPParameterEELScriptPath | DSPParameterConvolverPath | DSPParameterDDCPath;
 
 export type DSPMappedParameter = DSPParameterCrossfeedMode | DSPParameterConvolverOptMode;
 

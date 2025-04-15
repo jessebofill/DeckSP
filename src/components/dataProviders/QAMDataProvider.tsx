@@ -5,15 +5,18 @@ import { QAMSpinner } from '../qam/QAMSpinner';
 import { FC17 } from 'react';
 import { PluginDataProvider } from './PluginDataProvider';
 import { EELDataProvider } from './EELDataProvider';
+import { StaticDataProvider } from './StaticDataProvider';
 
 export const QAMDataProvider: FC17<{}> = ({ children }) => {
     return (
         <AsyncDataProvider Context={PluginContext} handler={handleWaitSettings}>
             <QAMSpinner>
                 <PluginDataProvider>
-                    <EELDataProvider>
-                        {children}
-                    </EELDataProvider>
+                    <StaticDataProvider>
+                        <EELDataProvider>
+                            {children}
+                        </EELDataProvider>
+                    </StaticDataProvider>
                 </PluginDataProvider>
             </QAMSpinner>
         </AsyncDataProvider>

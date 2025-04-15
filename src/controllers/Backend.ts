@@ -2,12 +2,13 @@ import { call } from '@decky/api';
 import { parseJDSPAll } from '../lib/parseDspParams';
 import { DSPParameter, DSPParameterCompResponse, DSPParameterEQParameters, DSPParameterType } from '../types/dspTypes';
 import { formatDspValue } from '../lib/utils';
-import { EELParameter, EELParameterType, PluginSettings } from '../types/types';
+import { EELParameter, EELParameterType, PluginSettings, StaticFromBackend } from '../types/types';
 
 export type BackendMethod = PluginMethod | JDSPMethod;
 
 export type PluginGetSettingsMethod = 'get_settings';
 export type PluginSetSettingMethod = 'set_settings';
+export type PluginGetStaticDataMethod = 'get_static_data';
 export type PluginStartJDSPMethod = 'start_jdsp';
 export type PluginKillJDSPMethod = 'kill_jdsp';
 export type PluginSetAppWatchMethod = 'set_app_watch';
@@ -17,11 +18,14 @@ export type PluginFlatpakRepairMethod = 'flatpak_repair';
 export type PluginGetEELParamsMethod = 'get_eel_params';
 export type PluginSetEELParamMethod = 'set_eel_param';
 export type PluginResetEELParamsMethod = 'reset_eel_params';
+export type PluginGetVdcDbSelectionsMethod = 'get_vdc_db_selections';
+export type PluginSetVdcDbSelectionMethod = 'set_vdc_db_selection';
 
 
 export type PluginMethod =
     PluginGetSettingsMethod |
     PluginSetSettingMethod |
+    PluginGetStaticDataMethod |
     PluginStartJDSPMethod |
     PluginKillJDSPMethod |
     PluginSetAppWatchMethod |
@@ -30,24 +34,29 @@ export type PluginMethod =
     PluginFlatpakRepairMethod |
     PluginGetEELParamsMethod |
     PluginSetEELParamMethod |
-    PluginResetEELParamsMethod;
+    PluginResetEELParamsMethod |
+    PluginGetVdcDbSelectionsMethod |
+    PluginSetVdcDbSelectionMethod;
 
 export type PluginMethodArgs<Method extends PluginMethod> =
-    Method extends PluginGetSettingsMethod | PluginStartJDSPMethod | PluginKillJDSPMethod | PluginFlatpakRepairMethod | PluginResetEELParamsMethod ? [] :
+    Method extends PluginGetSettingsMethod | PluginStartJDSPMethod | PluginKillJDSPMethod | PluginFlatpakRepairMethod | PluginResetEELParamsMethod | PluginGetStaticDataMethod | PluginGetVdcDbSelectionsMethod ? [] :
     Method extends PluginSetSettingMethod ? [settings: Partial<PluginSettings>] :
     Method extends PluginSetAppWatchMethod ? [appId: string, watch: boolean] :
     Method extends PluginInitProfilesMethod ? [globalPreset: string] :
     Method extends PluginSetManuallyApplyProfilesMethod ? [useManual: boolean] :
     Method extends PluginGetEELParamsMethod ? [path: string, profileId: string] :
     Method extends PluginSetEELParamMethod ? [paramName: string, value: number] :
+    Method extends PluginSetVdcDbSelectionMethod ? [vdcId: string, presetName: string] :
     never;
 
 export type PluginMethodResponse<Method extends PluginMethod> =
     Method extends PluginGetSettingsMethod ? PluginSettings :
+    Method extends PluginGetStaticDataMethod ? StaticFromBackend :
     Method extends PluginStartJDSPMethod ? boolean :
-    Method extends PluginKillJDSPMethod | PluginSetSettingMethod | PluginSetAppWatchMethod | PluginSetManuallyApplyProfilesMethod | PluginFlatpakRepairMethod | PluginSetEELParamMethod | PluginResetEELParamsMethod ? undefined :
+    Method extends PluginKillJDSPMethod | PluginSetSettingMethod | PluginSetAppWatchMethod | PluginSetManuallyApplyProfilesMethod | PluginFlatpakRepairMethod | PluginSetEELParamMethod | PluginResetEELParamsMethod | PluginSetVdcDbSelectionMethod ? undefined :
     Method extends PluginInitProfilesMethod ? { manualPreset: string, allPresets: string, watchedGames: { [appId: string]: boolean }, manuallyApply: boolean } :
     Method extends PluginGetEELParamsMethod ? EELParameter<EELParameterType>[] :
+    Method extends PluginGetVdcDbSelectionsMethod ? { [presetName: string]: string } :
     never;
 
 interface PluginMethodError {
@@ -167,5 +176,14 @@ export class Backend {
     }
     static async resetEELParams() {
         return await this.callPlugin('reset_eel_params');
+    }
+    static async getStaticData() {
+        return await this.callPlugin('get_static_data');
+    }
+    static async getVdcDbSelections() {
+        return await this.callPlugin('get_vdc_db_selections');
+    }
+    static async setVdcDbSelection(vdcId: string, presetName: string) {
+        return await this.callPlugin('set_vdc_db_selection', vdcId, presetName);
     }
 }

@@ -1,7 +1,8 @@
-import { DialogButton, Focusable, GamepadButton, gamepadContextMenuClasses, Menu, MenuItem, MenuItemProps, showContextMenu } from '@decky/ui';
+import { DialogButton, Focusable, GamepadButton, gamepadContextMenuClasses, Menu, MenuItem, showContextMenu } from '@decky/ui';
 import { FC, useState, useLayoutEffect } from 'react';
 import { DSPPageType, dspPageDict, DSPPageOrder, getDefaultDSPPageOrder } from '../../defines/dspPageTypeDictionary';
 import { ReorderableEntry, ReorderableList } from '../generic/ReorderableList';
+import { MenuItemNoClose } from '../generic/MenuItemNoClose';
 
 interface ReorderDspPagesProps {
     currentOrder: DSPPageOrder;
@@ -79,22 +80,6 @@ const ReorderDspPagesMenu: FC<ReorderDspPagesMenuProps> = ({ currentOrder, onCon
             </MenuItem>
         </Menu>
     );
-};
-
-interface MenuItemNoCloseProps extends Omit<MenuItemProps, 'bInteractableItem' | 'onSelected' | 'onMouseEnter' | 'onMoveRight' | 'selected' | 'bPlayAudio' | 'tone'> {
-    className?: string;
-}
-
-const MenuItemNoClose: FC<MenuItemNoCloseProps> = ({ onClick, disabled, className, children, ...props }) => {
-    return <Focusable
-        className={`${gamepadContextMenuClasses.contextMenuItem} contextMenuItem` + (className ? ` ${className}` : '') + (disabled ? ' disabled' : '')}
-        focusClassName={gamepadContextMenuClasses.Focused}
-        onActivate={disabled ? undefined : onClick}
-        noFocusRing={true}
-        {...props}
-    >
-        {children}
-    </Focusable>;
 };
 
 export const ReorderDspPagesButton: FC<ReorderDspPagesMenuProps> = ({ ...menuProps }) => {

@@ -41,7 +41,7 @@ class EELParser:
             with open(self.path, "r") as script_file:
                 return script_file.read()
         except OSError as e:
-            decky.logger.error(f"Error reading file {self.path}: {e}")
+            decky.logger.error(f"Error reading eel file {self.path}: {e}")
             raise e
             
     def _write(self, script):
@@ -49,7 +49,7 @@ class EELParser:
             with open(self.path, "w") as script_file:
                 script_file.write(script)
         except OSError as e:
-            decky.logger.error(f"Error writing file {self.path}: {e}")
+            decky.logger.error(f"Error writing eel file {self.path}: {e}")
 
     def _parse(self):
         pattern = re.compile(r"(?P<var>\w+):(?P<def>-?\d+\.?\d*)?<(?P<min>-?\d+\.?\d*),(?P<max>-?\d+\.?\d*),?(?P<step>-?\d+\.?\d*)?(?:\{(?P<opt>[^\}]*)\})?>(?P<desc>[^\n]*)$")

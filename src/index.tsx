@@ -24,9 +24,9 @@ export default definePlugin(() => {
         DSPPageTypes.COMPANDER,
         DSPPageTypes.STEREO,
         DSPPageTypes.REVERB,
-        DSPPageTypes.OTHER,
+        DSPPageTypes.BASS_TUBE,
         DSPPageTypes.EEL,
-        DSPPageTypes.CONVOLVER
+        DSPPageTypes.DDC_CONVOLVER,
     ]);
 
     const PagerWrapper: FC<{}> = ({ }) => {

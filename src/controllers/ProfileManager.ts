@@ -41,6 +41,11 @@ export class ProfileManager {
         return this.profiles[this.activeProfileId];
     }
 
+    get activeProfilePresetName(){
+        const profile = this.profiles[this.activeProfileId];
+        return ProfileManager.makePresetName(profile.id, profile.type);
+    }
+
     async init() {
         const initProfilesRes = await this.initProfiles();
         if (initProfilesRes instanceof Error) return initProfilesRes;

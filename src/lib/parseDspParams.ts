@@ -13,6 +13,7 @@ export function parseJDSPParam<Param extends DSPParameter>(parameterName: Param,
         case 'tube_enable':
         case 'liveprog_enable':
         case 'convolver_enable':
+        case 'ddc_enable':
             return (value.toLowerCase() === 'true') as DSPParameterType<Param>;
         case 'master_postgain':
         case 'master_limrelease':
@@ -51,6 +52,7 @@ export function parseJDSPParam<Param extends DSPParameter>(parameterName: Param,
             return parseJDSPEQParams(value) as DSPParameterType<Param>;
         case 'liveprog_file':
         case 'convolver_file':
+        case 'ddc_file':
             return value as DSPParameterType<Param>;
         default:
             throw new Error(`Unexpected parameter: ${parameterName}`);

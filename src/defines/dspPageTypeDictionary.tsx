@@ -1,4 +1,4 @@
-import { QAMDspMainPage, QAMDspEQPage, QAMDspCompanderPage, QAMDspStereoPage, QAMDspReverbPage, QAMDspOtherPage, QAMDspEELPage, QAMDspConvolverPage } from '../components/qam/pager/QAMDspPages';
+import { QAMDspMainPage, QAMDspEQPage, QAMDspCompanderPage, QAMDspStereoPage, QAMDspReverbPage, QAMDspBassTubePage, QAMDspEELPage, QAMDspDDCConvolverPage } from '../components/qam/pager/QAMDspPages';
 
 export const dspPageDict = {
     MAIN: {
@@ -21,18 +21,18 @@ export const dspPageDict = {
         element: <QAMDspReverbPage />,
         displayName: 'Reverb'
     },
-    OTHER: {
-        element: <QAMDspOtherPage />,
+    BASS_TUBE: {
+        element: <QAMDspBassTubePage />,
         displayName: 'Bass Boost/ Tube Modeling'
     },
     EEL: {
         element: <QAMDspEELPage />,
         displayName: 'EEL Script'
     },
-    CONVOLVER: {
-        element: <QAMDspConvolverPage />,
-        displayName: 'Convolver'
-    }
+    DDC_CONVOLVER: {
+        element: <QAMDspDDCConvolverPage />,
+        displayName: 'ViPER-DDC/ Convolver'
+    },
 } as const;
 
 export const DSPPageTypes = Object.fromEntries(

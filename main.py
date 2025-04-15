@@ -1,17 +1,14 @@
-import json
 import os
 import subprocess
 from typing import Dict
 from EelParser import EELCache, EELParser
+from ddc import VdcDbHandler
+from extendedsettings import ExtendedSettings
 from settings import SettingsManager
 
 from env import env
 from jdspproxy import JdspProxy
 from utils import compare_versions, flatpak_CMD, get_xauthority
-
-# The decky plugin module is located at decky-loader/plugin
-# For easy intellisense checkout the decky-loader code one directory up
-# or add the `decky-loader/plugin` path to `python.analysis.extraPaths` in `.vscode/settings.json`
 
 import decky
 
@@ -22,7 +19,8 @@ JDSP_MIN_VER = '2.7.0'
 
 log = decky.logger
 
-settings_manager = SettingsManager(name="settings", settings_directory=os.environ["DECKY_PLUGIN_SETTINGS_DIR"])
+settings_manager = SettingsManager(name="settings", settings_directory=decky.DECKY_PLUGIN_SETTINGS_DIR)
+vdc_db_profile_selections = ExtendedSettings(name='vdc-db-profile-selections', settings_directory=decky.DECKY_PLUGIN_SETTINGS_DIR)
 
 default_plugin_settings = {
     'enableInDesktop': False
@@ -40,6 +38,7 @@ class Plugin:
         'watchedApps': {}
     }
     eel_cache: Dict[str, EELCache.ScriptCache] = {}
+    vdc_handler: VdcDbHandler
 
     async def _main(self):
         log.info('Starting plugin backend...')
@@ -78,6 +77,7 @@ class Plugin:
         profiles = settings_manager.getSetting('profiles', default_profiles_settings)
         self.profiles.update(profiles)
         self._load_eel_cache()
+        self.vdc_handler = VdcDbHandler(os.path.join(decky.DECKY_PLUGIN_DIR, 'assets', 'DDCData.json'))
 
     def _save_profile_settings(self):
         settings_manager.setSetting('profiles', {setting: self.profiles[setting] for setting in self.profiles.keys() - { 'currentPreset' }})
@@ -134,6 +134,19 @@ class Plugin:
         self.jdsp.set_and_commit('liveprog_file', "")
         self.jdsp.set_and_commit('liveprog_file', self.eel_parser.path)
 
+        
+    def _get_jdsp_all_and_apply_vdc_from_db(self, preset_name):
+        vdc_path = self.jdsp.get('ddc_file').get('jdsp_result', '').strip()
+        if self.vdc_handler.is_proxy_path(vdc_path): # using database proxy file
+            self.jdsp.set_and_commit('ddc_file', '')
+
+            selected_vdc_id = vdc_db_profile_selections.getSetting(preset_name)
+            if self.vdc_handler.set_and_commit(selected_vdc_id): # vdc id is in database. if this is false empty string is set for the jdsp param
+                self.jdsp.set_and_commit('ddc_file', self.vdc_handler._jdsp_proxy_path)
+            else: 
+                vdc_db_profile_selections.removeSetting(preset_name)
+        return self.jdsp.get_all()
+        
     """
     ===================================================================================================================================
     FRONTEND CALLED METHODS
@@ -234,10 +247,32 @@ class Plugin:
     async def set_eel_param(self, paramName, value):
         self.eel_parser.set_and_commit(paramName, value)
         self._update_eel_cache_and_reload_jdsp()
-
+    
+    # general-frontend-call
     async def reset_eel_params(self):
         self.eel_parser.reset_to_defaults()
         self._update_eel_cache_and_reload_jdsp()
+    
+    # general-frontend-call
+    async def set_vdc_db_selection(self, vdcId, presetName): 
+        jdsp_error = JdspProxy.has_error(await self.set_jdsp_param('ddc_file', ''))
+        if jdsp_error: return { 'error': 'Failed setting jdsp ddc_file empty for reload'}
+            
+        if self.vdc_handler.set_and_commit(vdcId):
+            jdsp_error = JdspProxy.has_error(await self.set_jdsp_param('ddc_file', self.vdc_handler._jdsp_proxy_path))
+            if jdsp_error: return { 'error': 'Failed reloading jdsp ddc_file'}
+            vdc_db_profile_selections.setSetting(presetName, vdcId)
+        else: 
+            vdc_db_profile_selections.removeSetting(presetName)
+            return { 'error': f'Could not find vdc id: {vdcId} in the database' }
+    
+    # general-frontend-call
+    async def get_vdc_db_selections(self):
+        return vdc_db_profile_selections.settings
+        
+    # general-frontend-call
+    async def get_static_data(self):
+        return { 'vdcDb': self.vdc_handler.get_db() }
     
     """
     ------------------------------------------
@@ -256,6 +291,7 @@ class Plugin:
             self.jdsp.save_preset(self.profiles['currentPreset'])
         return res
     
+    # jdsp-frontend-call
     async def set_jdsp_params(self, values):
         for parameter, value in values:
             res = self.jdsp.set_and_commit(parameter, value)
@@ -267,7 +303,7 @@ class Plugin:
 
     # jdsp-frontend-call
     async def get_all_jdsp_param(self):
-        return self.jdsp.get_all()
+        return self._get_jdsp_all_and_apply_vdc_from_db(self.profiles['currentPreset'])
 
     # jdsp-frontend-call
     async def set_jdsp_defaults(self, defaultPreset):
@@ -290,6 +326,7 @@ class Plugin:
 
     # jdsp-frontend-call
     async def delete_jdsp_preset(self, presetName):
+        vdc_db_profile_selections.removeSetting(presetName)
         return self.jdsp.delete_preset(presetName)
 
     # jdsp-frontend-call
@@ -301,8 +338,9 @@ class Plugin:
         
         self.profiles['currentPreset'] = presetName
         self._save_profile_settings()
-        return self.jdsp.get_all()
+        return self._get_jdsp_all_and_apply_vdc_from_db(presetName)
     
+    # jdsp-frontend-call
     async def create_default_jdsp_preset(self, defaultName):
         config_dir = os.path.expanduser(f'~/.var/app/{APPLICATION_ID}/config/jamesdsp/')
 
