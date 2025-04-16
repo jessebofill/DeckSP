@@ -8,7 +8,7 @@ from settings import SettingsManager
 
 from env import env
 from jdspproxy import JdspProxy
-from utils import compare_versions, flatpak_CMD, get_xauthority
+from utils import SettingDef, compare_versions, flatpak_CMD, get_xauthority
 
 import decky
 
@@ -20,24 +20,39 @@ JDSP_MIN_VER = '2.7.0'
 log = decky.logger
 
 settings_manager = SettingsManager(name="settings", settings_directory=decky.DECKY_PLUGIN_SETTINGS_DIR)
+profile_manager = SettingsManager(name="profile-manager", settings_directory=decky.DECKY_PLUGIN_SETTINGS_DIR)
 vdc_db_profile_selections = ExtendedSettings(name='vdc-db-profile-selections', settings_directory=decky.DECKY_PLUGIN_SETTINGS_DIR)
+eel_cache = ExtendedSettings(name='eel-parameters', settings_directory=decky.DECKY_PLUGIN_SETTINGS_DIR)
 
-default_plugin_settings = {
-    'enableInDesktop': False
-}
 
-ingore_as_setting = ['profiles', 'eel_param_cache']
+"""
+------------------------------------------------------------------------------------------------------------------------------
+Setting definitions
+"""
+class Setting(SettingDef):
+    ENABLE_IN_DESKTOP = 'enableInDesktop'
+    DSP_PAGE_ORDER = 'dspPageOrder'
+
+    class Defaults:
+        ENABLE_IN_DESKTOP = False
+        
+
+class ProfileSetting(SettingDef):
+    MANUAL_PRESET = 'manualPreset'
+    USE_MANUAL = 'useManual'
+    WATCHED_APPS = 'watchedApps'
+
+    class Defaults:
+        USE_MANUAL = False
+        WATCHED_APPS = {}
+"""
+------------------------------------------------------------------------------------------------------------------------------
+"""
 
 class Plugin:
     jdsp: JdspProxy = None
     jdsp_install_state = False
-    profiles = {
-        'currentPreset': '',
-        'manualPreset': '',
-        'useManual': False,
-        'watchedApps': {}
-    }
-    eel_cache: Dict[str, EELCache.ScriptCache] = {}
+    current_preset = ''
     vdc_handler: VdcDbHandler
 
     async def _main(self):
@@ -53,7 +68,6 @@ class Plugin:
             log.info('Plugin ready')
         else:
             log.error('Problem with JamesDSP installation')
-
 
     async def _uninstall(self):
         log.info('Uninstalling plugin...')
@@ -73,15 +87,21 @@ class Plugin:
         flatpak_CMD(['kill', APPLICATION_ID], noCheck=True)
 
     def _load_settings(self):
-        default_profiles_settings = {setting: self.profiles[setting] for setting in self.profiles.keys() - { 'currentPreset' }}
-        profiles = settings_manager.getSetting('profiles', default_profiles_settings)
-        self.profiles.update(profiles)
-        self._load_eel_cache()
+        self._init_setting_defaults()
+        self._clean_eel_cache()
         self.vdc_handler = VdcDbHandler(os.path.join(decky.DECKY_PLUGIN_DIR, 'assets', 'DDCData.json'))
-
-    def _save_profile_settings(self):
-        settings_manager.setSetting('profiles', {setting: self.profiles[setting] for setting in self.profiles.keys() - { 'currentPreset' }})
-
+        
+    def _init_setting_defaults(self):
+        self._set_settings(Setting.defaults())
+        for setting, value in ProfileSetting.defaults().items():
+            profile_manager.settings[setting] = value;
+        profile_manager.commit()
+        
+    def _set_settings(self, settings):
+        for setting, value in settings.items():
+            settings_manager.settings[setting] = value;
+        settings_manager.commit()
+        
     def _handle_jdsp_install(self):
         try:
             flatpak_CMD(['--user', 'remote-add', '--if-not-exists', 'flathub', 'https://dl.flathub.org/repo/flathub.flatpakrepo'])
@@ -119,22 +139,20 @@ class Plugin:
         except subprocess.CalledProcessError as e:
             log.error(e.stderr)
             return False
-
-    def _load_eel_cache(self):
-        cache = settings_manager.getSetting('eel_param_cache', {})
-        update_settings = False
-        for path in cache.keys():
-            if os.path.exists(path): self.eel_cache[path] = cache[path]
-            else: update_settings = True
-        if update_settings: settings_manager.setSetting('eel_param_cache', self.eel_cache)
+        
+    def _clean_eel_cache(self):
+        deleted = False
+        for path in list(eel_cache.settings.keys()):
+            if not os.path.exists(path):
+                del eel_cache.settings[path]
+                deleted = True
+        if deleted: eel_cache.commit()
 
     def _update_eel_cache_and_reload_jdsp(self):
-        self.eel_cache[self.eel_parser.path] = self.eel_parser.cache
-        settings_manager.setSetting('eel_param_cache', self.eel_cache)
+        eel_cache.setSetting(self.eel_parser.path, self.eel_parser.cache)
         self.jdsp.set_and_commit('liveprog_file', "")
         self.jdsp.set_and_commit('liveprog_file', self.eel_parser.path)
 
-        
     def _get_jdsp_all_and_apply_vdc_from_db(self, preset_name):
         vdc_path = self.jdsp.get('ddc_file').get('jdsp_result', '').strip()
         if self.vdc_handler.is_proxy_path(vdc_path): # using database proxy file
@@ -185,17 +203,11 @@ class Plugin:
 
     # general-frontend-call
     async def get_settings(self):
-        settings = {}
-        for setting in settings_manager.settings:
-            if setting in ingore_as_setting:
-                continue
-            settings[setting] = settings_manager.getSetting(setting, default_plugin_settings.get(setting))
-        return settings
+        return settings_manager.settings
     
     # general-frontend-call
     async def set_settings(self, settings):
-        for setting, value in settings.items():
-            settings_manager.setSetting(setting, value)
+        self._set_settings(settings)
 
     # general-frontend-call
     async def flatpak_repair(self):
@@ -208,36 +220,35 @@ class Plugin:
 
     # general-frontend-call
     async def set_app_watch(self, appId, watch):
-        self.profiles['watchedApps'][appId] = watch
-        self._save_profile_settings()
+        watched = profile_manager.getSetting(ProfileSetting.WATCHED_APPS)
+        watched[appId] = watch
+        profile_manager.setSetting(ProfileSetting.WATCHED_APPS, watched)
 
     # general-frontend-call
     async def init_profiles(self, globalPreset):
-        if self.profiles['manualPreset'] == '':               # manual preset should be set from first loading settings file, if not then file doesn't exist yet
-            self.profiles['manualPreset'] = globalPreset
-            log.info('No settings file detected. Creating one.')
-            self._save_profile_settings()
+        if profile_manager.getSetting(ProfileSetting.MANUAL_PRESET) is None:
+            profile_manager.setSetting(ProfileSetting.MANUAL_PRESET, globalPreset)
 
         presets = self.jdsp.get_presets()
         if JdspProxy.has_error(presets):
             return { 'error': str(presets) }
 
         return { 
-            'manualPreset': self.profiles['manualPreset'], 
+            'manualPreset': profile_manager.getSetting(ProfileSetting.MANUAL_PRESET), 
             'allPresets': presets['jdsp_result'], 
-            'watchedGames': self.profiles['watchedApps'], 
-            'manuallyApply': self.profiles['useManual'] 
+            'watchedGames': profile_manager.getSetting(ProfileSetting.WATCHED_APPS),
+            'manuallyApply': profile_manager.getSetting(ProfileSetting.USE_MANUAL) 
         }
 
     # general-frontend-call
     async def set_manually_apply_profiles(self, useManual):
-        self.profiles['useManual'] = useManual
+        profile_manager.settings[ProfileSetting.USE_MANUAL] = useManual
     
     # general-frontend-call
     async def get_eel_params(self, path, profileId):
         if path == '': 
             return []
-        self.eel_parser = EELParser(path, self.eel_cache.get(path, {}), profileId)
+        self.eel_parser = EELParser(path, eel_cache.getSetting(path, {}), profileId)
         if hasattr(self.eel_parser, "error"):
             return { 'error': str(self.eel_parser.error) }
         self._update_eel_cache_and_reload_jdsp()
@@ -288,7 +299,7 @@ class Plugin:
     async def set_jdsp_param(self, parameter, value):
         res = self.jdsp.set_and_commit(parameter, value)
         if not JdspProxy.has_error(res):
-            self.jdsp.save_preset(self.profiles['currentPreset'])
+            self.jdsp.save_preset(self.current_preset)
         return res
     
     # jdsp-frontend-call
@@ -298,18 +309,18 @@ class Plugin:
             if JdspProxy.has_error(res):
                 return res
     
-        self.jdsp.save_preset(self.profiles['currentPreset'])
+        self.jdsp.save_preset(self.current_preset)
         return {'jdsp_result': ''}
 
     # jdsp-frontend-call
     async def get_all_jdsp_param(self):
-        return self._get_jdsp_all_and_apply_vdc_from_db(self.profiles['currentPreset'])
+        return self._get_jdsp_all_and_apply_vdc_from_db(self.current_preset)
 
     # jdsp-frontend-call
     async def set_jdsp_defaults(self, defaultPreset):
         loadres = self.jdsp.load_preset(defaultPreset)                        # load the default preset settings
         if JdspProxy.has_error(loadres): return loadres
-        saveres = self.jdsp.save_preset(self.profiles['currentPreset'])     # save the current preset with current settings
+        saveres = self.jdsp.save_preset(self.current_preset)     # save the current preset with current settings
         if JdspProxy.has_error(saveres): return saveres
         return self.jdsp.get_all()
 
@@ -320,7 +331,7 @@ class Plugin:
             if JdspProxy.has_error(loadres): return loadres
             saveres = self.jdsp.save_preset(presetName)                       # save the new preset with current settings
             if JdspProxy.has_error(saveres): return saveres
-            return self.jdsp.load_preset(self.profiles['currentPreset'])    # reload the previous preset settings
+            return self.jdsp.load_preset(self.current_preset)    # reload the previous preset settings
         else: 
             return self.jdsp.save_preset(presetName)
 
@@ -332,12 +343,12 @@ class Plugin:
     # jdsp-frontend-call
     async def set_profile(self, presetName, isManual):
         if isManual:
-            self.profiles['manualPreset'] = presetName
+            profile_manager.settings[ProfileSetting.MANUAL_PRESET] = presetName
         res = self.jdsp.load_preset(presetName)
         if JdspProxy.has_error(res): return res
         
-        self.profiles['currentPreset'] = presetName
-        self._save_profile_settings()
+        self.current_preset = presetName
+        profile_manager.commit()
         return self._get_jdsp_all_and_apply_vdc_from_db(presetName)
     
     # jdsp-frontend-call

@@ -51,3 +51,12 @@ def compare_versions(version1, version2):
         elif part_v1 > part_v2:
             return 1
     return 0
+
+class SettingDef:
+    @classmethod
+    def defaults(cls):
+        return {
+            getattr(cls, attr): getattr(cls.Defaults, attr)
+            for attr in dir(cls.Defaults)
+            if not attr.startswith("__")
+        }
