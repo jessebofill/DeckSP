@@ -7,6 +7,10 @@ import { PluginSettings, StaticFromBackend } from '../types/types';
 import { sleep } from '@decky/ui';
 
 type PromiseKey = keyof typeof PluginManager.promises;
+type User = {
+    name: string;
+    id: string;
+};
 
 export class PluginManager {
     static promises: {
@@ -16,23 +20,45 @@ export class PluginManager {
         static?: Promise<StaticFromBackend | Error>
     } = {};
     private static uiMode?: EUIMode
+    static currentUser?: User;
 
-    static async init() {
+    static init() {
+        let disposed = false;
+        const listeners: Unregisterable[] = [];
+        const dispose = () => {
+            if (!disposed) {
+                this.killJDSP();
+                listeners.forEach(listener => listener.unregister());
+                disposed = true;
+            }
+        };
+
         initSystemPerfStore();
-        this.promises.pluginSettings = Backend.getPluginSettings().catch((e) => useError('Problem getting plugin settings', e));
+        listeners.push(SteamClient.User.RegisterForLoginStateChange((_, loginState) => {
+            if (loginState === ELoginState.Success) {
+                const { strAccountName: name, strSteamID: id } = App.GetCurrentUser();
+                this.currentUser = { name, id };
+            }
+        }));
 
-        SteamClient.UI.RegisterForUIModeChanged(async uiMode => {
+        listeners.push(SteamClient.UI.RegisterForUIModeChanged(async uiMode => {
             if (this.uiMode === uiMode) return;
             else this.uiMode = uiMode;
+            while (!this.currentUser) {
+                await sleep(2000);
+            }
 
-            const settings = await this.promises.pluginSettings!;
+            this.promises.pluginSettings = Backend.initUser(this.currentUser.id, this.currentUser.name).catch((e) => useError('Problem initializing user', e));
+            const settings = await this.promises.pluginSettings;
             if (uiMode === EUIMode.Desktop) {
                 if (!(settings instanceof Error) && settings.enableInDesktop) this.start();
                 else this.killJDSP();
             } else {
                 this.start();
             }
-        });
+        }));
+        listeners.push(SteamClient.User.RegisterForShutdownStart(() => dispose()));
+        return dispose;
     }
 
     private static async start() {
@@ -52,7 +78,7 @@ export class PluginManager {
         const profileManagerInit = profileManager.init();
         profileManager.setLock(profileManagerInit);
         this.promises.profileManagerLoaded = profileManagerInit.then((res) => res instanceof Error ? useError('Problem during ProfileManager init process', res) : res);
-        this.promises.static = Backend.getStaticData().catch(e => useError('Error loading static data', e)); 
+        this.promises.static = Backend.getStaticData().catch(e => useError('Error loading static data', e));
     }
 
     private static async isJDSPReady() {

@@ -25,11 +25,7 @@ class EELCache:
 class EELParser:
     def __init__(self, path, cache: EELCache.ScriptCache, profile_id):
         self.path = path
-        try:
-            self._lines = self._read().splitlines()
-        except Exception as e:
-            self.error = e
-            return
+        self._lines = self._read().splitlines()
         self.cache = cache
         self.profile = profile_id
         self.parameters: List[Parameter] = []
@@ -50,6 +46,7 @@ class EELParser:
                 script_file.write(script)
         except OSError as e:
             decky.logger.error(f"Error writing eel file {self.path}: {e}")
+            raise e
 
     def _parse(self):
         pattern = re.compile(r"(?P<var>\w+):(?P<def>-?\d+\.?\d*)?<(?P<min>-?\d+\.?\d*),(?P<max>-?\d+\.?\d*),?(?P<step>-?\d+\.?\d*)?(?:\{(?P<opt>[^\}]*)\})?>(?P<desc>[^\n]*)$")

@@ -121,3 +121,15 @@ const enum EHIDKeyboardKey {
     Prev,
     AfterLast,
 }
+
+const enum ELoginState {
+    None,
+    WelcomeDialog,
+    WaitingForCreateUser,
+    WaitingForCredentials,
+    WaitingForNetwork,
+    WaitingForServerResponse,
+    WaitingForLibraryReady,
+    Success,
+    Quit,
+}

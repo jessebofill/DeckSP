@@ -15,7 +15,7 @@ import { DSPPageTypes, getDSPPages, defineDefaultDspPageOrder, validateDSPPageOr
 
 export default definePlugin(() => {
     routerHook.addRoute(infoRoute, () => <InfoPage />);
-    PluginManager.init();
+    const disposePlugin = PluginManager.init();
     const pagerLinker = new PagerLinker();
 
     const defaultDspPageOrder = defineDefaultDspPageOrder([
@@ -57,6 +57,7 @@ export default definePlugin(() => {
         onDismount() {
             profileManager.activeGameReactionDisposer?.();
             routerHook.removeRoute(infoRoute);
+            disposePlugin();
         },
     };
 });

@@ -6,7 +6,7 @@ import { EELParameter, EELParameterType, PluginSettings, StaticFromBackend } fro
 
 export type BackendMethod = PluginMethod | JDSPMethod;
 
-export type PluginGetSettingsMethod = 'get_settings';
+export type PluginInitUserMethod = 'init_user';
 export type PluginSetSettingMethod = 'set_settings';
 export type PluginGetStaticDataMethod = 'get_static_data';
 export type PluginStartJDSPMethod = 'start_jdsp';
@@ -23,7 +23,7 @@ export type PluginSetVdcDbSelectionMethod = 'set_vdc_db_selection';
 
 
 export type PluginMethod =
-    PluginGetSettingsMethod |
+    PluginInitUserMethod |
     PluginSetSettingMethod |
     PluginGetStaticDataMethod |
     PluginStartJDSPMethod |
@@ -39,7 +39,8 @@ export type PluginMethod =
     PluginSetVdcDbSelectionMethod;
 
 export type PluginMethodArgs<Method extends PluginMethod> =
-    Method extends PluginGetSettingsMethod | PluginStartJDSPMethod | PluginKillJDSPMethod | PluginFlatpakRepairMethod | PluginResetEELParamsMethod | PluginGetStaticDataMethod | PluginGetVdcDbSelectionsMethod ? [] :
+    Method extends PluginInitUserMethod ? [userId: string, userName: string] :
+    Method extends PluginStartJDSPMethod | PluginKillJDSPMethod | PluginFlatpakRepairMethod | PluginResetEELParamsMethod | PluginGetStaticDataMethod | PluginGetVdcDbSelectionsMethod ? [] :
     Method extends PluginSetSettingMethod ? [settings: Partial<PluginSettings>] :
     Method extends PluginSetAppWatchMethod ? [appId: string, watch: boolean] :
     Method extends PluginInitProfilesMethod ? [globalPreset: string] :
@@ -50,7 +51,7 @@ export type PluginMethodArgs<Method extends PluginMethod> =
     never;
 
 export type PluginMethodResponse<Method extends PluginMethod> =
-    Method extends PluginGetSettingsMethod ? PluginSettings :
+    Method extends PluginInitUserMethod ? PluginSettings :
     Method extends PluginGetStaticDataMethod ? StaticFromBackend :
     Method extends PluginStartJDSPMethod ? boolean :
     Method extends PluginKillJDSPMethod | PluginSetSettingMethod | PluginSetAppWatchMethod | PluginSetManuallyApplyProfilesMethod | PluginFlatpakRepairMethod | PluginSetEELParamMethod | PluginResetEELParamsMethod | PluginSetVdcDbSelectionMethod ? undefined :
@@ -150,8 +151,8 @@ export class Backend {
     static async killJDSP() {
         return await this.callPlugin('kill_jdsp');
     }
-    static async getPluginSettings() {
-        return await this.callPlugin('get_settings');
+    static async initUser(userId: string, userName: string) {
+        return await this.callPlugin('init_user', userId, userName);
     }
     static async setPluginSettings(settings: Partial<PluginSettings>) {
         return await this.callPlugin('set_settings', settings);

@@ -12,20 +12,24 @@ class JdspProxy:
     def __run(self, command, *args):
         try:
             result = subprocess.run(['flatpak', '--user', 'run', self.app_id, '-c', command, *args], check=True, capture_output=True, text=True, env=env)
-            return JdspProxy.wrap_process_result(result)
+            return self._wrap_process_result(result)
         
         except subprocess.CalledProcessError as e:
-            return JdspProxy.wrap_process_result(e)
+            return self._wrap_process_result(e)
         
-    @staticmethod
-    def wrap_process_result(result: subprocess.CompletedProcess[str] | subprocess.CalledProcessError):
+
+    def _wrap_process_result(self, result: subprocess.CompletedProcess[str] | subprocess.CalledProcessError):
         if result.stderr != '':
             msg = result.stderr
             if result.stderr.startswith("error:"):
                 msg = result.stderr[len("error:"):].strip()
             return {JDSP_ERROR_STR: msg}
             
-        return {'jdsp_result': result.stdout}
+        return JdspProxy.wrap_success_result(result.stdout)
+    
+    @staticmethod
+    def wrap_success_result(result):
+        return {'jdsp_result': result}
 
     @staticmethod
     def has_error(result: dict[str]):

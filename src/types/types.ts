@@ -7,6 +7,7 @@ declare global {
     var SteamUIStore: SteamUiStore;
     var SteamClient: SteamClient;
     var WebBrowserPlugin: WebBrowserAPI | undefined;
+    var App: App;
 }
 
 interface WebBrowserAPI {

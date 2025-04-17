@@ -60,3 +60,6 @@ class SettingDef:
             for attr in dir(cls.Defaults)
             if not attr.startswith("__")
         }
+        
+def wrap_error(e):
+    return { 'error': e }

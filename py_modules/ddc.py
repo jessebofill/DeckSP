@@ -35,6 +35,7 @@ class VdcDbHandler:
                 file.write(data)
         except OSError as e:
             decky.logger.error(f"Error writing file {self._jdsp_proxy_path}: {e}")
+            raise e
 
     def _compose_vdc_file(self, index):
         sr_44100_coeffs = self._coefficients(index, 44100)

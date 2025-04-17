@@ -1,18 +1,27 @@
 interface Unregisterable {
     unregister(): void;
-}
+};
 
 interface SteamClientUI {
     RegisterForUIModeChanged(callback: (mode: EUIMode) => void): Unregisterable;
-}
+};
 
 interface SteamClientInput {
     ControllerKeyboardSendText(textToWrite: string): void;
     ControllerKeyboardSetKeyState(keyIndex: EHIDKeyboardKey, state: boolean): void;
-}
+};
+
+type SteamClientUser = {
+    RegisterForCurrentUserChanges: (callback: (user: CurrentUser) => void) => Unregisterable;
+    RegisterForLoginStateChange: (callback: (accountName: string, loginState: ELoginState, loginResult: number, loginPercentage: number, param4: string) => void) => Unregisterable;
+    RegisterForPrepareForSystemSuspendProgress: (callback: (data: any) => void) => Unregisterable;
+    RegisterForShutdownStart: (callback: () => void) => Unregisterable;
+    RegisterForShutdownDone: (callback: () => void) => Unregisterable;
+    StartRestart: () => void;
+};
 
 interface SteamClient {
-    Apps: Apps;
+    Apps: any;
     Browser: any;
     BrowserView: any;
     ClientNotifications: any;
@@ -45,7 +54,7 @@ interface SteamClient {
     UI: SteamClientUI;
     URL: any;
     Updates: any;
-    User: any;
+    User: SteamClientUser;
     WebChat: any;
     Window: Window;
-}
+};
