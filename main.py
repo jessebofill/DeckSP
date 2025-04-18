@@ -374,39 +374,16 @@ class Plugin:
     
     # jdsp-frontend-call
     async def create_default_jdsp_preset(self, defaultName):
-        config_dir = os.path.expanduser(f'~/.var/app/{APPLICATION_ID}/config/jamesdsp/')
-
-        if not os.path.exists(config_dir):
-            log.info('Creating default preset: audio.conf directory was dot detected')
-            return self.jdsp.save_preset(defaultName)
-
-        conf_file = os.path.join(config_dir, 'audio.conf')
-        temp_conf = os.path.join(config_dir, 'audio_old.conf')
-
+        conf_file = os.path.expanduser(f'~/.var/app/{APPLICATION_ID}/config/jamesdsp/audio.conf')
         if os.path.exists(conf_file):
             try:
-                os.rename(conf_file, temp_conf)
-                await self.start_jdsp()
-
-                log.info('Creating default preset: Existing audio.conf detected')
-                self.jdsp.save_preset(defaultName)
-
-                if os.path.exists(conf_file):
-                    os.remove(conf_file)
-                os.rename(temp_conf, conf_file)
-                await self.start_jdsp(self)
-
-                return JdspProxy.wrap_success_result('')
-            
+                os.remove(conf_file) # clear existing settings to ensure defaults    
             except Exception as e:    
-                log.error('Error trying to create default preset when audio.conf already existed')
-                if isinstance(e, subprocess.CalledProcessError):
-                    log.error(e.stderr)
+                log.error(f'Error deleting audio.conf when trying to create default preset: {e}')
                 raise e
         
-        else:
-            log.info('Creating default preset: No existing audio.conf was detected')
-            return self.jdsp.save_preset(defaultName)
+        log.info('Creating default preset')
+        return self.jdsp.save_preset(defaultName)
 
     """
     ===================================================================================================================================
