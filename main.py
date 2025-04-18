@@ -1,4 +1,5 @@
 import os
+import re
 import subprocess
 from typing import Any, Dict
 from EelParser import EELCache, EELParser
@@ -18,12 +19,6 @@ JDSP_LOG = os.path.join(JDSP_LOG_DIR, 'jdsp.log')
 JDSP_MIN_VER = '2.7.0'
 
 log = decky.logger
-
-settings_manager = SettingsManager(name="settings", settings_directory=decky.DECKY_PLUGIN_SETTINGS_DIR)
-profile_manager = SettingsManager(name="profile-manager", settings_directory=decky.DECKY_PLUGIN_SETTINGS_DIR)
-vdc_db_profile_selections = ExtendedSettings(name='vdc-db-profile-selections', settings_directory=decky.DECKY_PLUGIN_SETTINGS_DIR)
-eel_cache = ExtendedSettings(name='eel-parameters', settings_directory=decky.DECKY_PLUGIN_SETTINGS_DIR)
-
 
 """
 ------------------------------------------------------------------------------------------------------------------------------
@@ -70,6 +65,7 @@ class Plugin:
 
     async def _main(self):
         log.info('Starting plugin backend...')
+        self._remove_legacy_settings()
         if not os.path.exists(JDSP_LOG_DIR):
             os.makedirs(JDSP_LOG_DIR)
 
@@ -157,6 +153,7 @@ class Plugin:
         vdc_path = self.jdsp.get('ddc_file').get('jdsp_result', '').strip()
         try:
             if self.vdc_handler.is_proxy_path(vdc_path): # using database proxy file
+                self.jdsp.set_and_commit('ddc_file', '/home/deck/.var/app/me.timschneeberger.jdsp4linux/config/jamesdsp/vdc') # setting this empty or any random string doesnt actually clear the effect for some reason, but this works, so set it first
                 self.jdsp.set_and_commit('ddc_file', '')
     
                 selected_vdc_id = on_disk.vdc_db_selections.getSetting(preset_name)
@@ -167,6 +164,33 @@ class Plugin:
         except Exception as e:
             return wrap_error(e)
         return self.jdsp.get_all()
+    
+    # changes from 1.0.0
+    def _rename_legacy_presets(self, user_id):
+        presets_res = self.jdsp.get_presets()
+        if JdspProxy.has_error(presets_res):
+            log.info(f'Problem getting presets when trying to update legacy: {JdspProxy.unwrap(presets_res)}')
+            
+        presets = JdspProxy.unwrap(presets_res).splitlines()
+        regex = re.compile(r"^(decksp).(user|game):(.+)$")
+        
+        for _, preset in enumerate(presets):
+            match = regex.search(preset)
+            if match:
+                decksp_prefix, type, profile_id = match.groups()
+                if type == 'user': type = 'custom'
+                rename_res = self.jdsp.rename_preset(preset, f'{decksp_prefix}.{user_id}.{type}:{profile_id}')
+                if JdspProxy.has_error(rename_res):
+                    log.info(f'Problem renaming legacy jdsp preset {preset}: {JdspProxy.unwrap(rename_res)}')
+    
+    # changes from 1.0.0
+    def _remove_legacy_settings(self):
+        legacy_settings_path = os.path.join(decky.DECKY_PLUGIN_SETTINGS_DIR, 'settings.json')
+        if os.path.exists(legacy_settings_path):
+            try:
+                os.remove(legacy_settings_path) 
+            except Exception as e:    
+                log.error(f'Error trying to remove legacy settings: {e}')
         
     """
     ===================================================================================================================================
@@ -237,10 +261,11 @@ class Plugin:
         on_disk.profiles.setSetting(ProfileSetting.WATCHED_APPS, watched)
 
     # general-frontend-call
-    async def init_profiles(self, globalPreset):
+    async def init_profiles(self, globalPreset, currentUser):
         if on_disk.profiles.getSetting(ProfileSetting.MANUAL_PRESET) is None:
             on_disk.profiles.setSetting(ProfileSetting.MANUAL_PRESET, globalPreset)
 
+        self._rename_legacy_presets(currentUser) # changes from 1.0.0
         presets = self.jdsp.get_presets()
         if JdspProxy.has_error(presets):
             return wrap_error(str(presets))

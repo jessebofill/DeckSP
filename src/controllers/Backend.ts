@@ -43,7 +43,7 @@ export type PluginMethodArgs<Method extends PluginMethod> =
     Method extends PluginStartJDSPMethod | PluginKillJDSPMethod | PluginFlatpakRepairMethod | PluginResetEELParamsMethod | PluginGetStaticDataMethod | PluginGetVdcDbSelectionsMethod ? [] :
     Method extends PluginSetSettingMethod ? [settings: Partial<PluginSettings>] :
     Method extends PluginSetAppWatchMethod ? [appId: string, watch: boolean] :
-    Method extends PluginInitProfilesMethod ? [globalPreset: string] :
+    Method extends PluginInitProfilesMethod ? [globalPreset: string, userId: string] :
     Method extends PluginSetManuallyApplyProfilesMethod ? [useManual: boolean] :
     Method extends PluginGetEELParamsMethod ? [path: string, profileId: string] :
     Method extends PluginSetEELParamMethod ? [paramName: string, value: number] :
@@ -163,8 +163,8 @@ export class Backend {
     static async setAppWatch(appId: string, watch: boolean) {
         return await this.callPlugin('set_app_watch', appId, watch);
     }
-    static async initProfiles(globalPreset: string) {
-        return await this.callPlugin('init_profiles', globalPreset);
+    static async initProfiles(globalPreset: string, userId: string) {
+        return await this.callPlugin('init_profiles', globalPreset, userId);
     }
     static async setManuallyApplyProfiles(useManual: boolean) {
         return await this.callPlugin('set_manually_apply_profiles', useManual);

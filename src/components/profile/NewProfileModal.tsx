@@ -20,8 +20,8 @@ export const NewProfileModal: FC<NewProfileModalProps> = ({ onConfirm, closeModa
     options.unshift(defaultOption, currentOption);
 
     const onSubmit = async () => {
-        if (!Object.keys(profileManager.profiles).includes(name)) {
-            await profileManager.createUserProfile(name, copyFrom);
+        if (!Object.keys(profileManager.currentUserProfiles).includes(name)) {
+            await profileManager.createCustomProfile(name, copyFrom);
             onConfirm?.(name);
             closeModal?.();
         } else {

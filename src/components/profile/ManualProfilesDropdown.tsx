@@ -1,7 +1,7 @@
 import { Field, Menu, MenuGroup, MenuItem, MultiDropdownOption, SingleDropdownOption, gamepadContextMenuClasses, showContextMenu, showModal } from '@decky/ui';
 import { FC, createContext, useContext, useEffect, useState } from 'react';
 import { addClasses, playUISound } from '../../lib/utils';
-import { useGameProfileMultiDropdownOption, useProfileMultiDropdownOptions, useUserProfileMultiDropdownOption } from '../../hooks/useProfileMultiDropdownOptions';
+import { useGameProfileMultiDropdownOption, useProfileMultiDropdownOptions, useCustomProfileMultiDropdownOption } from '../../hooks/useProfileMultiDropdownOptions';
 import { CustomButton } from '../generic/CustomButton';
 import { usePluginContext } from '../../hooks/contextHooks';
 import { FaPlus } from "react-icons/fa6";
@@ -91,7 +91,7 @@ const ProfileMenu: FC<ProfileMenuContextData> = ({ selected, deleteProfile, onSe
         <ProfileMenuContext.Provider value={{ deleteProfile, onSelectOption, selected }}>
             <Menu label={'Profiles'}>
                 <ProfileMenuGroup groupType={ProfileType.Game} />
-                <ProfileMenuGroup groupType={ProfileType.User} />
+                <ProfileMenuGroup groupType={ProfileType.Custom} />
                 <div className={gamepadContextMenuClasses.ContextMenuSeparator} />
                 <MenuItem onClick={() => showModal(<NewProfileModal onConfirm={profileName => onSelectOption?.({ label: profileName, data: profileName })} />)}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -113,7 +113,7 @@ const ProfileMenuGroup: FC<ProfileMenuGroupProps> = ({ groupType }) => {
     if (!menuContext) return null;
 
     const { selected, deleteProfile, onSelectOption } = menuContext;
-    const group = groupType === ProfileType.Game ? useGameProfileMultiDropdownOption() : useUserProfileMultiDropdownOption();
+    const group = groupType === ProfileType.Game ? useGameProfileMultiDropdownOption() : useCustomProfileMultiDropdownOption();
     const [_, setState] = useState(false);
 
     return group?.options && group.options.length > 0 ?
@@ -141,7 +141,7 @@ const ProfileMenuItems: FC<{}> = ({ }) => {
 
     const { group, groupType, refreshGroup, selected, deleteProfile, onSelectOption } = groupContext;
     const [options, setOptions] = useState(group.options);
-    const isUserGroup = groupType === ProfileType.User;
+    const isCustomGroup = groupType === ProfileType.Custom;
 
     return (
         <>
@@ -153,18 +153,18 @@ const ProfileMenuItems: FC<{}> = ({ }) => {
                         playUISound('/sounds/deck_ui_hide_modal.wav');
                     }}
                     onOKActionDescription='Apply Profile'
-                    onSecondaryButton={isUserGroup && option.data !== selected?.data ?
+                    onSecondaryButton={isCustomGroup && option.data !== selected?.data ?
                         () => showModal(
                             <DeleteProfileModal
                                 profileName={option.label}
                                 onConfirm={async () => {
                                     await deleteProfile?.(option.data);
                                     refreshGroup();
-                                    setOptions(useUserProfileMultiDropdownOption()?.options ?? [])
+                                    setOptions(useCustomProfileMultiDropdownOption()?.options ?? [])
                                 }}
                             />) : undefined
                     }
-                    onSecondaryActionDescription={isUserGroup && option.data !== selected?.data ? 'Delete Profile' : undefined}
+                    onSecondaryActionDescription={isCustomGroup && option.data !== selected?.data ? 'Delete Profile' : undefined}
                 >
                     {option.label}
                 </MenuItem>

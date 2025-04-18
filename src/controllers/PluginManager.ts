@@ -75,7 +75,7 @@ export class PluginManager {
 
         if (!await this.isJDSPReady() || await this.isStatePromiseStatusOk('profileManagerLoaded')) return;
 
-        const profileManagerInit = profileManager.init();
+        const profileManagerInit = profileManager.init(this.currentUser!.id);
         profileManager.setLock(profileManagerInit);
         this.promises.profileManagerLoaded = profileManagerInit.then((res) => res instanceof Error ? useError('Problem during ProfileManager init process', res) : res);
         this.promises.static = Backend.getStaticData().catch(e => useError('Error loading static data', e));

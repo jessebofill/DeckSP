@@ -4,14 +4,14 @@ import { ProfileType } from '../types/types';
 
 export const useProfileMultiDropdownOptions = () => {
     const gameOptions = useGameProfileMultiDropdownOption();
-    const userOptions = useUserProfileMultiDropdownOption();
+    const customOptions = useCustomProfileMultiDropdownOption();
 
     const options = [
         gameOptions
     ];
 
-    if (userOptions) {
-        options.push(userOptions);
+    if (customOptions) {
+        options.push(customOptions);
         return options as [MultiDropdownOption, MultiDropdownOption];
     };
     
@@ -19,7 +19,7 @@ export const useProfileMultiDropdownOptions = () => {
 }
 
 export const useGameProfileMultiDropdownOption = () => {
-    const gameProfiles = Object.values(profileManager.profiles).filter(profile => profile.type === ProfileType.Game);
+    const gameProfiles = Object.values(profileManager.currentUserProfiles).filter(profile => profile.type === ProfileType.Game);
 
     return {
         label: 'Game',
@@ -27,12 +27,12 @@ export const useGameProfileMultiDropdownOption = () => {
     };
 }
 
-export const useUserProfileMultiDropdownOption = () => {
-    const userProfiles = Object.values(profileManager.profiles).filter(profile => profile.type === ProfileType.User);
+export const useCustomProfileMultiDropdownOption = () => {
+    const customProfiles = Object.values(profileManager.currentUserProfiles).filter(profile => profile.type === ProfileType.Custom);
 
-    return userProfiles.length > 0 ?
+    return customProfiles.length > 0 ?
         {
             label: 'Custom',
-            options: userProfiles.map(profile => ({ data: profile.id, label: profile.name }))
+            options: customProfiles.map(profile => ({ data: profile.id, label: profile.name }))
         } : undefined;
 }

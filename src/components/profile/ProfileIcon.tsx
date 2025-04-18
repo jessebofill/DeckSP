@@ -14,7 +14,7 @@ export interface ProfileIconProps {
 export const ProfileIcon: FC<ProfileIconProps> = ({ profileId, profileManager, size }) => {
     const defaultSize = '20px'
 
-    const isGame = profileId !== globalAppId && Object.keys(profileManager.profiles).includes(profileId);
+    const isGame = profileId !== globalAppId && Object.keys(profileManager.currentUserProfiles).includes(profileId);
     const appOverview = isGame ? appStore.GetAppOverviewByAppID(parseInt(profileId)) : undefined;
 
     return (

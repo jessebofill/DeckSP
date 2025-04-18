@@ -1,7 +1,8 @@
 import subprocess
 from env import env
 
-JDSP_ERROR_STR = 'jdsp_error'
+JDSP_ERROR_KEY = 'jdsp_error'
+JDSP_RESULT_KEY = 'jdsp_result'
 
 class JdspProxy:
 
@@ -23,17 +24,27 @@ class JdspProxy:
             msg = result.stderr
             if result.stderr.startswith("error:"):
                 msg = result.stderr[len("error:"):].strip()
-            return {JDSP_ERROR_STR: msg}
+            return JdspProxy.wrap_error_result(msg)
             
         return JdspProxy.wrap_success_result(result.stdout)
     
     @staticmethod
     def wrap_success_result(result):
-        return {'jdsp_result': result}
+        return {JDSP_RESULT_KEY: result}
+    
+    @staticmethod
+    def wrap_error_result(result):
+        return {JDSP_ERROR_KEY: result}
+    
+    @staticmethod
+    def unwrap(result) -> str:
+        if JDSP_RESULT_KEY in result:
+            return result[JDSP_RESULT_KEY]
+        return result.get(JDSP_ERROR_KEY)
 
     @staticmethod
     def has_error(result: dict[str]):
-        if JDSP_ERROR_STR in result:
+        if JDSP_ERROR_KEY in result:
             return True
         else:
             return False
@@ -58,3 +69,19 @@ class JdspProxy:
 
     def get_presets(self):
         return self.__run('--list-presets')
+    
+    def rename_preset(self, current_name, new_name):
+        """This loads other presets. Save and reload the current preset after using if necessary"""
+        load_res = self.load_preset(current_name)
+        if self.has_error(load_res):
+            return JdspProxy.wrap_error_result(f'Rename failed at load - {JdspProxy.unwrap(load_res)}')
+        
+        save_res = self.save_preset(new_name)
+        if self.has_error(save_res):
+            return JdspProxy.wrap_error_result(f'Rename failed at save - {JdspProxy.unwrap(save_res)}')
+        
+        delete_res = self.delete_preset(current_name)
+        if self.has_error(delete_res):
+            return JdspProxy.wrap_error_result(f'Rename failed at delete - {JdspProxy.unwrap(delete_res)}')
+        
+        return JdspProxy.wrap_success_result('')

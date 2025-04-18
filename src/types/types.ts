@@ -38,7 +38,7 @@ export type PluginData = {
 
 export enum ProfileType {
     Game,
-    User
+    Custom
 };
 
 export type Profile<Type extends ProfileType> = {
