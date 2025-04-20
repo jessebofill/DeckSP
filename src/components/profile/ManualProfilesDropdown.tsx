@@ -1,7 +1,7 @@
 import { Field, Menu, MenuGroup, MenuItem, MultiDropdownOption, SingleDropdownOption, gamepadContextMenuClasses, showContextMenu, showModal } from '@decky/ui';
 import { FC, createContext, useContext, useEffect, useState } from 'react';
 import { addClasses, playUISound } from '../../lib/utils';
-import { useGameProfileMultiDropdownOption, useProfileMultiDropdownOptions, useCustomProfileMultiDropdownOption } from '../../hooks/useProfileMultiDropdownOptions';
+import { useProfileTypeMultiDropdownOption, useProfileMultiDropdownOptions } from '../../hooks/useProfileMultiDropdownOptions';
 import { CustomButton } from '../generic/CustomButton';
 import { usePluginContext } from '../../hooks/contextHooks';
 import { FaPlus } from "react-icons/fa6";
@@ -113,7 +113,7 @@ const ProfileMenuGroup: FC<ProfileMenuGroupProps> = ({ groupType }) => {
     if (!menuContext) return null;
 
     const { selected, deleteProfile, onSelectOption } = menuContext;
-    const group = groupType === ProfileType.Game ? useGameProfileMultiDropdownOption() : useCustomProfileMultiDropdownOption();
+    const group = useProfileTypeMultiDropdownOption(groupType);
     const [_, setState] = useState(false);
 
     return group?.options && group.options.length > 0 ?
@@ -160,7 +160,7 @@ const ProfileMenuItems: FC<{}> = ({ }) => {
                                 onConfirm={async () => {
                                     await deleteProfile?.(option.data);
                                     refreshGroup();
-                                    setOptions(useCustomProfileMultiDropdownOption()?.options ?? [])
+                                    setOptions(useProfileTypeMultiDropdownOption(ProfileType.Custom)?.options ?? [])
                                 }}
                             />) : undefined
                     }

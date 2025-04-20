@@ -1,11 +1,11 @@
 import { FC17, useState, useEffect } from 'react';
 import { StaticDataContext } from '../../contexts/contexts';
-import { StaticFromBackend } from '../../types/types';
+import { Static } from '../../types/types';
 import { PluginManager } from '../../controllers/PluginManager';
 import { usePluginStateContext } from '../../hooks/contextHooks';
 
 export const StaticDataProvider: FC17<{}> = ({ children }) => {
-    const [data, setData] = useState<Partial<StaticFromBackend>>({});
+    const [data, setData] = useState<Partial<Static>>({});
     const { setError } = usePluginStateContext();
 
     useEffect(() => {

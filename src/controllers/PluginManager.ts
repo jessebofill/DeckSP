@@ -3,13 +3,14 @@ import { Log } from '../lib/log';
 import { profileManager } from './ProfileManager';
 import { initSystemPerfStore, useError } from '../lib/utils';
 import { DSPParamSettings } from '../types/dspTypes';
-import { PluginSettings, StaticFromBackend } from '../types/types';
+import { PluginSettings, Static } from '../types/types';
 import { sleep } from '@decky/ui';
 
 type PromiseKey = keyof typeof PluginManager.promises;
 type User = {
     name: string;
     id: string;
+    persona: string;
 };
 
 export class PluginManager {
@@ -17,7 +18,7 @@ export class PluginManager {
         jdspLoaded?: Promise<boolean | Error>
         profileManagerLoaded?: Promise<DSPParamSettings | Error>
         pluginSettings?: Promise<PluginSettings | Error>
-        static?: Promise<StaticFromBackend | Error>
+        static?: Promise<Static | Error>
     } = {};
     private static uiMode?: EUIMode
     static currentUser?: User;
@@ -37,7 +38,8 @@ export class PluginManager {
         listeners.push(SteamClient.User.RegisterForLoginStateChange((_, loginState) => {
             if (loginState === ELoginState.Success) {
                 const { strAccountName: name, strSteamID: id } = App.GetCurrentUser();
-                this.currentUser = { name, id };
+                const persona = App.cm.persona_name;
+                this.currentUser = { name, id, persona };
             }
         }));
 
@@ -48,7 +50,7 @@ export class PluginManager {
                 await sleep(2000);
             }
 
-            this.promises.pluginSettings = Backend.initUser(this.currentUser.id, this.currentUser.name).catch((e) => useError('Problem initializing user', e));
+            this.promises.pluginSettings = Backend.initUser(this.currentUser.id, this.currentUser.name, this.currentUser.persona).catch((e) => useError('Problem initializing user', e));
             const settings = await this.promises.pluginSettings;
             if (uiMode === EUIMode.Desktop) {
                 if (!(settings instanceof Error) && settings.enableInDesktop) this.start();
@@ -79,6 +81,7 @@ export class PluginManager {
         profileManager.setLock(profileManagerInit);
         this.promises.profileManagerLoaded = profileManagerInit.then((res) => res instanceof Error ? useError('Problem during ProfileManager init process', res) : res);
         this.promises.static = Backend.getStaticData().catch(e => useError('Error loading static data', e));
+        this.assignProfileManagerUserNames();
     }
 
     private static async isJDSPReady() {
@@ -88,6 +91,19 @@ export class PluginManager {
     private static async isStatePromiseStatusOk(promise: keyof typeof PluginManager.promises) {
         const res = (await (this.promises[promise] ?? new Error()));
         return !(res instanceof Error);
+    }
+
+    private static async assignProfileManagerUserNames() {
+        await this.waitForPromiseCreation('static');
+        const data = await this.promises.static!;
+        if (data instanceof Error) return;
+        const { userMap } = data;
+        Object.entries(userMap).forEach(([userId, [accountName, persona]]) => {
+            if (profileManager.otherUsers[userId]) {
+                profileManager.otherUsers[userId].name = accountName;
+                profileManager.otherUsers[userId].persona = persona;
+            }
+        });
     }
 
     static updateSettings(newSettings: Partial<PluginSettings>, waitForErrorCheck?: boolean) {

@@ -1,6 +1,6 @@
 import { Dispatch, SetStateAction, createContext } from 'react';
 import { DSPCompanderParameters, DSPEQParameters, DSPParamSettings } from '../types/dspTypes';
-import { EELParameter, EELParameterType, PluginData, PluginStateData, StaticFromBackend } from '../types/types';
+import { EELParameter, EELParameterType, PluginData, PluginStateData, Static } from '../types/types';
 import { AsyncDataContext } from '../components/dataProviders/AsyncDataProvider';
 import { FlatpakFixState } from '../types/types';
 
@@ -29,4 +29,4 @@ export const EQDataContext = createContext<{ data?: DSPEQParameters; setParamete
 export const CompanderDataContext = createContext<{ data?: DSPCompanderParameters; setParameter?: (parameter: keyof DSPCompanderParameters, value: number) => void; }>({});
 export const EELParametersContext = createContext<AsyncDataContext<EELParameter<EELParameterType>[]>>({});
 export const EELTriggerContext = createContext<DataContext<{}>>({});
-export const StaticDataContext = createContext<Partial<StaticFromBackend>>({});
+export const StaticDataContext = createContext<Partial<Static>>({});

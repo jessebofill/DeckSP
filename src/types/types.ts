@@ -14,8 +14,9 @@ interface WebBrowserAPI {
     openInBrowser?: (url: string) => void;
 };
 
-export type StaticFromBackend = {
+export type Static = {
     vdcDb: VdcDb;
+    userMap: { [userId: string]: [accountName: string, personaName: string] };
 };
 
 export type PluginSettings = {

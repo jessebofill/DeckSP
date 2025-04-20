@@ -1,8 +1,7 @@
 import os
 import re
 import subprocess
-from typing import Any, Dict
-from EelParser import EELCache, EELParser
+from EelParser import EELParser
 from ddc import VdcDbHandler
 from extendedsettings import ExtendedSettings
 from settings import SettingsManager
@@ -45,16 +44,25 @@ class ProfileSetting(SettingDef):
 """
 
 class OnDisk:
-    def __init__(self, user_id, user_name):
-        dir = os.path.join(decky.DECKY_PLUGIN_SETTINGS_DIR, f'{user_name}_{user_id}')
-        if not os.path.exists(dir):
-            os.makedirs(dir)
-        self.settings = ExtendedSettings(name="settings", settings_directory=dir)
-        self.profiles = ExtendedSettings(name="profiles-data", settings_directory=dir)
-        self.vdc_db_selections = ExtendedSettings(name='vdc-db-selections', settings_directory=dir)
-        self.eel_cache = ExtendedSettings(name='eel-parameters', settings_directory=dir)
-
-on_disk: OnDisk = None
+    @classmethod
+    def init_user(cls, user_id, account_name):
+        cls.user = cls.User(user_id, account_name)
+    
+    class User:
+        def __init__(self, user_id, account_name):
+            dir = os.path.join(decky.DECKY_PLUGIN_SETTINGS_DIR, f'{account_name}_{user_id}')
+            if not os.path.exists(dir):
+                os.makedirs(dir)
+            self.settings = ExtendedSettings(name="settings", settings_directory=dir)
+            self.profiles = ExtendedSettings(name="profiles-data", settings_directory=dir)
+            self.vdc_db_selections = ExtendedSettings(name='vdc-db-selections', settings_directory=dir)
+            self.eel_cache = ExtendedSettings(name='eel-parameters', settings_directory=dir)
+    
+    class Shared:
+        def __init__(self):
+            self.user_map = SettingsManager(name='user-map', settings_directory=decky.DECKY_PLUGIN_SETTINGS_DIR)
+    
+    shared = Shared()
 
 class Plugin:
     jdsp: JdspProxy = None
@@ -84,7 +92,7 @@ class Plugin:
         try: 
             log.info('Uninstalling JamesDSP...')
             flatpak_CMD(['--user', '-y', 'uninstall', APPLICATION_ID])
-            log.info("JamesDSP uninstalled sucessfully")
+            log.info("JamesDSP uninstalled successfully")
 
         except subprocess.CalledProcessError as e:
             log.error('Problem uninstalling JamesDSP')
@@ -95,8 +103,8 @@ class Plugin:
         flatpak_CMD(['kill', APPLICATION_ID], noCheck=True)
         
     def _init_defaults(self):
-        on_disk.settings.setDefaults(Setting.defaults())
-        on_disk.profiles.setDefaults(ProfileSetting.defaults())    
+        OnDisk.user.settings.setDefaults(Setting.defaults())
+        OnDisk.user.profiles.setDefaults(ProfileSetting.defaults())    
         
     def _handle_jdsp_install(self):
         try:
@@ -138,14 +146,14 @@ class Plugin:
         
     def _clean_eel_cache(self):
         deleted = False
-        for path in list(on_disk.eel_cache.settings.keys()):
+        for path in list(OnDisk.user.eel_cache.settings.keys()):
             if not os.path.exists(path):
-                del on_disk.eel_cache.settings[path]
+                del OnDisk.user.eel_cache.settings[path]
                 deleted = True
-        if deleted: on_disk.eel_cache.commit()
+        if deleted: OnDisk.user.eel_cache.commit()
 
     def _update_eel_cache_and_reload_jdsp(self):
-        on_disk.eel_cache.setSetting(self.eel_parser.path, self.eel_parser.cache)
+        OnDisk.user.eel_cache.setSetting(self.eel_parser.path, self.eel_parser.cache)
         self.jdsp.set_and_commit('liveprog_file', "")
         self.jdsp.set_and_commit('liveprog_file', self.eel_parser.path)
 
@@ -156,11 +164,11 @@ class Plugin:
                 self.jdsp.set_and_commit('ddc_file', '/home/deck/.var/app/me.timschneeberger.jdsp4linux/config/jamesdsp/vdc') # setting this empty or any random string doesnt actually clear the effect for some reason, but this works, so set it first
                 self.jdsp.set_and_commit('ddc_file', '')
     
-                selected_vdc_id = on_disk.vdc_db_selections.getSetting(preset_name)
+                selected_vdc_id = OnDisk.user.vdc_db_selections.getSetting(preset_name)
                 if self.vdc_handler.set_and_commit(selected_vdc_id): # vdc id is in database. if this is false empty string is set for the jdsp param
                     self.jdsp.set_and_commit('ddc_file', self.vdc_handler._jdsp_proxy_path)
                 else: 
-                    on_disk.vdc_db_selections.removeSetting(preset_name)
+                    OnDisk.user.vdc_db_selections.removeSetting(preset_name)
         except Exception as e:
             return wrap_error(e)
         return self.jdsp.get_all()
@@ -177,9 +185,9 @@ class Plugin:
         for _, preset in enumerate(presets):
             match = regex.search(preset)
             if match:
-                decksp_prefix, type, profile_id = match.groups()
-                if type == 'user': type = 'custom'
-                rename_res = self.jdsp.rename_preset(preset, f'{decksp_prefix}.{user_id}.{type}:{profile_id}')
+                decksp_prefix, profile_type, profile_id = match.groups()
+                if profile_type == 'user': profile_type = 'custom'
+                rename_res = self.jdsp.rename_preset(preset, f'{decksp_prefix}.{user_id}.{profile_type}:{profile_id}')
                 if JdspProxy.has_error(rename_res):
                     log.info(f'Problem renaming legacy jdsp preset {preset}: {JdspProxy.unwrap(rename_res)}')
     
@@ -229,21 +237,21 @@ class Plugin:
         flatpak_CMD(['kill', APPLICATION_ID], noCheck=True)
 
     # general-frontend-call
-    async def init_user(self, userId, userName):
-        global on_disk
+    async def init_user(self, userId, accountName, personaName):
         try:
-            on_disk = OnDisk(userId, userName)
+            OnDisk.init_user(userId, accountName)
+            OnDisk.shared.user_map.setSetting(userId, [accountName, personaName])
             self._init_defaults()
             self._clean_eel_cache()
             self.vdc_handler = VdcDbHandler(os.path.join(decky.DECKY_PLUGIN_DIR, 'assets', 'DDCData.json'))
         except Exception as e:
             return wrap_error(e)
-        log.info(f'User {userName} ({userId}) logged in')
-        return on_disk.settings.settings
+        log.info(f'User {accountName} ({userId}) logged in')
+        return OnDisk.user.settings.settings
     
     # general-frontend-call
     async def set_settings(self, settings):
-        on_disk.settings.setMultipleSettings(settings)
+        OnDisk.user.settings.setMultipleSettings(settings)
 
     # general-frontend-call
     async def flatpak_repair(self):
@@ -256,14 +264,14 @@ class Plugin:
 
     # general-frontend-call
     async def set_app_watch(self, appId, watch):
-        watched = on_disk.profiles.getSetting(ProfileSetting.WATCHED_APPS)
+        watched = OnDisk.user.profiles.getSetting(ProfileSetting.WATCHED_APPS)
         watched[appId] = watch
-        on_disk.profiles.setSetting(ProfileSetting.WATCHED_APPS, watched)
+        OnDisk.user.profiles.setSetting(ProfileSetting.WATCHED_APPS, watched)
 
     # general-frontend-call
     async def init_profiles(self, globalPreset, currentUser):
-        if on_disk.profiles.getSetting(ProfileSetting.MANUAL_PRESET) is None:
-            on_disk.profiles.setSetting(ProfileSetting.MANUAL_PRESET, globalPreset)
+        if OnDisk.user.profiles.getSetting(ProfileSetting.MANUAL_PRESET) is None:
+            OnDisk.user.profiles.setSetting(ProfileSetting.MANUAL_PRESET, globalPreset)
 
         self._rename_legacy_presets(currentUser) # changes from 1.0.0
         presets = self.jdsp.get_presets()
@@ -271,22 +279,22 @@ class Plugin:
             return wrap_error(str(presets))
 
         return { 
-            'manualPreset': on_disk.profiles.getSetting(ProfileSetting.MANUAL_PRESET), 
+            'manualPreset': OnDisk.user.profiles.getSetting(ProfileSetting.MANUAL_PRESET), 
             'allPresets': presets['jdsp_result'], 
-            'watchedGames': on_disk.profiles.getSetting(ProfileSetting.WATCHED_APPS),
-            'manuallyApply': on_disk.profiles.getSetting(ProfileSetting.USE_MANUAL) 
+            'watchedGames': OnDisk.user.profiles.getSetting(ProfileSetting.WATCHED_APPS),
+            'manuallyApply': OnDisk.user.profiles.getSetting(ProfileSetting.USE_MANUAL) 
         }
 
     # general-frontend-call
     async def set_manually_apply_profiles(self, useManual):
-        on_disk.profiles.settings[ProfileSetting.USE_MANUAL] = useManual
+        OnDisk.user.profiles.settings[ProfileSetting.USE_MANUAL] = useManual
     
     # general-frontend-call
     async def get_eel_params(self, path, profileId):
         if path == '': 
             return []
         try:
-            self.eel_parser = EELParser(path, on_disk.eel_cache.getSetting(path, {}), profileId)
+            self.eel_parser = EELParser(path, OnDisk.user.eel_cache.getSetting(path, {}), profileId)
         except Exception as e:
             return wrap_error(e)
         self._update_eel_cache_and_reload_jdsp()
@@ -316,20 +324,20 @@ class Plugin:
             if self.vdc_handler.set_and_commit(vdcId):
                 jdsp_error = JdspProxy.has_error(await self.set_jdsp_param('ddc_file', self.vdc_handler._jdsp_proxy_path))
                 if jdsp_error: return wrap_error('Failed reloading jdsp ddc_file')
-                on_disk.vdc_db_selections.setSetting(presetName, vdcId)
+                OnDisk.user.vdc_db_selections.setSetting(presetName, vdcId)
             else: 
-                on_disk.vdc_db_selections.removeSetting(presetName)
+                OnDisk.user.vdc_db_selections.removeSetting(presetName)
                 return wrap_error(f'Could not find vdc id: {vdcId} in the database')
         except Exception as e:
             return wrap_error(e)
     
     # general-frontend-call
     async def get_vdc_db_selections(self):
-        return on_disk.vdc_db_selections.settings
+        return OnDisk.user.vdc_db_selections.settings
         
     # general-frontend-call
     async def get_static_data(self):
-        return { 'vdcDb': self.vdc_handler.get_db() }
+        return { 'vdcDb': self.vdc_handler.get_db(), 'userMap': OnDisk.shared.user_map.settings }
     
     """
     ------------------------------------------
@@ -383,18 +391,18 @@ class Plugin:
 
     # jdsp-frontend-call
     async def delete_jdsp_preset(self, presetName):
-        on_disk.vdc_db_selections.removeSetting(presetName)
+        OnDisk.user.vdc_db_selections.removeSetting(presetName)
         return self.jdsp.delete_preset(presetName)
 
     # jdsp-frontend-call
     async def set_profile(self, presetName, isManual):
         if isManual:
-            on_disk.profiles.settings[ProfileSetting.MANUAL_PRESET] = presetName
+            OnDisk.user.profiles.settings[ProfileSetting.MANUAL_PRESET] = presetName
         res = self.jdsp.load_preset(presetName)
         if JdspProxy.has_error(res): return res
         
         self.current_preset = presetName
-        on_disk.profiles.commit()
+        OnDisk.user.profiles.commit()
         return self._get_jdsp_all_and_apply_vdc_from_db(presetName)
     
     # jdsp-frontend-call

@@ -9,7 +9,7 @@ import { ToastAppliedProfile } from '../components/profile/ApplyProfileToast';
 import { globalAppId } from '../defines/constants';
 import { globalProfileName } from '../defines/constants';
 
-namespace PresetToken {
+export namespace PresetToken {
     export const PREFIX = 'decksp';
     export const DEFAULT_SUFFIX = 'default';
     export const DEFAULT_NAME = `${PREFIX}.${DEFAULT_SUFFIX}`;
@@ -30,11 +30,12 @@ export class ProfileManager {
     currentUserId: string = '';
     watchedGames: { [appId: string]: boolean } = {};
     currentUserProfiles: { [id: string]: Profile<ProfileType> } = {};
-    otherUserProfiles: { [userId: string]: { [id: string]: Profile<ProfileType> } } = {};
+    otherUsers: { [userId: string]: { name?: string, persona?: string, profiles: { [id: string]: Profile<ProfileType> } } } = {};
     lock?: { promise: Promise<DSPParamSettings | Error>, status: PromiseStatus };
     activeGameReactionDisposer?: IReactionDisposer;
     unknownProfile: boolean = true;
     active: boolean = false;
+
 
     constructor() {
         makeObservable(this, { activeProfileId: observable, manuallyApply: observable, unknownProfile: observable });
@@ -79,7 +80,7 @@ export class ProfileManager {
             const { users, hasDefault } = ProfileManager.parseProfiles(allPresets);
             const { [userId]: profiles, ...otherUserProfiles } = users;
             this.currentUserProfiles = profiles ?? {};
-            this.otherUserProfiles = otherUserProfiles;
+            this.otherUsers = Object.fromEntries(Object.entries(otherUserProfiles).map(([userId, profiles]) => [userId, { profiles }]));
             this.watchedGames = watchedGames;
             this.manuallyApply = manuallyApply;
 
@@ -156,14 +157,15 @@ export class ProfileManager {
         return await this.applyProfile(profileId);
     }
 
-    async createCustomProfile(profileName: string, fromProfileId?: string) {
+    async createCustomProfile(profileName: string, fromProfileId?: string, fromUserId?: string) {
         try {
             const profile = ProfileManager.makeProfileType(profileName, ProfileType.Custom);
             const presetName = ProfileManager.makePresetName(this.currentUserId, profileName, ProfileType.Custom);
 
-            const fromProfile = fromProfileId ? this.currentUserProfiles[fromProfileId] : undefined;
-            const fromPresetName = fromProfileId === 'default' ? PresetToken.DEFAULT_NAME :
-                fromProfile ? ProfileManager.makePresetName(this.currentUserId, fromProfile.id, fromProfile.type) : undefined;
+            const fromProfiles = fromUserId === undefined ? this.currentUserProfiles : this.otherUsers[fromUserId].profiles;
+            const fromProfile = fromProfileId ? fromProfiles[fromProfileId] : undefined;
+            const fromPresetName = fromProfileId === PresetToken.DEFAULT_SUFFIX ? PresetToken.DEFAULT_NAME :
+                fromProfile ? ProfileManager.makePresetName(fromUserId ?? this.currentUserId, fromProfile.id, fromProfile.type) : undefined;
             const res = await Backend.newPreset(presetName, fromPresetName);
 
             this.currentUserProfiles[profileName] = profile;
@@ -173,11 +175,12 @@ export class ProfileManager {
         }
     }
 
-    async createGameProfile(appId: string) {
+    async createGameProfile(appId: string, fromDefault?: boolean) {
         try {
             const profile = ProfileManager.makeProfileType(appId, ProfileType.Game);
             const presetName = ProfileManager.makePresetName(this.currentUserId, appId, ProfileType.Game);
-            const res = await Backend.newPreset(presetName);
+            const fromPresetName = fromDefault ? PresetToken.DEFAULT_NAME : undefined;
+            const res = await Backend.newPreset(presetName, fromPresetName);
 
             this.currentUserProfiles[appId] = profile;
             return res;
@@ -187,7 +190,7 @@ export class ProfileManager {
     }
 
     private createGlobalProfile() {
-        return this.createGameProfile(globalAppId);
+        return this.createGameProfile(globalAppId, true);
     }
 
     private async createDefaults() {
