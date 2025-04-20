@@ -12,6 +12,7 @@ import { SocialButton } from '../../generic/SocialButton';
 import { SiGithub, SiKofi } from "react-icons/si";
 import { ReorderDspPagesButton } from '../../other/ReorderDspPages';
 import { useUpdateSetting } from '../../../hooks/useUpdateSetting';
+import { DisableProfileToastsToggle } from '../DisableProfileToastsToggle';
 
 export const QAMPluginSettingsPage: FC<{}> = ({ }) => {
     const { data } = usePluginStateContext();
@@ -28,6 +29,9 @@ export const QAMPluginSettingsPage: FC<{}> = ({ }) => {
                     </QAMHiglightable>}
                 <PanelSectionRow>
                     <EnableInDesktopToggle />
+                </PanelSectionRow>
+                <PanelSectionRow>
+                    <DisableProfileToastsToggle />
                 </PanelSectionRow>
                 <QAMHiglightable>
                     <Focusable

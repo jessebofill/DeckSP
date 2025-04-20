@@ -26,6 +26,7 @@ Setting definitions
 class Setting(SettingDef):
     ENABLE_IN_DESKTOP = 'enableInDesktop'
     DSP_PAGE_ORDER = 'dspPageOrder'
+    DISABLE_PROFILE_TOAST = 'disableProfileToasts'
 
     class Defaults:
         ENABLE_IN_DESKTOP = False

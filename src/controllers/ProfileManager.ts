@@ -8,6 +8,7 @@ import { PluginData, ProfileType, Profile } from '../types/types';
 import { ToastAppliedProfile } from '../components/profile/ApplyProfileToast';
 import { globalAppId } from '../defines/constants';
 import { globalProfileName } from '../defines/constants';
+import { PluginManager } from './PluginManager';
 
 export namespace PresetToken {
     export const PREFIX = 'decksp';
@@ -24,6 +25,7 @@ export class ProfileManager {
     private setReady: Dispatch<SetStateAction<boolean>> = (_) => { };
     private setData: DataProviderSetData<PluginData> = (_) => { };
     private queudGameChangeHandler: null | (() => Promise<any>) = null;
+    pluginManager!: typeof PluginManager;
     manuallyApply: boolean = false;
     activeProfileId: string = globalAppId;
     manualProfileId: string = globalAppId;
@@ -35,7 +37,7 @@ export class ProfileManager {
     activeGameReactionDisposer?: IReactionDisposer;
     unknownProfile: boolean = true;
     active: boolean = false;
-
+    showToasts: boolean = false;
 
     constructor() {
         makeObservable(this, { activeProfileId: observable, manuallyApply: observable, unknownProfile: observable });
@@ -52,7 +54,9 @@ export class ProfileManager {
         return ProfileManager.makePresetName(this.currentUserId, profile.id, profile.type);
     }
 
-    async init(userId: string) {
+    async init(pluginManager: typeof PluginManager, userId: string) {
+        this.pluginManager = pluginManager;
+
         const initProfilesRes = await this.initProfiles(userId);
         if (initProfilesRes instanceof Error) return initProfilesRes;
 
@@ -221,7 +225,8 @@ export class ProfileManager {
 
             const presetName = ProfileManager.makePresetName(this.currentUserId, profileId, profile.type);
             const res = await Backend.setProfile(presetName, isManuallyApplied);
-            if (this.active) ToastAppliedProfile(profile, this, isManuallyApplied);
+            const settings = await this.pluginManager.promises.pluginSettings;
+            if (this.active && !(settings && 'disableProfileToasts' in settings && settings.disableProfileToasts)) ToastAppliedProfile(profile, this, isManuallyApplied);
 
             if (isManuallyApplied) this.manualProfileId = profileId;
             this.activeProfileId = profileId;

@@ -22,6 +22,7 @@ export type Static = {
 export type PluginSettings = {
     enableInDesktop: boolean;
     dspPageOrder: DSPPageOrder;
+    disableProfileToasts: boolean;
 };
 
 export type PluginStateData = {

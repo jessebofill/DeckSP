@@ -3,8 +3,8 @@ import { WaitToggle } from '../waitable/WaitToggle'
 import { usePluginStateContext } from '../../hooks/contextHooks';
 import { useUpdateSetting } from '../../hooks/useUpdateSetting';
 
-export const EnableInDesktopToggle: FC<{}> = () => {
+export const DisableProfileToastsToggle: FC<{}> = () => {
     const { data } = usePluginStateContext();
     if (!data) return;
-    return <WaitToggle label='Enable in desktop mode' checked={data.settings.enableInDesktop} onChange={useUpdateSetting('enableInDesktop')} />;
+    return <WaitToggle label='Disable profile notifications' checked={data.settings.disableProfileToasts} onChange={useUpdateSetting('disableProfileToasts')} />;
 }
