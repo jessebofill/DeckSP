@@ -8,5 +8,7 @@ export function useUpdateSetting<Setting extends keyof PluginSettings>(setting: 
     const { data, setData, setError } = usePluginStateContext();
     const onUndefinedContext = (value: PluginSettings[Setting]) => Log.warnN('useUpdateSettings', 'Context data was undefined when rendering');
     if (!data || !setData || !setError) return onUndefinedContext;
-    return useWaiter((value: PluginSettings[Setting]) => PluginManager.updateSettings({ [setting]: value }, checkForBackendError), settings => settings instanceof Error ? setError(settings) : setData(data => data && ({ ...data, settings }))) ?? onUndefinedContext;
+    return useWaiter((value: PluginSettings[Setting]) => PluginManager.updateSettings({ [setting]: value }, checkForBackendError),
+        settings => settings instanceof Error ? setError(settings) : setData(data => data && ({ ...data, settings: { ...data.settings, ...settings } }))
+    ) ?? onUndefinedContext;
 };
