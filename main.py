@@ -244,7 +244,7 @@ class Plugin:
             OnDisk.shared.user_map.setSetting(userId, [accountName, personaName])
             self._init_defaults()
             self._clean_eel_cache()
-            self.vdc_handler = VdcDbHandler(os.path.join(decky.DECKY_PLUGIN_DIR, 'assets', 'DDCData.json'))
+            self.vdc_handler = VdcDbHandler(os.path.join(decky.DECKY_PLUGIN_DIR, 'resources', 'DDCData.json'))
         except Exception as e:
             return wrap_error(e)
         log.info(f'User {accountName} ({userId}) logged in')
