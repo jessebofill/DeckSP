@@ -338,7 +338,7 @@ class Plugin:
         
     # general-frontend-call
     async def get_static_data(self):
-        return { 'vdcDb': self.vdc_handler.get_db(), 'userMap': OnDisk.shared.user_map.settings }
+        return { 'vdcDb': self.vdc_handler.get_frontend_db(), 'userMap': OnDisk.shared.user_map.settings }
     
     """
     ------------------------------------------

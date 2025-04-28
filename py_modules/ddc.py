@@ -13,11 +13,12 @@ class VdcDbHandler:
             decky.logger.error(f"Error decoding JSON from file {db_path}: {e}")
             raise e
         
+        self._frontend_data = [{"Company": item["Company"], "Model": item["Model"], "ID": item["ID"]} for item in self._data]
         self._jdsp_proxy_path = '/home/deck/.var/app/me.timschneeberger.jdsp4linux/config/jamesdsp/temp.vdc'
         self.profile_selections = {}
 
-    def get_db(self):
-        return self._data
+    def get_frontend_db(self):
+        return self._frontend_data
     
     def is_proxy_path(self, path):
         return path == self._jdsp_proxy_path
