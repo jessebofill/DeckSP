@@ -239,14 +239,11 @@ class Plugin:
 
     # general-frontend-call
     async def init_user(self, userId, accountName, personaName):
-        try:
-            OnDisk.init_user(userId, accountName)
-            OnDisk.shared.user_map.setSetting(userId, [accountName, personaName])
-            self._init_defaults()
-            self._clean_eel_cache()
-            self.vdc_handler = VdcDbHandler(os.path.join(decky.DECKY_PLUGIN_DIR, 'resources', 'DDCData.json'))
-        except Exception as e:
-            return wrap_error(e)
+        OnDisk.init_user(userId, accountName)
+        OnDisk.shared.user_map.setSetting(userId, [accountName, personaName])
+        self._init_defaults()
+        self._clean_eel_cache()
+        self.vdc_handler = VdcDbHandler(os.path.join(decky.DECKY_PLUGIN_DIR, 'resources', 'DDCData.json'))
         log.info(f'User {accountName} ({userId}) logged in')
         return OnDisk.user.settings.settings
     
@@ -294,43 +291,31 @@ class Plugin:
     async def get_eel_params(self, path, profileId):
         if path == '': 
             return []
-        try:
-            self.eel_parser = EELParser(path, OnDisk.user.eel_cache.getSetting(path, {}), profileId)
-        except Exception as e:
-            return wrap_error(e)
+        self.eel_parser = EELParser(path, OnDisk.user.eel_cache.getSetting(path, {}), profileId)
         self._update_eel_cache_and_reload_jdsp()
         return self.eel_parser.parameters
     
     # general-frontend-call
     async def set_eel_param(self, paramName, value):
-        try:
-            self.eel_parser.set_and_commit(paramName, value)
-        except Exception as e:
-            return wrap_error(e)
+        self.eel_parser.set_and_commit(paramName, value)
         self._update_eel_cache_and_reload_jdsp()
     
     # general-frontend-call
     async def reset_eel_params(self):
-        try:
-            self.eel_parser.reset_to_defaults()
-        except Exception as e:
-            return wrap_error(e)
+        self.eel_parser.reset_to_defaults()
         self._update_eel_cache_and_reload_jdsp()
     
     # general-frontend-call
     async def set_vdc_db_selection(self, vdcId, presetName): 
         jdsp_error = JdspProxy.has_error(await self.set_jdsp_param('ddc_file', ''))
         if jdsp_error: return wrap_error('Failed setting jdsp ddc_file empty for reload')
-        try:
-            if self.vdc_handler.set_and_commit(vdcId):
-                jdsp_error = JdspProxy.has_error(await self.set_jdsp_param('ddc_file', self.vdc_handler._jdsp_proxy_path))
-                if jdsp_error: return wrap_error('Failed reloading jdsp ddc_file')
-                OnDisk.user.vdc_db_selections.setSetting(presetName, vdcId)
-            else: 
-                OnDisk.user.vdc_db_selections.removeSetting(presetName)
-                return wrap_error(f'Could not find vdc id: {vdcId} in the database')
-        except Exception as e:
-            return wrap_error(e)
+        if self.vdc_handler.set_and_commit(vdcId):
+            jdsp_error = JdspProxy.has_error(await self.set_jdsp_param('ddc_file', self.vdc_handler._jdsp_proxy_path))
+            if jdsp_error: return wrap_error('Failed reloading jdsp ddc_file')
+            OnDisk.user.vdc_db_selections.setSetting(presetName, vdcId)
+        else: 
+            OnDisk.user.vdc_db_selections.removeSetting(presetName)
+            return wrap_error(f'Could not find vdc id: {vdcId} in the database')
     
     # general-frontend-call
     async def get_vdc_db_selections(self):
