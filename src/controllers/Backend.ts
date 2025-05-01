@@ -2,7 +2,7 @@ import { call } from '@decky/api';
 import { parseJDSPAll } from '../lib/parseDspParams';
 import { DSPParameter, DSPParameterCompResponse, DSPParameterEQParameters, DSPParameterType } from '../types/dspTypes';
 import { formatDspValue } from '../lib/utils';
-import { EELParameter, EELParameterType, PluginSettings, Static } from '../types/types';
+import { EELData, PluginSettings, Static } from '../types/types';
 
 export type BackendMethod = PluginMethod | JDSPMethod;
 
@@ -15,7 +15,7 @@ export type PluginSetAppWatchMethod = 'set_app_watch';
 export type PluginInitProfilesMethod = 'init_profiles';
 export type PluginSetManuallyApplyProfilesMethod = 'set_manually_apply_profiles';
 export type PluginFlatpakRepairMethod = 'flatpak_repair';
-export type PluginGetEELParamsMethod = 'get_eel_params';
+export type PluginGetEELParamsAndDescMethod = 'get_eel_params_and_desc';
 export type PluginSetEELParamMethod = 'set_eel_param';
 export type PluginResetEELParamsMethod = 'reset_eel_params';
 export type PluginGetVdcDbSelectionsMethod = 'get_vdc_db_selections';
@@ -32,7 +32,7 @@ export type PluginMethod =
     PluginInitProfilesMethod |
     PluginSetManuallyApplyProfilesMethod |
     PluginFlatpakRepairMethod |
-    PluginGetEELParamsMethod |
+    PluginGetEELParamsAndDescMethod |
     PluginSetEELParamMethod |
     PluginResetEELParamsMethod |
     PluginGetVdcDbSelectionsMethod |
@@ -45,7 +45,7 @@ export type PluginMethodArgs<Method extends PluginMethod> =
     Method extends PluginSetAppWatchMethod ? [appId: string, watch: boolean] :
     Method extends PluginInitProfilesMethod ? [globalPreset: string, userId: string] :
     Method extends PluginSetManuallyApplyProfilesMethod ? [useManual: boolean] :
-    Method extends PluginGetEELParamsMethod ? [path: string, profileId: string] :
+    Method extends PluginGetEELParamsAndDescMethod ? [path: string, profileId: string] :
     Method extends PluginSetEELParamMethod ? [paramName: string, value: number] :
     Method extends PluginSetVdcDbSelectionMethod ? [vdcId: string, presetName: string] :
     never;
@@ -56,7 +56,7 @@ export type PluginMethodResponse<Method extends PluginMethod> =
     Method extends PluginStartJDSPMethod ? boolean :
     Method extends PluginKillJDSPMethod | PluginSetSettingMethod | PluginSetAppWatchMethod | PluginSetManuallyApplyProfilesMethod | PluginFlatpakRepairMethod | PluginSetEELParamMethod | PluginResetEELParamsMethod | PluginSetVdcDbSelectionMethod ? undefined :
     Method extends PluginInitProfilesMethod ? { manualPreset: string, allPresets: string, watchedGames: { [appId: string]: boolean }, manuallyApply: boolean } :
-    Method extends PluginGetEELParamsMethod ? EELParameter<EELParameterType>[] :
+    Method extends PluginGetEELParamsAndDescMethod ? EELData :
     Method extends PluginGetVdcDbSelectionsMethod ? { [presetName: string]: string } :
     never;
 
@@ -169,8 +169,8 @@ export class Backend {
     static async setManuallyApplyProfiles(useManual: boolean) {
         return await this.callPlugin('set_manually_apply_profiles', useManual);
     }
-    static async getEELParams(path: string, profileId: string) {
-        return await this.callPlugin('get_eel_params', path, profileId);
+    static async getEELParamsAndDesc(path: string, profileId: string) {
+        return await this.callPlugin('get_eel_params_and_desc', path, profileId);
     }
     static async setEELParam(paramName: string, value: number) {
         return await this.callPlugin('set_eel_param', paramName, value);

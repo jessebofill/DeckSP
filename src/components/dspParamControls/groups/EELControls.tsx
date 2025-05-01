@@ -3,7 +3,7 @@ import { FC, useCallback, useEffect } from 'react';
 import { EffectInfo } from '../../other/EffectInfo';
 import { ParameterPathSelector } from '../base/ParameterPathSelector';
 import { ParameterToggle } from '../base/ParameterToggle';
-import { useDspSettingsContext, useEELParametersContext } from '../../../hooks/contextHooks';
+import { useDspSettingsContext, useEELDataContext } from '../../../hooks/contextHooks';
 import { useError } from '../../../lib/utils';
 import { QAMErrorWrapper } from '../../generic/QAMErrorWrapper';
 import { FadeSpinner } from '../../generic/FadeSpinner';
@@ -19,6 +19,7 @@ import { DestructiveModal } from '../../generic/DestructiveModal';
 import { QAMHiglightable } from '../../qam/QAMHiglightable';
 
 export const EELControls: FC<{}> = ({ }) => {
+    const eelCtx = useEELDataContext();
     return (
         <PanelSection title='EEL Effect Script'>
             <EffectInfo effect='eel'>
@@ -26,7 +27,7 @@ export const EELControls: FC<{}> = ({ }) => {
                     <ParameterToggle parameter='liveprog_enable' />
                 </PanelSectionRow>
                 <PanelSectionRow>
-                    <ParameterPathSelector parameter='liveprog_file' />
+                    <ParameterPathSelector parameter='liveprog_file' description={eelCtx.ready ? eelCtx.data?.description : ''}/>
                 </PanelSectionRow>
                 <EELParameterSection />
             </EffectInfo>
@@ -35,7 +36,7 @@ export const EELControls: FC<{}> = ({ }) => {
 };
 
 const EELParameterSection: FC<{}> = ({ }) => {
-    const { ready } = useEELParametersContext();
+    const { ready } = useEELDataContext();
     const { data } = useDspSettingsContext();
     if (data?.liveprog_file === "") return <div style={{ marginTop: '10px' }}>No EEL script selected</div>
     const fadeTime = 250;
@@ -66,7 +67,7 @@ const EELParameterSection: FC<{}> = ({ }) => {
 }
 
 const EELParameterSectionInner: FC<{}> = ({ }) => {
-    const { data: parameters, setData: setParameters, error, ready } = useEELParametersContext();
+    const { data, setData, error, ready } = useEELDataContext();
     if (!ready) return;
 
     if (error) {
@@ -77,16 +78,17 @@ const EELParameterSectionInner: FC<{}> = ({ }) => {
         );
     }
 
-    if (!parameters) return;
-
+    if (!data) return;
+    const { parameters } = data;
+    
     const onChange = useCallback((paramName: string, value: number) => {
         const index = parameters.findIndex(param => param.variable_name === paramName);
         const updatedParams = [...parameters];
         updatedParams[index].current_value = value;
         //todo make async and check error (it might mess up throttling)
         Backend.setEELParam(paramName, value);
-        setParameters?.(updatedParams);
-    }, [parameters, setParameters]);
+        setData?.({ ...data, parameters: updatedParams});
+    }, [data, setData]);
 
     return (parameters.length === 0 ?
         <div style={{ marginTop: '10px' }}>Script has no user configurable parameters</div> :

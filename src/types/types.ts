@@ -72,6 +72,11 @@ export type EELParameter<T extends EELParameterType> = {
     current_value: number;
 } & (T extends EELParameterType.LIST ? { options: string[] } : {});
 
+export type EELData = {
+    description: string;
+    parameters: EELParameter<EELParameterType>[]
+};
+
 export type VdcDbEntry = {
     ID: string;
     Model: string;

@@ -12,10 +12,11 @@ export interface ParameterPathSelectorProps extends Pick<CustomButtonProps, 'tra
     labelCenter?: boolean;
     disabled?: boolean;
     focusable?: boolean;
-    bottomSeparator?: FieldProps['bottomSeparator']
+    bottomSeparator?: FieldProps['bottomSeparator'];
+    description?: string;
 }
 
-export const ParameterPathSelector: FC<ParameterPathSelectorProps> = ({ parameter, labelCenter, disabled, focusable, bottomSeparator }) => {
+export const ParameterPathSelector: FC<ParameterPathSelectorProps> = ({ parameter, labelCenter, disabled, focusable, bottomSeparator, description }) => {
     const { data: settings, setData: setSettings } = useDspSettingsContext();
     if (!settings) return null;
 
@@ -33,7 +34,7 @@ export const ParameterPathSelector: FC<ParameterPathSelectorProps> = ({ paramete
     };
 
     return (
-        <Field label={label} childrenLayout='below' bottomSeparator={bottomSeparator ?? 'none'}>
+        <Field label={label} childrenLayout='below' bottomSeparator={bottomSeparator ?? 'none'} description={description} >
             <CustomButton
                 style={{ padding: '10px 16px' }}
                 noAudio={true}
