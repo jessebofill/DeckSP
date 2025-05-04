@@ -290,7 +290,7 @@ class Plugin:
     # general-frontend-call
     async def get_eel_params_and_desc(self, path, profileId):
         if path == '': 
-            return []
+            return { 'description': '', 'parameters': [] }
         self.eel_parser = EELParser(path, OnDisk.user.eel_cache.getSetting(path, {}), profileId)
         self._update_eel_cache_and_reload_jdsp()
         return { 'description': self.eel_parser.description, 'parameters': self.eel_parser.parameters }
