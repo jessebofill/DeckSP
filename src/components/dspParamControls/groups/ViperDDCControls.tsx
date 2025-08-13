@@ -12,6 +12,7 @@ import { reaction } from 'mobx';
 import { Backend } from '../../../controllers/Backend';
 import { useWaiter } from '../../../hooks/useWaiter';
 import { useError } from '../../../lib/utils';
+import { EHIDKeyboardKey } from '@decky/ui/dist/globals/steam-client/Input';
 
 type Selection = {
     type: 'fs' | 'db';

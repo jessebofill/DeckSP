@@ -5,7 +5,7 @@ declare global {
     var SystemPerfStore: SystemPerfStore;
     var appStore: AppStore;
     var SteamUIStore: SteamUiStore;
-    var SteamClient: SteamClient;
+    // var SteamClient: SteamClient;
     var WebBrowserPlugin: WebBrowserAPI | undefined;
     var App: App;
 }

@@ -21,7 +21,7 @@ interface App {
     SendSurvey(): void;
     ShowSupportAlertsModal(): void;
     WaitForServicesInitialized(): Promise<boolean>;
-    LoginState: ELoginState;
+    // LoginState: ELoginState;
     cm: ConnectionManager;
     m_bFinishedStage1: boolean;
     m_bHaveShownSupportAlertModal: boolean;
@@ -30,7 +30,7 @@ interface App {
     m_bSupportAlertModalActive: boolean;
     m_bWasEverLoggedIn: boolean;
     m_CurrentUser: CurrentUser;
-    m_eLoginState: ELoginState;
+    // m_eLoginState: ELoginState;
 };
 
 interface CurrentUser {

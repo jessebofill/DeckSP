@@ -4,7 +4,8 @@ import { profileManager } from './ProfileManager';
 import { initSystemPerfStore, useError } from '../lib/utils';
 import { DSPParamSettings } from '../types/dspTypes';
 import { PluginSettings, Static } from '../types/types';
-import { sleep } from '@decky/ui';
+import { EUIMode, sleep, Unregisterable } from '@decky/ui';
+import { ELoginState } from '@decky/ui/dist/globals/steam-client/User';
 
 type PromiseKey = keyof typeof PluginManager.promises;
 type User = {
