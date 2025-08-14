@@ -1,3 +1,4 @@
+import asyncio
 import logging
 import os
 import subprocess
@@ -62,4 +63,45 @@ class SettingDef:
         }
         
 def wrap_error(e):
-    return { 'error': e }
+    return { 'error': str(e) }
+
+async def restart_wireplumber(timeout: float, post_delay: float):
+    try:
+        subprocess.run(['systemctl', '--user', 'restart', 'wireplumber'], capture_output=True, text=True, check=True, env=env)
+    except subprocess.CalledProcessError as e:
+        raise Exception(f'wireplumber restart failed: {e}')
+    
+    async def check_sink():
+        try:
+            dump = subprocess.check_output(["pw-dump"], text=True, env=env)
+        except subprocess.CalledProcessError as e:
+            raise Exception(f"pw-dump failed: {e}")
+        
+        try:
+            result = subprocess.run(
+                [
+                    "jq", '-c',
+                    '.[] | select(.type == "PipeWire:Interface:Node") | '
+                    'select(.info.props["media.class"] == "Audio/Sink") | '
+                    'select(.info.props["node.name"] | test("HiFi__Speaker__sink")) | '
+                    '{id: .id, name: .info.props["node.name"]}'
+                ],
+                input=dump,
+                capture_output=True, 
+                text=True,
+                check=True,
+                env=env
+            )
+            return bool(result.stdout.strip())
+            
+        except subprocess.CalledProcessError as e:
+            raise Exception(f'jq failed to parse pw-dump: {e}')
+
+    async def poll():
+        while not await check_sink():
+            await asyncio.sleep(0.5)
+    try:
+        await asyncio.wait_for(poll(), timeout=timeout)
+        await asyncio.sleep(post_delay)
+    except asyncio.TimeoutError:
+        raise Exception(f'Failed to find default pipewire sink within time limit')

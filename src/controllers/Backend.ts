@@ -11,6 +11,7 @@ export type PluginSetSettingMethod = 'set_settings';
 export type PluginGetStaticDataMethod = 'get_static_data';
 export type PluginStartJDSPMethod = 'start_jdsp';
 export type PluginKillJDSPMethod = 'kill_jdsp';
+export type PluginRelinkPW = 'force_pw_relink';
 export type PluginSetAppWatchMethod = 'set_app_watch';
 export type PluginInitProfilesMethod = 'init_profiles';
 export type PluginSetManuallyApplyProfilesMethod = 'set_manually_apply_profiles';
@@ -28,6 +29,7 @@ export type PluginMethod =
     PluginGetStaticDataMethod |
     PluginStartJDSPMethod |
     PluginKillJDSPMethod |
+    PluginRelinkPW |
     PluginSetAppWatchMethod |
     PluginInitProfilesMethod |
     PluginSetManuallyApplyProfilesMethod |
@@ -40,7 +42,7 @@ export type PluginMethod =
 
 export type PluginMethodArgs<Method extends PluginMethod> =
     Method extends PluginInitUserMethod ? [userId: string, accountName: string, personaName: string] :
-    Method extends PluginStartJDSPMethod | PluginKillJDSPMethod | PluginFlatpakRepairMethod | PluginResetEELParamsMethod | PluginGetStaticDataMethod | PluginGetVdcDbSelectionsMethod ? [] :
+    Method extends PluginStartJDSPMethod | PluginKillJDSPMethod | PluginRelinkPW | PluginFlatpakRepairMethod | PluginResetEELParamsMethod | PluginGetStaticDataMethod | PluginGetVdcDbSelectionsMethod ? [] :
     Method extends PluginSetSettingMethod ? [settings: Partial<PluginSettings>] :
     Method extends PluginSetAppWatchMethod ? [appId: string, watch: boolean] :
     Method extends PluginInitProfilesMethod ? [globalPreset: string, userId: string] :
@@ -54,7 +56,7 @@ export type PluginMethodResponse<Method extends PluginMethod> =
     Method extends PluginInitUserMethod ? PluginSettings :
     Method extends PluginGetStaticDataMethod ? Static :
     Method extends PluginStartJDSPMethod ? boolean :
-    Method extends PluginKillJDSPMethod | PluginSetSettingMethod | PluginSetAppWatchMethod | PluginSetManuallyApplyProfilesMethod | PluginFlatpakRepairMethod | PluginSetEELParamMethod | PluginResetEELParamsMethod | PluginSetVdcDbSelectionMethod ? undefined :
+    Method extends PluginKillJDSPMethod | PluginRelinkPW | PluginSetSettingMethod | PluginSetAppWatchMethod | PluginSetManuallyApplyProfilesMethod | PluginFlatpakRepairMethod | PluginSetEELParamMethod | PluginResetEELParamsMethod | PluginSetVdcDbSelectionMethod ? undefined :
     Method extends PluginInitProfilesMethod ? { manualPreset: string, allPresets: string, watchedGames: { [appId: string]: boolean }, manuallyApply: boolean } :
     Method extends PluginGetEELParamsAndDescMethod ? EELData :
     Method extends PluginGetVdcDbSelectionsMethod ? { [presetName: string]: string } :
@@ -150,6 +152,9 @@ export class Backend {
     }
     static async killJDSP() {
         return await this.callPlugin('kill_jdsp');
+    }
+    static async relinkPW() {
+        return await this.callPlugin('force_pw_relink');
     }
     static async initUser(userId: string, accountName: string, personaName: string) {
         return await this.callPlugin('init_user', userId, accountName, personaName);

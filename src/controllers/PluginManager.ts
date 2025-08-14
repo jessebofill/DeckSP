@@ -1,11 +1,13 @@
 import { Backend } from './Backend';
 import { Log } from '../lib/log';
 import { profileManager } from './ProfileManager';
-import { initSystemPerfStore, useError } from '../lib/utils';
+import { initSystemPerfStore, toast, useError } from '../lib/utils';
 import { DSPParamSettings } from '../types/dspTypes';
 import { PluginSettings, Static } from '../types/types';
 import { EUIMode, sleep, Unregisterable } from '@decky/ui';
 import { ELoginState } from '@decky/ui/dist/globals/steam-client/User';
+import { PLUGIN_NAME } from '../defines/constants';
+import { makeObservable, observable } from 'mobx';
 
 type PromiseKey = keyof typeof PluginManager.promises;
 type User = {
@@ -22,7 +24,12 @@ export class PluginManager {
         static?: Promise<Static | Error>
     } = {};
     private static uiMode?: EUIMode
+    private static isDisplayExternal?: boolean
+    static messages: string[] = [];
     static currentUser?: User;
+    static {
+        makeObservable(PluginManager, { messages: observable });
+    }
 
     static init() {
         let disposed = false;
@@ -60,6 +67,25 @@ export class PluginManager {
                 this.start();
             }
         }));
+
+        listeners.push(SteamClient.Settings.RegisterForSettingsChanges(settings => {
+            if (!this.isDisplayExternal && settings.bDisplayIsExternal) {
+                (async () => {
+                    toast(`${PLUGIN_NAME}: Detected external display`, 'Please wait while attempting required relink of audio pipeline', 8000)
+                    try {
+                        await Backend.relinkPW()
+                        toast(`${PLUGIN_NAME}: Finished audio pipeline relink`, 'External display audio should now work');
+                    } catch (e: any) {
+                        const title = 'Audio pipeline relink failed';
+                        const errMsg = ('message' in e) ? e.message : ''
+                        toast(`${PLUGIN_NAME}: ${title}`, errMsg);
+                        this.addMessage(`${title}; if audio is not working restart Steam${errMsg ? `\n${errMsg}` : ''}`)
+                    }
+                })();
+            }
+            this.isDisplayExternal = settings.bDisplayIsExternal
+        }))
+
         listeners.push(SteamClient.User.RegisterForShutdownStart(() => dispose()));
         return dispose;
     }
@@ -144,6 +170,10 @@ export class PluginManager {
 
     static isDesktopUI() {
         return this.uiMode === EUIMode.Desktop;
+    }
+
+    static addMessage(msg: string) {
+        this.messages.push(msg);
     }
 }
 

@@ -1,6 +1,8 @@
+import asyncio
 import os
 import re
 import subprocess
+import time
 from EelParser import EELParser
 from ddc import VdcDbHandler
 from extendedsettings import ExtendedSettings
@@ -8,7 +10,7 @@ from settings import SettingsManager
 
 from env import env
 from jdspproxy import JdspProxy
-from utils import SettingDef, compare_versions, flatpak_CMD, get_xauthority, wrap_error
+from utils import SettingDef, compare_versions, flatpak_CMD, get_xauthority, wrap_error, restart_wireplumber
 
 import decky
 
@@ -229,13 +231,42 @@ class Plugin:
         if xauth: new_env['XAUTHORITY'] = xauth
         flatpak_CMD(['kill', APPLICATION_ID], noCheck=True)
         with open(JDSP_LOG, "w") as jdsp_log:
-            subprocess.Popen(f'flatpak --user run {APPLICATION_ID} --tray', stdout=jdsp_log, stderr=jdsp_log, shell=True, env=new_env, universal_newlines=True)
+            # subprocess.Popen(f'flatpak --user run {APPLICATION_ID} --tray', stdout=jdsp_log, stderr=jdsp_log, shell=True, env=new_env, universal_newlines=True)
+            subprocess.Popen(f'flatpak --user run {APPLICATION_ID} --tray', shell=True, env=new_env, universal_newlines=True)
         return True # assume process has started ignoring errors so that the frontend doesn't hang. the jdsp process errors will be logged in its own file
 
     # general-frontend-call
     async def kill_jdsp(self):
         log.info('Killing JamesDSP')
         flatpak_CMD(['kill', APPLICATION_ID], noCheck=True)
+        
+    async def force_pw_relink(self):
+        timeout = 5
+        log.info('Attempting to relink pipewire')
+
+        try:
+            jdspRunning = APPLICATION_ID in flatpak_CMD(["ps", "--columns=application"]).stdout
+        except Exception:
+            msg = "Failed to detect if JamesDSP is running before attempting to restart wireplumber"
+            log.error(msg)
+            return wrap_error(msg)
+        try:
+            if jdspRunning:
+                log.info('Killing JamesDSP')
+                flatpak_CMD(['kill', APPLICATION_ID])
+        except Exception:
+            msg = "Failed to kill JamesDSP before attempting to restart wireplumber"
+            log.error(msg)
+            return wrap_error(msg)
+    
+        try:
+            log.info('Restarting wireplumber')
+            await restart_wireplumber(timeout, 2)
+            log.info('Wireplumber restarted')
+            await self.start_jdsp()
+        except Exception as e:
+            log.error(str(e))
+            return wrap_error(e)
 
     # general-frontend-call
     async def init_user(self, userId, accountName, personaName):
@@ -274,7 +305,7 @@ class Plugin:
         self._rename_legacy_presets(currentUser) # changes from 1.0.0
         presets = self.jdsp.get_presets()
         if JdspProxy.has_error(presets):
-            return wrap_error(str(presets))
+            return wrap_error(presets)
 
         return { 
             'manualPreset': OnDisk.user.profiles.getSetting(ProfileSetting.MANUAL_PRESET), 
