@@ -31,7 +31,7 @@ importers:
         specifier: ^1.0.1
         version: 1.0.1
       '@decky/ui':
-        specifier: ^4.7.2
+        specifier: ^4.10.4
         version: 4.10.4
       '@rollup/plugin-replace':
         specifier: ^6.0.2
