@@ -5,13 +5,12 @@ import { WaitToggle } from '../waitable/WaitToggle';
 import { getActiveAppId } from '../../lib/utils';
 import { globalAppId } from '../../defines/constants';
 import { QAMUnderTitleHider } from '../qam/QAMUnderTitleHider';
-import { observer } from 'mobx-react-lite';
 import { useManualProfilesState } from '../../hooks/useManualProfilesState';
 import { ManualProfilesDropdown } from './ManualProfilesDropdown';
 import { CurrentProfile } from './CurrentProfile';
 import { SetDefaultsButton } from './SetDefaultsButton';
 
-export const ProfileSettings: FC<{}> = observer(({ }) => {
+export const ProfileSettings: FC<{}> = ({ }) => {
     const { checked: perGameGecked, onChange: onChangePerGame } = usePerGameProfileState();
     const { useManual, onChangeUseManual, manualProfileId, onChangeManualProfile } = useManualProfilesState();
     if (!onChangePerGame || !onChangeUseManual || !onChangeManualProfile) return null;
@@ -40,4 +39,4 @@ export const ProfileSettings: FC<{}> = observer(({ }) => {
             </PanelSectionRow>
         </PanelSection>
     );
-});
+};

@@ -1,4 +1,4 @@
-import { IReactionDisposer, makeObservable, observable, reaction } from 'mobx';
+import { IReactionDisposer, makeObservable, observable } from 'mobx';
 import { MakeQueryablePromise, PromiseStatus, getActiveAppId, getAppName, useError } from '../lib/utils';
 import { Backend } from './Backend';
 import { DSPParamSettings } from '../types/dspTypes';
@@ -9,6 +9,7 @@ import { ToastAppliedProfile } from '../components/profile/ApplyProfileToast';
 import { globalAppId } from '../defines/constants';
 import { globalProfileName } from '../defines/constants';
 import { PluginManager } from './PluginManager';
+import { InternalMobx } from '../lib/internalMobxInstance';
 
 export namespace PresetToken {
     export const PREFIX = 'decksp';
@@ -105,7 +106,7 @@ export class ProfileManager {
     }
 
     private initActiveGameReaction() {
-        this.activeGameReactionDisposer = reaction(() => SteamUIStore.MainRunningAppID, this.onActiveGameChange.bind(this));
+        this.activeGameReactionDisposer = InternalMobx.reaction(() => SteamUIStore.MainRunningAppID, this.onActiveGameChange.bind(this));
     }
 
     private async onActiveGameChange(activeAppIdString: number = 769) {
