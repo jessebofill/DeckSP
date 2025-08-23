@@ -231,8 +231,7 @@ class Plugin:
         if xauth: new_env['XAUTHORITY'] = xauth
         flatpak_CMD(['kill', APPLICATION_ID], noCheck=True)
         with open(JDSP_LOG, "w") as jdsp_log:
-            # subprocess.Popen(f'flatpak --user run {APPLICATION_ID} --tray', stdout=jdsp_log, stderr=jdsp_log, shell=True, env=new_env, universal_newlines=True)
-            subprocess.Popen(f'flatpak --user run {APPLICATION_ID} --tray', shell=True, env=new_env, universal_newlines=True)
+            subprocess.Popen(f'flatpak --user run {APPLICATION_ID} --tray', stdout=jdsp_log, stderr=jdsp_log, shell=True, env=new_env, universal_newlines=True)
         return True # assume process has started ignoring errors so that the frontend doesn't hang. the jdsp process errors will be logged in its own file
 
     # general-frontend-call
