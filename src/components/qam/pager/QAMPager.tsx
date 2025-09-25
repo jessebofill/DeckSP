@@ -46,8 +46,8 @@ export const QAMPager: FC<QAMPagerProps> = ({ children, pagerLinker, noWrap }) =
     useEffect(() => pagerLinker.linkPager(setPage, pages.length), [pages.length, pagerLinker]);
 
     return (
-        //@ts-ignore
-        <Focusable retainFocus={true}>
+        //@ts-ignore valve removed focucable props 'retainFocus' and 'focusableIfNoChildren'and replaced them with 'focusableIfEmpty' in Steam Client build 9-23-25
+        <Focusable focusableIfEmpty={true}> 
             <Focusable
                 onButtonDown={(evt: GamepadEvent) => {
                     switch (evt.detail.button) {
