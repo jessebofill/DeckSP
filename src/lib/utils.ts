@@ -1,7 +1,7 @@
 import { SFXPath, GamepadUIAudio } from './GamepadUIAudio';
 import { DSPParameter, DSPParameterCompResponse, DSPParameterEQParameters, DSPParameterType, PresetSectionType, PresetTable } from '../types/dspTypes';
 import { Log } from './log';
-import { findModuleChild, getFocusNavController, Module, Navigation } from '@decky/ui';
+import { findModuleExport, getFocusNavController, Navigation } from '@decky/ui';
 import { dspParamDefines, dspScaledParams } from '../defines/dspParameterDefines';
 import { toaster } from '@decky/api';
 import { ReactNode } from 'react';
@@ -81,12 +81,7 @@ export function MakeQueryablePromise(promise: Promise<any>) {
 }
 
 export function initSystemPerfStore() {
-    window.SystemPerfStore || findModuleChild((m: Module) => {
-        if (typeof m !== "object") return undefined;
-        for (let prop in m) {
-            if (m[prop]?.prototype?.SetPerfOverlayLevel) return m[prop];
-        }
-    })?.Get();
+    window.SystemPerfStore || findModuleExport(e => e.prototype?.SetPerfOverlayLevel)?.Get();
 }
 
 export function useError(message: string, exception?: any) {

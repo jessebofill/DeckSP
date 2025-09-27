@@ -1,4 +1,4 @@
-import { findModuleChild, Module } from '@decky/ui';
+import { findModuleExport } from '@decky/ui';
 import { CSSProperties, FC } from 'react';
 
 export enum AppArtworkAssetType {
@@ -27,9 +27,4 @@ interface AppImageProps {
     style?: CSSProperties;
 }
 
-export const AppImage: FC<AppImageProps> = findModuleChild((m: Module) => {
-    if (typeof m !== "object") return undefined;
-    for (let prop in m) {
-        if (m[prop]?.prototype?.GetSourcesForAsset) return m[prop];
-    }
-});
+export const AppImage: FC<AppImageProps> = findModuleExport(e => e.prototype?.GetSourcesForAsset);
