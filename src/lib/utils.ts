@@ -37,7 +37,7 @@ export function formatDspValue<Param extends DSPParameter>(parameter: Param, val
             value) as ParamSendValueType<Param>;
 }
 
-export function getThrottled(func: Function, wait: number) {
+export function getDebounced(func: Function, wait: number) {
     let timeout: NodeJS.Timeout | null;
     return function (this: any, ..._: any[]) {
         const context = this, args = arguments;

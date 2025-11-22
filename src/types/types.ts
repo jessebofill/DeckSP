@@ -23,6 +23,7 @@ export type PluginSettings = {
     enableInDesktop: boolean;
     dspPageOrder: DSPPageOrder;
     disableProfileToasts: boolean;
+    restartPipelineOnDeviceDetect: string[];
 };
 
 export type PluginStateData = {

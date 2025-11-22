@@ -18,7 +18,6 @@ export const SocialButton: FC17<SocialButtonProps> = ({ children, icon, url, fon
         <QAMHiglightable bottomSeparator={bottomSeparator}>
             <Focusable
                 style={{ display: 'flex', gap: gap ?? '15px' }}
-                //@ts-ignore
                 navEntryPreferPosition={2}
             >
                 <div style={{ display: 'flex', fontSize: '1.5em', justifyContent: 'center', alignItems: 'center' }}>

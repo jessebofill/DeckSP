@@ -80,11 +80,12 @@ async def restart_wireplumber(timeout: float, post_delay: float):
         try:
             result = subprocess.run(
                 [
-                    "jq", '-c',
-                    '.[] | select(.type == "PipeWire:Interface:Node") | '
-                    'select(.info.props["media.class"] == "Audio/Sink") | '
-                    'select(.info.props["node.name"] | test("HiFi__Speaker__sink")) | '
-                    '{id: .id, name: .info.props["node.name"]}'
+                    'jq', '-c',
+                    '.[] '
+                    '| select(.type == "PipeWire:Interface:Node") '
+                    '| select(.info.props["media.class"] == "Audio/Sink") '
+                    '| select(.info.props["node.description"] != null) '
+                    '| {id: .id, desc: .info.props["node.description"]}'
                 ],
                 input=dump,
                 capture_output=True, 

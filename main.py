@@ -29,9 +29,11 @@ class Setting(SettingDef):
     ENABLE_IN_DESKTOP = 'enableInDesktop'
     DSP_PAGE_ORDER = 'dspPageOrder'
     DISABLE_PROFILE_TOAST = 'disableProfileToasts'
+    RESTART_PIPELINE_ON_DEVICE = 'restartPipelineOnDeviceDetect'
 
     class Defaults:
         ENABLE_IN_DESKTOP = False
+        RESTART_PIPELINE_ON_DEVICE = []
         
 
 class ProfileSetting(SettingDef):

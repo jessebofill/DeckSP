@@ -1,13 +1,13 @@
 import { Backend } from './Backend';
 import { Log } from '../lib/log';
 import { profileManager } from './ProfileManager';
-import { initSystemPerfStore, toast, useError } from '../lib/utils';
+import { getDebounced, initSystemPerfStore, toast, useError } from '../lib/utils';
 import { DSPParamSettings } from '../types/dspTypes';
 import { PluginSettings, Static } from '../types/types';
 import { EUIMode, sleep, Unregisterable } from '@decky/ui';
 import { ELoginState } from '@decky/ui/dist/globals/steam-client/User';
 import { PLUGIN_NAME } from '../defines/constants';
-import { makeObservable, observable } from 'mobx';
+import { IReactionDisposer, makeObservable, observable, reaction } from 'mobx';
 
 type PromiseKey = keyof typeof PluginManager.promises;
 type User = {
@@ -23,24 +23,28 @@ export class PluginManager {
         pluginSettings?: Promise<PluginSettings | Error>
         static?: Promise<Static | Error>
     } = {};
-    private static uiMode?: EUIMode
-    private static isDisplayExternal?: boolean
+    private static uiMode?: EUIMode;
+    static currentAudioDevice: string = '';
+    static detectedAudioDevices: string[] = [];
     static messages: string[] = [];
     static currentUser?: User;
     static {
-        makeObservable(PluginManager, { messages: observable });
+        makeObservable(PluginManager, { messages: observable, detectedAudioDevices: observable, currentAudioDevice: observable });
     }
 
     static init() {
         let disposed = false;
         const listeners: Unregisterable[] = [];
+        const reactionsDisposers: IReactionDisposer[] = [];
         const dispose = () => {
             if (!disposed) {
                 this.killJDSP();
-                listeners.forEach(listener => listener.unregister());
+                listeners.forEach(listener => listener?.unregister());
+                reactionsDisposers.forEach(dispose => dispose());
                 disposed = true;
             }
         };
+        reactionsDisposers.push(reaction(() => this.currentAudioDevice, device => this.autoRestartPipeline(device)));
 
         initSystemPerfStore();
         listeners.push(SteamClient.User.RegisterForLoginStateChange((_, loginState) => {
@@ -68,23 +72,11 @@ export class PluginManager {
             }
         }));
 
-        listeners.push(SteamClient.Settings.RegisterForSettingsChanges(settings => {
-            if (!this.isDisplayExternal && settings.bDisplayIsExternal) {
-                (async () => {
-                    toast(`${PLUGIN_NAME}: Detected external display`, 'Please wait while attempting required relink of audio pipeline', 8000)
-                    try {
-                        await Backend.relinkPW()
-                        toast(`${PLUGIN_NAME}: Finished audio pipeline relink`, 'External display audio should now work');
-                    } catch (e: any) {
-                        const title = 'Audio pipeline relink failed';
-                        const errMsg = ('message' in e) ? e.message : ''
-                        toast(`${PLUGIN_NAME}: ${title}`, errMsg);
-                        this.addMessage(`${title}; if audio is not working restart Steam${errMsg ? `\n${errMsg}` : ''}`)
-                    }
-                })();
-            }
-            this.isDisplayExternal = settings.bDisplayIsExternal
-        }))
+        //SteamClient.System registerers don't seem to return unregisterers
+        listeners.push(SteamClient.System.Audio.RegisterForDeviceAdded(device => {
+            if (!this.detectedAudioDevices.includes(device.sName)) this.detectedAudioDevices.push(device.sName);
+            if (device.bIsDefaultOutputDevice) this.currentAudioDevice = device.sName;
+        }));
 
         listeners.push(SteamClient.User.RegisterForShutdownStart(() => dispose()));
         return dispose;
@@ -92,6 +84,13 @@ export class PluginManager {
 
     private static async start() {
         profileManager.active = true;
+        const audioDevices = (await SteamClient.System.Audio.GetDevices()).vecDevices.map(device => device.sName);
+        audioDevices.forEach(device => !this.detectedAudioDevices.includes(device) && this.detectedAudioDevices.push(device));
+        this.promises.pluginSettings?.then(settings => {
+            if (settings instanceof Error) return;
+            settings.restartPipelineOnDeviceDetect.forEach(device => !this.detectedAudioDevices.includes(device) && this.detectedAudioDevices.push(device));
+        });
+
         if (!await this.isJDSPReady()) {
             Log.log('Starting James DSP...')
             this.promises.jdspLoaded = Backend.startJDSP()
@@ -150,7 +149,7 @@ export class PluginManager {
 
     static async killJDSP() {
         profileManager.active = false;
-        Log.log('Killing JamesDSP')
+        Log.log('Killing JamesDSP');
         this.promises.jdspLoaded = (async () => {
             await Backend.killJDSP().catch((e) => useError('Problem trying to kill JamesDSP', e));
             return false;
@@ -175,5 +174,23 @@ export class PluginManager {
     static addMessage(msg: string) {
         this.messages.push(msg);
     }
-}
+    
+    static autoRestartPipeline = getDebounced(async (device: string) => {
+        const settings = await this.promises.pluginSettings;
+        if (!settings || settings instanceof Error) return;
+        if (settings.restartPipelineOnDeviceDetect.includes(device)) this.restartPipeline(true);
+    }, 500);
 
+    static async restartPipeline(isAuto?: boolean) {
+        toast(`${PLUGIN_NAME}${isAuto ? ': Auto restart device detected' : ''}`, 'Please wait while audio pipeline is restarted', 5000)
+        try {
+            await Backend.relinkPW()
+            toast(`${PLUGIN_NAME}`, 'Finished restarting audio pipeline');
+        } catch (e: any) {
+            const title = 'Audio pipeline restart failed';
+            const errMsg = ('message' in e) ? e.message : ''
+            toast(`${PLUGIN_NAME}: ${title}`, errMsg);
+            this.addMessage(`${title}; if audio is not working restart Steam${errMsg ? `\n${errMsg}` : ''}`);
+        }
+    }
+}

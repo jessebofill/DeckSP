@@ -1,9 +1,9 @@
-import { FC } from 'react';
+import { FC, useState } from 'react';
 import { ProfileSettings } from '../../profile/ProfileSettings';
 import { FixFlatpak } from '../../other/FixFlatpak';
 import { QAMPage } from './QAMPage';
 import { usePluginStateContext } from '../../../hooks/contextHooks';
-import { Focusable, Navigation, PanelSection, PanelSectionRow } from '@decky/ui';
+import { ButtonItem, Field, Focusable, Navigation, PanelSection, PanelSectionRow } from '@decky/ui';
 import { QAMHiglightable } from '../QAMHiglightable';
 import { FaCircleExclamation, FaCircleInfo } from 'react-icons/fa6';
 import { infoRoute } from '../../../defines/constants';
@@ -15,6 +15,9 @@ import { useUpdateSetting } from '../../../hooks/useUpdateSetting';
 import { DisableProfileToastsToggle } from '../DisableProfileToastsToggle';
 import { PluginManager } from '../../../controllers/PluginManager';
 import { observer } from 'mobx-react-lite';
+import { WaitToggle } from '../../waitable/WaitToggle';
+import { playUISound } from '../../../lib/utils';
+import { TbCaretDownFilled } from "react-icons/tb";
 
 export const QAMPluginSettingsPage: FC<{}> = ({ }) => {
     const { data } = usePluginStateContext();
@@ -36,6 +39,12 @@ export const QAMPluginSettingsPage: FC<{}> = ({ }) => {
                 <PanelSectionRow>
                     <DisableProfileToastsToggle />
                 </PanelSectionRow>
+                <PanelSectionRow>
+                    <ButtonItem description='Try this if there is no audio' layout='below' onClick={() => PluginManager.restartPipeline()}>
+                        Restart Audio Pipeline
+                    </ButtonItem>
+                </PanelSectionRow>
+                <AutoRestart />
                 <QAMHiglightable>
                     <Focusable
                         onActivate={() => Navigation.Navigate(infoRoute)}
@@ -74,4 +83,59 @@ export const WarningMessages: FC = observer(() => {
                 ))}
             </div>
         );
+});
+
+export const AutoRestart: FC = observer(() => {
+    const { data } = usePluginStateContext();
+    if (!data) return null;
+
+    const [isOpen, setIsOpen] = useState(false);
+    const updateSetting = useUpdateSetting('restartPipelineOnDeviceDetect');
+    const onChange = (deviceName: string, checked: boolean) => {
+        if (checked) {
+            if (!data.settings.restartPipelineOnDeviceDetect.includes(deviceName)) {
+                updateSetting([...data.settings.restartPipelineOnDeviceDetect, deviceName]);
+            }
+        } else {
+            if (data.settings.restartPipelineOnDeviceDetect.includes(deviceName)) {
+                updateSetting(data.settings.restartPipelineOnDeviceDetect.filter(device => device !== deviceName));
+            }
+        }
+    }
+
+    return (
+        <PanelSectionRow >
+            <Field
+                onActivate={() => {
+                    playUISound('/sounds/deck_ui_misc_01.wav');
+                    setIsOpen(isOpen => !isOpen);
+                }}
+                label={
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+                        <div>
+                            Auto Restart Pipeline
+                        </div>
+                        <div style={{ paddingRight: '10px' }}>
+                            <TbCaretDownFilled
+                                style={{
+                                    transform: !isOpen ? "rotate(90deg)" : "",
+                                    transition: "transform 0.2s ease-in-out",
+                                }}
+                            />
+                        </div>
+                    </div>
+                }
+                description='Automatically restart audio pipeline when selected devices become the active device'
+            >
+            </Field>
+            {isOpen && (
+                <div style={{ padding: "10px 18px" }}>
+                    {PluginManager.detectedAudioDevices.filter(device => device !== 'jamesdsp_sink' && device !== 'auto_null').map(device => (
+                        <PanelSectionRow key={device}>
+                            <WaitToggle label={device} checked={data.settings.restartPipelineOnDeviceDetect.includes(device)} onChange={checked => onChange(device, checked)} />
+                        </PanelSectionRow>
+                    ))}
+                </div>)}
+        </PanelSectionRow>
+    );
 });
