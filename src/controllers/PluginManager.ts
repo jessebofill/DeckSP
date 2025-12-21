@@ -1,11 +1,10 @@
 import { Backend } from './Backend';
 import { Log } from '../lib/log';
 import { profileManager } from './ProfileManager';
-import { getDebounced, initSystemPerfStore, toast, useError } from '../lib/utils';
+import { getDebounced, initSystemPerfStore, toast, useError, waitForCondition } from '../lib/utils';
 import { DSPParamSettings } from '../types/dspTypes';
 import { PluginSettings, Static } from '../types/types';
 import { EUIMode, sleep, Unregisterable } from '@decky/ui';
-import { ELoginState } from '@decky/ui/dist/globals/steam-client/User';
 import { PLUGIN_NAME } from '../defines/constants';
 import { IReactionDisposer, makeObservable, observable, reaction } from 'mobx';
 
@@ -22,7 +21,7 @@ export class PluginManager {
         profileManagerLoaded?: Promise<DSPParamSettings | Error>
         pluginSettings?: Promise<PluginSettings | Error>
         static?: Promise<Static | Error>
-    } = {};
+    } = { jdspLoaded: Promise.resolve(new Error('James DSP has not been started yet')) };
     private static uiMode?: EUIMode;
     static currentAudioDevice: string = '';
     static detectedAudioDevices: string[] = [];
@@ -47,22 +46,27 @@ export class PluginManager {
         reactionsDisposers.push(reaction(() => this.currentAudioDevice, device => this.autoRestartPipeline(device)));
 
         initSystemPerfStore();
-        listeners.push(SteamClient.User.RegisterForLoginStateChange((_, loginState) => {
-            if (loginState === ELoginState.Success) {
-                const { strAccountName: name, strSteamID: id } = App.GetCurrentUser();
-                const persona = App.cm.persona_name;
-                this.currentUser = { name, id, persona };
-            }
-        }));
+        (async () => {
+            if (!await waitForCondition(12, 1000, () => App?.BHasCurrentUser())) return;
+
+            const { strAccountName: name, strSteamID: id } = App.GetCurrentUser();
+            const persona = App.cm.persona_name;
+            this.currentUser = { name, id, persona };
+        })();
 
         listeners.push(SteamClient.UI.RegisterForUIModeChanged(async uiMode => {
             if (this.uiMode === uiMode) return;
             else this.uiMode = uiMode;
-            while (!this.currentUser) {
-                await sleep(2000);
+
+            const retries = 8;
+            const delay = 2000;
+            if (!await waitForCondition(retries, delay, () => !!this.currentUser)) {
+                const error = useError(`No Steam user login detected after ${retries * delay / 1000} second time limit`);
+                this.promises.pluginSettings = Promise.resolve(error);
+                return;
             }
 
-            this.promises.pluginSettings = Backend.initUser(this.currentUser.id, this.currentUser.name, this.currentUser.persona).catch((e) => useError('Problem initializing user', e));
+            this.promises.pluginSettings = Backend.initUser(this.currentUser!.id, this.currentUser!.name, this.currentUser!.persona).catch((e) => useError('Problem initializing user', e));
             const settings = await this.promises.pluginSettings;
             if (uiMode === EUIMode.Desktop) {
                 if (!(settings instanceof Error) && settings.enableInDesktop) this.start();
@@ -174,7 +178,7 @@ export class PluginManager {
     static addMessage(msg: string) {
         this.messages.push(msg);
     }
-    
+
     static autoRestartPipeline = getDebounced(async (device: string) => {
         const settings = await this.promises.pluginSettings;
         if (!settings || settings instanceof Error) return;

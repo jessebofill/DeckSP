@@ -1,7 +1,7 @@
 import { SFXPath, GamepadUIAudio } from './GamepadUIAudio';
 import { DSPParameter, DSPParameterCompResponse, DSPParameterEQParameters, DSPParameterType, PresetSectionType, PresetTable } from '../types/dspTypes';
 import { Log } from './log';
-import { findModuleExport, getFocusNavController, Navigation } from '@decky/ui';
+import { findModuleExport, getFocusNavController, Navigation, sleep } from '@decky/ui';
 import { dspParamDefines, dspScaledParams } from '../defines/dspParameterDefines';
 import { toaster } from '@decky/api';
 import { ReactNode } from 'react';
@@ -113,4 +113,17 @@ export function navigateUrl(url: string) {
 
 export function getFocusNav() {
     return getFocusNavController() as FocusNavController | undefined;
+}
+
+export async function waitForCondition(retries: number, delay: number, check: () => (boolean | Promise<boolean>)): Promise<boolean> {
+    const waitImpl = async (): Promise<boolean> => {
+        let tries = retries + 1;
+        while (tries-- !== 0) {
+            if (await check()) return true;
+            if (tries > 0) await sleep(delay);
+        }
+        return false;
+    };
+
+    return await waitImpl();
 }
